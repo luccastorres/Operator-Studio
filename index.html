@@ -1,0 +1,897 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Operator Studio: sistemas, sites, marca e conteúdo com IA para o seu negócio.">
+<meta property="og:title" content="Operator Studio">
+<meta property="og:description" content="Sua empresa, operada com IA.">
+<link rel="icon" href="favicon.png">
+<title>Operator Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400&family=Hanken+Grotesk:wght@300;400;500;600&display=swap">
+<style>
+/* Layout: editorial single page; linen ground, ink "console" bands where the system is shown working */
+:root{
+  --ink:#151412; --ink-2:#22201c; --ink-line:#3a3631;
+  --linen:#F3F1EC; --linen-2:#EAE6DF; --line:#D9D3C9;
+  --taupe:#7E7669; --sand:#B5AEA2; --soft:#5F594F;
+  --ok:#6E8B6A;
+  --serif:'Tinos','Times New Roman',Georgia,serif;
+  --sans:'Hanken Grotesk','Helvetica Neue',Arial,sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--linen);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.6;margin:0}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:clamp(16px,4vw,40px)}
+h1,h2,h3{font-family:var(--serif);font-weight:700;line-height:1.05;margin:0;text-wrap:balance}
+h1 em,h2 em,h3 em{font-weight:400;color:var(--taupe)}
+.dark h2 em,.dark h3 em{color:var(--sand)}
+p{margin:0}
+.eyebrow{font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:var(--taupe);font-weight:500}
+.dark .eyebrow{color:var(--sand)}
+a{color:inherit}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--taupe);outline-offset:3px}
+
+/* nav */
+.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:rgba(243,241,236,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:14px}
+.logo{font-family:var(--serif);font-size:24px;line-height:1;text-decoration:none;white-space:nowrap}
+.logo b{font-weight:700}.logo i{color:var(--taupe)}
+.nav-links{display:flex;gap:28px;font-size:14px}
+.nav-links a{text-decoration:none;color:var(--soft)}
+.nav-links a:hover{color:var(--ink)}
+.nav-right{display:flex;align-items:center;gap:12px}
+.lang{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.lang button{background:none;border:0;padding:6px 12px;font-size:12px;letter-spacing:.1em;color:var(--soft)}
+.lang button[aria-pressed="true"]{background:var(--ink);color:var(--linen)}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:14px 22px;border-radius:999px;background:var(--ink);color:var(--linen);text-decoration:none;font-weight:500;font-size:15px;border:1px solid var(--ink);transition:transform .2s,background .2s}
+.btn:hover{transform:translateY(-1px)}
+.btn.ghost{background:transparent;color:var(--ink)}
+.dark .btn{background:var(--linen);color:var(--ink);border-color:var(--linen)}
+.dark .btn.ghost{background:transparent;color:var(--linen)}
+.btn.sm{padding:9px 16px;font-size:13px}
+@media(max-width:860px){.nav-links{display:none}}
+@media(max-width:420px){.nav .btn.sm{display:none}}
+
+/* hero */
+.hero{padding-block:clamp(56px,9vw,110px) clamp(48px,7vw,90px)}
+.hero .wrap{display:grid;grid-template-columns:1.1fr .9fr;gap:56px;align-items:center}
+.hero h1{font-size:clamp(46px,7.4vw,96px);letter-spacing:-.02em}
+.hero h1 em{display:block}
+.hero .lede{font-size:clamp(17px,1.6vw,20px);color:var(--soft);max-width:520px;margin-top:28px}
+.hero .ctas{display:flex;flex-wrap:wrap;gap:12px;margin-top:36px}
+.hero .meta{display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:40px;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--taupe)}
+.console{background:var(--ink);color:var(--linen-2);border-radius:14px;padding:22px;font-size:14px;box-shadow:0 40px 80px -30px rgba(21,20,18,.45);min-width:0}
+.console-head{display:flex;justify-content:space-between;align-items:center;padding-bottom:14px;border-bottom:1px solid var(--ink-line);margin-bottom:14px}
+.console-head span{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--sand)}
+.live{display:inline-flex;align-items:center;gap:8px}
+.live:before{content:"";width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 4px rgba(110,139,106,.25);animation:pulse 2s infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 7px rgba(110,139,106,0)}}
+.log{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;min-height:252px}
+.log li{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:baseline;animation:in .5s ease both}
+.log .t{font-variant-numeric:tabular-nums;color:var(--sand);font-size:12px}
+.log .s{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ok)}
+.log .s.run{color:var(--sand)}
+@keyframes in{from{opacity:.2;transform:translateY(6px)}}
+.console-foot{margin-top:16px;padding-top:14px;border-top:1px solid var(--ink-line);display:flex;justify-content:space-between;font-size:12px;color:var(--sand)}
+@media(max-width:900px){.hero .wrap{grid-template-columns:1fr}}
+
+
+/* scroll story (hero) */
+.story{position:relative;height:560vh;background:radial-gradient(120% 80% at 50% 30%,#F7F5F1 0%,var(--linen) 55%,#E9E4DB 100%)}
+.pin{position:sticky;top:calc(env(safe-area-inset-top,0px) + 62px);height:calc(100vh - 62px);overflow:hidden;display:grid;grid-template-rows:auto 1fr auto}
+.story-top{text-align:center;padding:clamp(18px,3.4vh,40px) 16px 0;display:flex;flex-direction:column;align-items:center;gap:10px;transition:opacity .2s}
+.story-top h1{font-size:clamp(34px,5.4vw,74px);letter-spacing:-.02em}
+.story-top .sub{font-size:13px;letter-spacing:.24em;text-transform:uppercase;color:var(--taupe)}
+.stage{position:relative;display:grid;place-items:center;perspective:1600px;min-height:0}
+.word{position:absolute;top:50%;font-family:var(--serif);font-size:clamp(22px,3vw,44px);line-height:1;text-transform:uppercase;letter-spacing:.02em;color:var(--ink);pointer-events:none;width:22%;will-change:transform,opacity}
+.word.l{left:clamp(16px,4vw,64px);text-align:left}
+.word.r{right:clamp(16px,4vw,64px);text-align:right}
+.word span{display:block;font-family:var(--sans);font-size:11px;letter-spacing:.24em;color:var(--taupe);margin-top:12px;text-transform:uppercase}
+.device{position:relative;width:min(640px,54vw);transform-style:preserve-3d;will-change:transform}
+.lid{background:#1b1a18;border-radius:14px 14px 4px 4px;padding:1.6%;box-shadow:0 50px 90px -40px rgba(21,20,18,.55),0 0 0 1px #2c2a27 inset}
+.screen{position:relative;aspect-ratio:16/10;background:#FBFAF7;border-radius:6px;overflow:hidden;container-type:inline-size}
+.base{height:14px;margin:0 -7%;background:linear-gradient(180deg,#CFCAC2,#A9A39A);border-radius:0 0 18px 18px;position:relative}
+.base:before{content:"";position:absolute;left:42%;right:42%;top:0;height:5px;background:#9a948b;border-radius:0 0 8px 8px}
+.shadow{position:absolute;left:4%;right:4%;bottom:-38px;height:30px;background:radial-gradient(50% 50% at 50% 50%,rgba(21,20,18,.28),transparent);filter:blur(6px)}
+.scene{position:absolute;inset:0;padding:5cqw 6cqw;display:flex;flex-direction:column;gap:2.4cqw;color:var(--ink);will-change:opacity,transform}
+.sc-bar{display:flex;justify-content:space-between;align-items:center;font-size:1.6cqw;letter-spacing:.18em;text-transform:uppercase;color:var(--taupe);border-bottom:1px solid #E6E1D8;padding-bottom:1.6cqw}
+.sc-bar b{font-family:var(--serif);letter-spacing:0;text-transform:none;font-size:2.4cqw;color:var(--ink)}
+/* s0 brief */
+.brief{display:grid;grid-template-columns:1.1fr .9fr;gap:4cqw;flex:1;align-items:center}
+.brief h5{font-family:var(--serif);font-size:5.6cqw;line-height:1.05;margin:0;font-weight:700}
+.brief h5 i{font-weight:400;color:var(--taupe)}
+.checks{display:flex;flex-direction:column;gap:1.8cqw}
+.ck{display:flex;align-items:center;gap:1.6cqw;font-size:2cqw;padding:1.6cqw 2cqw;border:1px solid #E6E1D8;border-radius:1.2cqw;background:#fff}
+.ck i{width:2.6cqw;height:2.6cqw;border-radius:50%;background:var(--ink);flex:none;display:grid;place-items:center}
+.ck i:after{content:"";width:1cqw;height:.55cqw;border:solid var(--linen);border-width:0 0 .3cqw .3cqw;transform:rotate(-45deg) translate(.1cqw,-.1cqw)}
+/* s1 brand */
+.brandsc{flex:1;display:grid;grid-template-columns:1fr auto;align-items:center;gap:4cqw}
+.bw{font-family:var(--serif);font-size:8.4cqw;line-height:1}
+.bw b{font-weight:700}.bw i{color:#B0896B}
+.btag{font-size:1.7cqw;letter-spacing:.3em;text-transform:uppercase;color:var(--taupe);margin-top:2cqw}
+.bmono{width:15cqw;height:15cqw;border-radius:50%;border:.3cqw solid #B0896B;display:grid;place-items:center;font-family:var(--serif);font-size:6cqw}
+.bpal{display:grid;grid-template-columns:repeat(4,1fr);height:6cqw;border-radius:1cqw;overflow:hidden}
+/* s2 site */
+.mini-nav{display:flex;justify-content:space-between;align-items:center;font-size:1.7cqw;color:var(--soft)}
+.mini-nav b{font-family:var(--serif);font-size:2.6cqw;color:var(--ink)}
+.mini-nav span{display:flex;gap:3cqw}
+.sitehero{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:3cqw;align-items:stretch}
+.sitehero h5{font-family:var(--serif);font-size:6cqw;line-height:1.02;margin:0;font-weight:700}
+.sitehero h5 i{font-weight:400;color:#B0896B}
+.sitehero p{font-size:1.9cqw;color:var(--soft);margin-top:2cqw}
+.pill{display:inline-block;margin-top:3cqw;background:var(--ink);color:var(--linen);font-size:1.8cqw;padding:1.5cqw 3cqw;border-radius:99px}
+.photo{border-radius:1.4cqw;background:radial-gradient(60% 70% at 60% 35%,#E9D9C7 0%,#D2B79A 45%,#9C7B5E 100%);position:relative;overflow:hidden}
+.photo:before{content:"";position:absolute;width:44%;height:62%;left:30%;top:18%;border-radius:50% 50% 46% 46%;background:radial-gradient(60% 60% at 45% 35%,#5B3F2E,#2E1F17)}
+.photo:after{content:"";position:absolute;left:18%;right:18%;bottom:-10%;height:36%;border-radius:50% 50% 0 0;background:#EFE8DE}
+/* s3 crm */
+.mcrm{flex:1;display:grid;grid-template-columns:repeat(4,1fr);gap:1.4cqw}
+.mcol{background:#F1EDE6;border-radius:1.2cqw;padding:1.4cqw;display:flex;flex-direction:column;gap:1.2cqw}
+.mcol h6{margin:0;font-size:1.4cqw;letter-spacing:.14em;text-transform:uppercase;color:var(--taupe);font-weight:500}
+.mcard{background:#fff;border:1px solid #E6E1D8;border-radius:1cqw;padding:1.2cqw;font-size:1.6cqw;display:flex;flex-direction:column;gap:.3cqw}
+.mcard b{font-weight:600}.mcard small{color:var(--taupe);font-size:1.4cqw}
+.mcard.hl{border-color:var(--ink);box-shadow:0 .6cqw 1.6cqw rgba(21,20,18,.12)}
+/* s4 agenda */
+.agenda{flex:1;display:grid;grid-template-columns:auto repeat(6,1fr);gap:.8cqw;font-size:1.5cqw}
+.agenda .h{color:var(--taupe);text-align:center;letter-spacing:.1em;text-transform:uppercase;font-size:1.3cqw}
+.agenda .t{color:var(--taupe);font-variant-numeric:tabular-nums;padding-right:.8cqw;align-self:center}
+.slot{border-radius:.8cqw;background:#F1EDE6;min-height:4.4cqw;padding:.6cqw .8cqw;display:flex;align-items:center;font-size:1.4cqw;transition:background .35s,color .35s}
+.slot.on{background:var(--ink);color:var(--linen)}
+.occ{font-family:var(--serif);font-size:2.6cqw}
+/* phone */
+.phone{position:absolute;right:-9%;bottom:-6%;width:24%;aspect-ratio:9/19;background:#1b1a18;border-radius:2.2vw;padding:.7vw;box-shadow:0 40px 70px -30px rgba(21,20,18,.6);opacity:0;will-change:transform,opacity;transform:translateZ(60px)}
+.phone .ps{width:100%;height:100%;border-radius:1.6vw;background:#ECE6DC;container-type:inline-size;display:flex;flex-direction:column;overflow:hidden}
+.phone .ph{background:#2E2B27;color:#EAE6DF;font-size:6cqw;padding:7cqw 6cqw 4cqw;font-weight:600}
+.phone .ph small{display:block;font-weight:400;font-size:4.6cqw;color:#B5AEA2}
+.phone .bub{margin:6cqw;background:#fff;border-radius:5cqw 5cqw 5cqw 1.4cqw;padding:5cqw;font-size:5.6cqw;line-height:1.4;color:var(--ink)}
+.phone .bub.me{background:#DCD3C4;align-self:flex-end;border-radius:5cqw 5cqw 1.4cqw 5cqw;margin-top:0;font-size:5.6cqw}
+.story-foot{display:flex;justify-content:space-between;align-items:end;gap:16px;padding:0 clamp(16px,4vw,64px) clamp(16px,3vh,32px)}
+.counter{display:flex;flex-direction:column;gap:8px;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--taupe)}
+.counter b{font-family:var(--serif);font-size:22px;letter-spacing:0;color:var(--ink);font-weight:400}
+.prog{width:120px;height:2px;background:var(--line);position:relative}
+.prog i{position:absolute;left:0;top:0;bottom:0;background:var(--ink);width:0}
+.cap{max-width:300px;text-align:right;font-size:14px;color:var(--soft)}
+.cap b{display:block;font-family:var(--serif);font-size:18px;color:var(--ink);margin-bottom:4px}
+.hint{display:flex;align-items:center;gap:10px;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--taupe)}
+.hint:before{content:"";width:1px;height:28px;background:linear-gradient(var(--taupe),transparent);animation:drip 1.8s infinite}
+@keyframes drip{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+@media(max-width:820px){
+ .story{height:600vh}
+ .device{width:min(560px,82vw)}
+ .word{top:auto;bottom:0;width:46%;font-size:clamp(18px,5vw,26px)}
+ .word.l{left:16px}.word.r{right:16px}
+ .word span{display:none}
+ .stage{align-content:center;padding-bottom:56px}
+ .cap{display:none}
+ .phone{right:-4%;width:28%;border-radius:12px;padding:4px}.phone .ps{border-radius:9px}
+}
+
+/* sections */
+section{padding-block:clamp(64px,9vw,120px)}
+.sec-head{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:end;margin-bottom:56px}
+.sec-head h2{font-size:clamp(36px,5vw,64px)}
+.sec-head>p{color:var(--soft);max-width:480px;justify-self:end}
+.dark{background:var(--ink);color:var(--linen-2)}
+.dark .sec-head>p{color:var(--sand)}
+@media(max-width:820px){.sec-head{grid-template-columns:1fr}.sec-head>p{justify-self:start}}
+
+/* about */
+.about{display:grid;grid-template-columns:.9fr 1.1fr;gap:64px;align-items:start}
+.about h2{font-size:clamp(36px,5vw,60px)}
+.about .body{display:flex;flex-direction:column;gap:20px;font-size:18px;color:var(--soft)}
+.about .body p:first-child{font-family:var(--serif);font-size:clamp(22px,2.4vw,28px);line-height:1.35;color:var(--ink)}
+.houses{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--line);margin-top:56px}
+.house{padding:24px 20px 4px 0;display:flex;flex-direction:column;gap:6px;min-width:0}
+.house+.house{padding-left:20px;border-left:1px solid var(--line)}
+.house b{font-family:var(--serif);font-size:20px}
+.house span{font-size:14px;color:var(--soft)}
+@media(max-width:820px){.about{grid-template-columns:1fr;gap:28px}.houses{grid-template-columns:1fr 1fr}.house:nth-child(3){padding-left:0;border-left:0}.house:nth-child(n+3){border-top:1px solid var(--line)}}
+
+/* system explorer */
+.explorer{display:grid;grid-template-columns:260px 1fr;gap:0;border:1px solid var(--ink-line);border-radius:16px;overflow:hidden;background:var(--ink-2)}
+.tabs{display:flex;flex-direction:column;border-right:1px solid var(--ink-line)}
+.tab{background:none;border:0;border-bottom:1px solid var(--ink-line);color:var(--sand);text-align:left;padding:22px 24px;display:flex;flex-direction:column;gap:4px;transition:background .2s,color .2s}
+.tab b{font-family:var(--serif);font-size:22px;font-weight:700;color:var(--linen-2)}
+.tab span{font-size:13px}
+.tab[aria-selected="true"]{background:var(--ink);box-shadow:inset 3px 0 0 var(--sand)}
+.tab:hover{background:var(--ink)}
+.panel{padding:clamp(20px,3vw,36px);min-width:0}
+.panel-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:22px}
+.panel-top h3{font-size:clamp(24px,2.6vw,32px);color:var(--linen-2)}
+.tag{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--sand);border:1px solid var(--ink-line);padding:5px 10px;border-radius:999px;white-space:nowrap}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{background:transparent;border:1px solid var(--ink-line);color:var(--linen-2);padding:9px 16px;border-radius:999px;font-size:14px;transition:all .2s}
+.chip[aria-pressed="true"]{background:var(--linen-2);color:var(--ink);border-color:var(--linen-2)}
+.ctrl-label{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--sand);margin:0 0 10px}
+.ctrls{display:grid;grid-template-columns:1fr auto;gap:20px 28px;margin-bottom:24px}
+.sheet{background:var(--linen);color:var(--ink);border-radius:10px;overflow:hidden}
+.sheet-tabs{display:flex;background:var(--ink);padding:10px 12px 0;gap:4px;overflow-x:auto}
+.sheet-tabs span{font-size:12px;padding:8px 14px;color:var(--sand);border-radius:6px 6px 0 0;white-space:nowrap}
+.sheet-tabs span.on{background:var(--linen);color:var(--ink)}
+.rows{padding:8px 20px 4px}
+.row{display:grid;grid-template-columns:1fr auto auto;gap:16px;padding:11px 0;border-bottom:1px solid var(--linen-2);font-size:14px;align-items:baseline;animation:in .4s ease both}
+.row .q{color:var(--taupe);font-variant-numeric:tabular-nums;font-size:13px}
+.row .v{font-variant-numeric:tabular-nums;min-width:96px;text-align:right}
+.total{display:flex;justify-content:space-between;align-items:baseline;padding:16px 20px;background:var(--linen-2);font-family:var(--serif)}
+.total b{font-size:28px;font-variant-numeric:tabular-nums}
+.note{font-size:12px;color:var(--sand);margin-top:12px}
+/* salon crm */
+.kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:14px}
+.kpi{background:var(--ink);border:1px solid var(--ink-line);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.kpi b{font-family:var(--serif);font-size:28px;line-height:1;color:var(--linen-2);font-variant-numeric:tabular-nums}
+.kpi span{font-size:12px;color:var(--sand)}
+.crm{display:grid;grid-template-columns:1fr;gap:12px}
+.board-wrap{overflow-x:auto;min-width:0}
+.board{display:grid;grid-template-columns:repeat(4,minmax(130px,1fr));gap:8px;min-width:560px}
+.col{background:var(--ink);border:1px solid var(--ink-line);border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.col-h{display:flex;justify-content:space-between;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--sand);padding:2px 2px 4px}
+.cc{background:#2b2824;border:1px solid var(--ink-line);border-radius:8px;padding:10px;text-align:left;color:var(--linen-2);display:flex;flex-direction:column;gap:2px;animation:in .35s both}
+.cc b{font-size:14px;font-weight:600}
+.cc small{font-size:12px;color:var(--sand)}
+.cc .due{font-size:11px;color:#D8B98C}
+.cc[aria-pressed="true"]{border-color:var(--sand);background:#34302b}
+.client{background:var(--linen);color:var(--ink);border-radius:10px;padding:18px 20px;display:grid;grid-template-columns:1fr 1.25fr;gap:20px;min-width:0}
+.client>div{display:flex;flex-direction:column;gap:12px;min-width:0}
+.client h4{font-family:var(--serif);font-size:24px;margin:0;line-height:1.1}
+.facts{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;font-size:13px}
+.facts span{color:var(--taupe);display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase}
+.wa{background:#E3DDD2;border-radius:12px 12px 12px 4px;padding:12px 14px;font-size:14px;line-height:1.5;min-height:84px}
+.wa small{display:block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--taupe);margin-bottom:4px}
+.client .acts{display:flex;gap:8px;flex-wrap:wrap}
+.client .acts button{flex:1;min-width:120px;border-radius:999px;padding:10px 12px;font-size:13px;border:1px solid var(--ink);background:var(--ink);color:var(--linen)}
+.client .acts button.alt{background:transparent;color:var(--ink)}
+.who-card.feat{grid-column:1/-1;background:var(--ink);color:var(--linen-2);display:grid;grid-template-columns:1fr 1.4fr;gap:24px;align-items:center;padding:28px 32px}
+.who-card.feat h3{font-size:clamp(26px,3vw,36px)}
+.who-card.feat p{color:var(--sand);font-size:16px}
+.who-card.feat ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.who-card.feat li{font-size:13px;border:1px solid var(--ink-line);border-radius:999px;padding:6px 12px;color:var(--linen-2)}
+@media(max-width:760px){.client{grid-template-columns:1fr}.who-card.feat{grid-template-columns:1fr}}
+@media(max-width:860px){.explorer{grid-template-columns:1fr}.tabs{flex-direction:row;overflow-x:auto;border-right:0;border-bottom:1px solid var(--ink-line)}.tab{border-bottom:0;border-right:1px solid var(--ink-line);min-width:170px}.tab[aria-selected="true"]{box-shadow:inset 0 -3px 0 var(--sand)}.ctrls{grid-template-columns:1fr}}
+
+/* inspection */
+.insp{display:grid;grid-template-columns:1.2fr .8fr;gap:20px}
+.room{position:relative;aspect-ratio:4/3;max-width:100%;border-radius:10px;overflow:hidden;background:linear-gradient(180deg,#E6E0D5 0 62%,#C9BEAB 62% 100%)}
+.room .win{position:absolute;left:8%;top:12%;width:26%;height:38%;background:linear-gradient(160deg,#F7F5F0,#DCE3E2);border:6px solid #F5F2EC;box-shadow:0 0 0 1px #CFC6B6}
+.room .door{position:absolute;right:10%;top:22%;width:16%;height:40%;background:#D8CDBB;border:1px solid #BFB29D;transform-origin:left;transform:skewY(-2deg)}
+.room .sofa{position:absolute;left:30%;bottom:16%;width:44%;height:18%;background:#EFEBE4;border-radius:40px 40px 12px 12px;box-shadow:0 10px 0 -2px #D9D1C3}
+.room .floor{position:absolute;inset:62% 0 0 0;background:repeating-linear-gradient(90deg,transparent 0 11%,rgba(80,64,40,.13) 11% 11.3%)}
+.hot{position:absolute;width:38px;height:38px;border-radius:50%;border:2px solid var(--ink);background:rgba(243,241,236,.85);color:var(--ink);font-weight:600;font-size:14px;display:grid;place-items:center;transform:translate(-50%,-50%);transition:transform .2s}
+.hot:after{content:"";position:absolute;inset:-8px;border-radius:50%;border:1px solid var(--ink);opacity:.4;animation:ring 2.4s infinite}
+@keyframes ring{to{transform:scale(1.5);opacity:0}}
+.hot[aria-pressed="true"]{background:var(--ink);color:var(--linen);transform:translate(-50%,-50%) scale(1.12)}
+.scan{position:absolute;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,rgba(126,118,105,.9),transparent);top:0;animation:scan 3.5s linear infinite;pointer-events:none}
+@keyframes scan{to{top:100%}}
+.findings{display:flex;flex-direction:column;gap:10px;min-width:0}
+.find{background:var(--ink);border:1px solid var(--ink-line);border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:4px;text-align:left;color:var(--linen-2);width:100%}
+.find[aria-pressed="true"]{border-color:var(--sand);background:#2b2824}
+.find small{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--sand)}
+.reports{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.rep{font-size:13px;padding:8px 12px;border-radius:8px;background:var(--linen-2);color:var(--ink);animation:in .4s both}
+@media(max-width:760px){.insp{grid-template-columns:1fr}}
+
+/* agents */
+.agents{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.agent{background:var(--ink);border:1px solid var(--ink-line);border-radius:10px;padding:16px;text-align:left;color:var(--linen-2);display:flex;flex-direction:column;gap:6px;transition:border-color .2s}
+.agent b{font-family:var(--serif);font-size:19px}
+.agent small{font-size:12px;color:var(--sand)}
+.agent .st{display:inline-flex;align-items:center;gap:6px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ok)}
+.agent .st:before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.agent[aria-pressed="true"]{border-color:var(--sand)}
+.out{margin-top:16px;background:var(--linen);color:var(--ink);border-radius:10px;padding:18px 20px;min-height:132px}
+.out .who{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--taupe);margin-bottom:8px}
+.out .msg{font-family:var(--serif);font-size:19px;line-height:1.45}
+.caret{display:inline-block;width:2px;height:1em;background:var(--ink);vertical-align:-2px;margin-left:2px;animation:blink 1s steps(2) infinite}
+@keyframes blink{50%{opacity:0}}
+@media(max-width:620px){.agents{grid-template-columns:1fr 1fr}}
+
+/* brand builder */
+.bb{display:grid;grid-template-columns:.8fr 1.2fr;gap:24px}
+.bb input{width:100%;background:var(--ink);border:1px solid var(--ink-line);color:var(--linen-2);border-radius:10px;padding:14px 16px;font-size:18px;font-family:var(--serif)}
+.bb .field{display:flex;flex-direction:column;gap:10px;margin-bottom:22px}
+.swatches{display:flex;gap:10px;flex-wrap:wrap}
+.sw{width:44px;height:44px;border-radius:50%;border:2px solid transparent;padding:0;box-shadow:inset 0 0 0 1px rgba(255,255,255,.15)}
+.sw[aria-pressed="true"]{border-color:var(--linen-2);transform:scale(1.08)}
+.preview{border-radius:12px;overflow:hidden;display:grid;grid-template-rows:auto auto;min-width:0}
+.pv-main{padding:clamp(28px,4vw,44px);display:flex;flex-direction:column;gap:22px;min-height:260px;justify-content:space-between;transition:background .3s,color .3s}
+.pv-word{font-size:clamp(32px,4.4vw,54px);line-height:1;word-break:break-word}
+.pv-row{display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap}
+.pv-mono{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;font-size:24px}
+.pv-sub{font-size:11px;letter-spacing:.24em;text-transform:uppercase;opacity:.75}
+.pv-pal{display:grid;grid-template-columns:repeat(4,1fr);height:56px}
+@media(max-width:760px){.bb{grid-template-columns:1fr}}
+
+/* services */
+.services{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border-top:1px solid var(--ink)}
+.svc{padding:36px 36px 40px 0;display:flex;flex-direction:column;gap:14px;border-bottom:1px solid var(--line);min-width:0}
+.svc:nth-child(even){padding-left:36px;border-left:1px solid var(--line)}
+.svc h3{font-size:clamp(30px,3.4vw,42px)}
+.svc p{color:var(--soft);max-width:460px}
+.svc ul{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.svc li{font-size:13px;border:1px solid var(--line);border-radius:999px;padding:6px 12px;color:var(--soft)}
+@media(max-width:760px){.services{grid-template-columns:1fr}.svc:nth-child(even){padding-left:0;border-left:0}.svc{padding-right:0}}
+
+/* who + diagnosis */
+.who{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:56px}
+.who-card{background:var(--linen-2);border-radius:12px;padding:24px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.who-card h3{font-size:22px}
+.who-card p{font-size:15px;color:var(--soft)}
+@media(max-width:900px){.who{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.who{grid-template-columns:1fr}}
+.diag{background:var(--ink);color:var(--linen-2);border-radius:16px;padding:clamp(24px,4vw,48px);display:grid;grid-template-columns:1fr 1fr;gap:40px}
+.diag h3{font-size:clamp(28px,3.4vw,40px)}
+.diag .step{display:flex;flex-direction:column;gap:12px;margin-top:24px}
+.plan{background:var(--linen);color:var(--ink);border-radius:12px;padding:28px;display:flex;flex-direction:column;gap:16px;min-width:0}
+.plan h4{font-family:var(--serif);font-size:26px;margin:0;line-height:1.15}
+.plan ol{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:10px}
+.plan li{padding-left:6px}
+.plan li b{display:block;font-family:var(--serif);font-size:18px}
+.plan li span{font-size:14px;color:var(--soft)}
+.plan .empty{color:var(--soft);font-family:var(--serif);font-size:20px;line-height:1.4}
+@media(max-width:820px){.diag{grid-template-columns:1fr}}
+
+/* process */
+.steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;border-top:1px solid var(--ink-line)}
+.stp{padding:28px 24px 8px 0;display:flex;flex-direction:column;gap:10px;min-width:0}
+.stp+.stp{padding-left:24px;border-left:1px solid var(--ink-line)}
+.stp .n{font-family:var(--serif);font-size:44px;color:var(--sand);line-height:1}
+.stp h3{font-size:24px;color:var(--linen-2)}
+.stp p{font-size:15px;color:var(--sand)}
+@media(max-width:820px){.steps{grid-template-columns:1fr 1fr}.stp:nth-child(3){padding-left:0;border-left:0}.stp:nth-child(n+3){border-top:1px solid var(--ink-line)}}
+@media(max-width:480px){.steps{grid-template-columns:1fr}.stp+.stp{padding-left:0;border-left:0;border-top:1px solid var(--ink-line)}}
+
+/* cta */
+.cta{text-align:left}
+.cta .box{display:grid;grid-template-columns:1.2fr .8fr;gap:48px;align-items:end;border-top:1px solid var(--ink);padding-top:48px}
+.cta h2{font-size:clamp(42px,6.4vw,88px)}
+.cta .side{display:flex;flex-direction:column;gap:18px}
+.cta .side p{color:var(--soft)}
+.copyline{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:14px;color:var(--soft)}
+.copyline code{font-family:var(--sans);background:var(--linen-2);padding:8px 12px;border-radius:8px;color:var(--ink);user-select:all}
+.copyline button{background:none;border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-size:13px}
+@media(max-width:820px){.cta .box{grid-template-columns:1fr}}
+footer{border-top:1px solid var(--line);padding-block:28px}
+footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--soft)}
+
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="logo" href="#top" aria-label="Operator Studio"><b>Operator</b> <i>Studio</i></a>
+    <nav class="nav-links" aria-label="Menu">
+      <a href="#sobre" data-i="nav1">Quem somos</a>
+      <a href="#sistema" data-i="nav2">O sistema</a>
+      <a href="#servicos" data-i="nav3">Serviços</a>
+      <a href="#para-quem" data-i="nav4">Para quem</a>
+    </nav>
+    <div class="nav-right">
+      <div class="lang" role="group" aria-label="Idioma / Language">
+        <button type="button" id="lang-pt" aria-pressed="true">PT</button>
+        <button type="button" id="lang-en" aria-pressed="false">EN</button>
+      </div>
+      <a class="btn sm" href="#contato" data-i="navcta">Diagnóstico</a>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+<!-- STORY HERO -->
+<section class="story" id="story" aria-label="Operator Studio">
+  <div class="pin">
+    <div class="story-top" id="story-top">
+      <p class="sub" data-i="heroEy">Sistemas · Sites · Marca · Conteúdo</p>
+      <h1><span data-i="heroH1a">Sua empresa,</span> <em data-i="heroH1b">operada com IA.</em></h1>
+    </div>
+    <div class="stage">
+      <p class="word l" id="wl"></p>
+      <p class="word r" id="wr"></p>
+      <div class="device" id="device">
+        <div class="lid"><div class="screen" id="screen"></div></div>
+        <div class="base"></div><div class="shadow"></div>
+        <div class="phone" id="phone" aria-hidden="true"><div class="ps"><div class="ph" id="ph"></div><div class="bub" id="pb1"></div><div class="bub me" id="pb2"></div></div></div>
+      </div>
+    </div>
+    <div class="story-foot">
+      <div class="counter"><b id="cnt">01 / 05</b><div class="prog"><i id="prog"></i></div><span class="hint" data-i="hint">Role para descobrir</span></div>
+      <p class="cap" id="cap"></p>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="sobre" style="padding-top:0">
+  <div class="wrap">
+    <div class="about">
+      <div>
+        <p class="eyebrow" data-i="abEy">Quem somos</p>
+        <h2 style="margin-top:18px"><span data-i="abH2a">Nascemos dentro</span> <em data-i="abH2b">da operação.</em></h2>
+      </div>
+      <div class="body">
+        <p data-i="abP1">A Operator Studio começou como a forma de Luccas Torres tocar os próprios negócios em Dubai: um estúdio de interiores, uma empresa de holiday homes e uma marca de skincare premium.</p>
+        <p data-i="abP2">Orçamentos, aplicativos, sites, marcas e conteúdo foram construídos ali, com a IA como equipe. Funcionou tão bem que virou o nosso serviço: hoje levamos o mesmo método para outras empresas.</p>
+        <p data-i="abP3">Você traz o negócio e o problema. Nós construímos o sistema e entregamos pronto para o seu time usar.</p>
+      </div>
+    </div>
+    <div class="houses">
+      <div class="house"><b>HSHome Interiors</b><span data-i="h1">Design e reforma de alto padrão</span></div>
+      <div class="house"><b>HSHome Holiday Homes</b><span data-i="h2">Aluguel de temporada</span></div>
+      <div class="house"><b>The Pom Shop</b><span data-i="h3">Skincare premium para Pomeranians</span></div>
+      <div class="house"><b>Operator Studio</b><span data-i="h4">O método, a serviço de outras empresas</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- SYSTEM EXPLORER -->
+<section id="sistema" class="dark">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><p class="eyebrow" data-i="sysEy">Olhe por dentro</p><h2 style="margin-top:18px"><span data-i="sysH2a">O sistema,</span> <em data-i="sysH2b">funcionando.</em></h2></div>
+      <p data-i="sysP">Cinco módulos que usamos na nossa própria operação. Clique, mude, teste. É assim que o seu vai funcionar.</p>
+    </div>
+
+    <div class="explorer">
+      <div class="tabs" role="tablist" aria-label="Módulos">
+        <button class="tab" role="tab" id="tab-crm" aria-controls="p-crm" aria-selected="true"><b data-i="t0">CRM do salão</b><span data-i="t0s">Vendas e retorno de clientes</span></button>
+        <button class="tab" role="tab" id="tab-orc" aria-controls="p-orc" aria-selected="false" tabindex="-1"><b data-i="t1">Orçamentos</b><span data-i="t1s">Planilha pronta em minutos</span></button>
+        <button class="tab" role="tab" id="tab-vis" aria-controls="p-vis" aria-selected="false" tabindex="-1"><b data-i="t2">Vistoria</b><span data-i="t2s">A IA encontra os pontos</span></button>
+        <button class="tab" role="tab" id="tab-age" aria-controls="p-age" aria-selected="false" tabindex="-1"><b data-i="t3">Time de IA</b><span data-i="t3s">Agentes com funções claras</span></button>
+        <button class="tab" role="tab" id="tab-mar" aria-controls="p-mar" aria-selected="false" tabindex="-1"><b data-i="t4">Marca</b><span data-i="t4s">Identidade ao vivo</span></button>
+      </div>
+
+      <!-- salon crm -->
+      <div class="panel" role="tabpanel" id="p-crm" aria-labelledby="tab-crm">
+        <div class="panel-top"><h3 data-i="crmH">CRM de vendas para salões</h3><span class="tag" data-i="exTag0">Clientes de exemplo</span></div>
+        <div class="kpis">
+          <div class="kpi"><b id="k-funnel">0</b><span data-i="k1">Clientes no funil</span></div>
+          <div class="kpi"><b id="k-booked">0</b><span data-i="k2">Horários marcados</span></div>
+          <div class="kpi"><b id="k-back">0</b><span data-i="k3">Prontos para voltar</span></div>
+        </div>
+        <div class="crm">
+          <div class="board-wrap"><div class="board" id="board"></div></div>
+          <div class="client" id="client" aria-live="polite"></div>
+        </div>
+        <p class="note" data-i="crmNote">Clique numa cliente, gere a mensagem e avance a etapa. A IA lembra de cada retorno pelo ciclo de cada serviço.</p>
+      </div>
+
+      <!-- budget -->
+      <div class="panel" role="tabpanel" id="p-orc" aria-labelledby="tab-orc" hidden>
+        <div class="panel-top"><h3 data-i="orcH">Monte um orçamento</h3><span class="tag" data-i="exTag">Valores de exemplo</span></div>
+        <div class="ctrls">
+          <div><p class="ctrl-label" data-i="orcL1">Ambientes</p><div class="chips" id="rooms"></div></div>
+          <div><p class="ctrl-label" data-i="orcL2">Acabamento</p><div class="chips" id="tiers"></div></div>
+        </div>
+        <div class="sheet">
+          <div class="sheet-tabs"><span class="on" data-i="sh1">Resumo</span><span data-i="sh2">Civil</span><span data-i="sh3">Marcenaria</span><span data-i="sh4">Acabamentos</span></div>
+          <div class="rows" id="rows"></div>
+          <div class="total"><span data-i="orcTot">Total do projeto</span><b id="total">AED 0</b></div>
+        </div>
+        <p class="note" data-i="orcNote">No sistema real, cada linha vem das medidas do projeto e da sua tabela de preços.</p>
+      </div>
+
+      <!-- inspection -->
+      <div class="panel" role="tabpanel" id="p-vis" aria-labelledby="tab-vis" hidden>
+        <div class="panel-top"><h3 data-i="visH">Vistoria de entrega</h3><span class="tag" data-i="exTag2">Exemplo ilustrativo</span></div>
+        <div class="insp">
+          <div class="room" aria-label="Sala de estar">
+            <div class="win"></div><div class="door"></div><div class="floor"></div><div class="sofa"></div><div class="scan"></div>
+            <button class="hot" style="left:22%;top:54%" data-f="0" aria-pressed="false" aria-label="Ponto 1">1</button>
+            <button class="hot" style="left:80%;top:34%" data-f="1" aria-pressed="false" aria-label="Ponto 2">2</button>
+            <button class="hot" style="left:58%;top:78%" data-f="2" aria-pressed="false" aria-label="Ponto 3">3</button>
+          </div>
+          <div class="findings" id="findings"></div>
+        </div>
+      </div>
+
+      <!-- agents -->
+      <div class="panel" role="tabpanel" id="p-age" aria-labelledby="tab-age" hidden>
+        <div class="panel-top"><h3 data-i="ageH">Escolha um agente e dê uma tarefa</h3><span class="tag" data-i="exTag3">Demonstração</span></div>
+        <div class="agents" id="agents"></div>
+        <div class="out" aria-live="polite"><p class="who" id="who"></p><p class="msg" id="msg"></p></div>
+      </div>
+
+      <!-- brand -->
+      <div class="panel" role="tabpanel" id="p-mar" aria-labelledby="tab-mar" hidden>
+        <div class="panel-top"><h3 data-i="marH">Digite o nome da sua marca</h3><span class="tag" data-i="exTag4">Ao vivo</span></div>
+        <div class="bb">
+          <div>
+            <div class="field"><label class="ctrl-label" for="brand-name" data-i="marL1">Nome</label><input id="brand-name" type="text" maxlength="28" value="Casa Aurora" autocomplete="off"></div>
+            <div class="field"><p class="ctrl-label" data-i="marL2">Estilo</p><div class="chips" id="styles"></div></div>
+            <div class="field"><p class="ctrl-label" data-i="marL3">Paleta</p><div class="swatches" id="pals"></div></div>
+          </div>
+          <div class="preview">
+            <div class="pv-main" id="pv">
+              <p class="pv-sub" id="pv-sub">Brand identity</p>
+              <div class="pv-word" id="pv-word">Casa Aurora</div>
+              <div class="pv-row"><div class="pv-mono" id="pv-mono">CA</div><p class="pv-sub" data-i="marSub">Por Operator Studio</p></div>
+            </div>
+            <div class="pv-pal" id="pv-pal"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="servicos">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><p class="eyebrow" data-i="svEy">Serviços</p><h2 style="margin-top:18px"><span data-i="svH2a">O que</span> <em data-i="svH2b">construímos.</em></h2></div>
+      <p data-i="svP">Cada projeto começa no seu problema real e termina com algo que o seu time usa no dia seguinte.</p>
+    </div>
+    <div class="services">
+      <div class="svc"><p class="eyebrow" data-i="s1e">Sistemas e automações</p><h3 data-i="s1h">A operação trabalhando sozinha</h3><p data-i="s1p">CRM de vendas, orçamentos, relatórios, propostas e agentes de IA que cuidam das tarefas repetitivas do seu negócio.</p><ul><li data-i="s1z">CRM de vendas</li><li data-i="s1a">Orçamentos automáticos</li><li data-i="s1b">Agentes de IA</li><li data-i="s1c">Apps internos</li><li data-i="s1d">Automações</li></ul></div>
+      <div class="svc"><p class="eyebrow" data-i="s2e">Sites e landing pages</p><h3 data-i="s2h">Um site que vende por você</h3><p data-i="s2p">Sites institucionais e páginas de venda com captura de contatos, prontos para campanha e para o celular.</p><ul><li data-i="s2a">Site institucional</li><li data-i="s2b">Página de vendas</li><li data-i="s2c">Captura de leads</li></ul></div>
+      <div class="svc"><p class="eyebrow" data-i="s3e">Marca</p><h3 data-i="s3h">Uma identidade com presença</h3><p data-i="s3p">Nome, posicionamento, logo, paleta, tipografia e brand book para a marca nascer forte e consistente.</p><ul><li data-i="s3a">Posicionamento</li><li data-i="s3b">Logo e identidade</li><li data-i="s3c">Brand book</li></ul></div>
+      <div class="svc"><p class="eyebrow" data-i="s4e">Conteúdo</p><h3 data-i="s4h">Presença constante, com estratégia</h3><p data-i="s4p">Pilares, calendário, roteiros, carrosséis e vídeos com IA, no tom da sua marca.</p><ul><li data-i="s4a">Calendário</li><li data-i="s4b">Roteiros</li><li data-i="s4c">Vídeos com IA</li><li data-i="s4d">Carrosséis</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<!-- WHO -->
+<section id="para-quem" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><p class="eyebrow" data-i="whEy">Para quem</p><h2 style="margin-top:18px"><span data-i="whH2a">Empresas que querem</span> <em data-i="whH2b">crescer leves.</em></h2></div>
+      <p data-i="whP">Donos de negócio que querem mais tempo para decidir e menos tempo apagando incêndio.</p>
+    </div>
+    <div class="who">
+      <div class="who-card feat"><div><p class="eyebrow" data-i="w0e">Nosso foco</p><h3 style="margin-top:10px" data-i="w0h">Salões de beleza e cabeleireiros</h3></div><div style="display:flex;flex-direction:column;gap:14px"><p data-i="w0p">Agenda cheia e clientes que voltam no tempo certo. Um CRM que lembra de cada cliente, manda a mensagem certa no WhatsApp e mostra quanto o salão vendeu no mês.</p><ul><li data-i="w0a">CRM de clientes</li><li data-i="w0b">Lembretes de retorno</li><li data-i="w0c">Agendamento</li><li data-i="w0d">Avaliações no Google</li><li data-i="w0f">Conteúdo para Instagram</li></ul></div></div>
+      <div class="who-card"><h3 data-i="w1h">Arquitetura e interiores</h3><p data-i="w1p">Orçamentos, cronogramas, vistorias e apresentações para cliente.</p></div>
+      <div class="who-card"><h3 data-i="w2h">Imóveis e temporada</h3><p data-i="w2p">Atendimento, operação de unidades e páginas que convertem.</p></div>
+      <div class="who-card"><h3 data-i="w3h">Marcas e e-commerce</h3><p data-i="w3p">Lançamento, identidade, conteúdo e prospecção de revendedores.</p></div>
+      <div class="who-card"><h3 data-i="w4h">Serviços e consultoria</h3><p data-i="w4p">Propostas, captação de clientes e presença profissional.</p></div>
+    </div>
+
+    <div class="diag">
+      <div>
+        <p class="eyebrow" data-i="dgEy">Diagnóstico em 20 segundos</p>
+        <h3 style="margin-top:14px" data-i="dgH">O que construiríamos para você?</h3>
+        <div class="step"><p class="ctrl-label" data-i="dgL1">1 · Seu setor</p><div class="chips" id="sectors"></div></div>
+        <div class="step"><p class="ctrl-label" data-i="dgL2">2 · Onde mais vai o seu tempo</p><div class="chips" id="pains"></div></div>
+      </div>
+      <div class="plan" id="plan" aria-live="polite"></div>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section class="dark">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><p class="eyebrow" data-i="prEy">Como funciona</p><h2 style="margin-top:18px"><span data-i="prH2a">Quatro passos,</span> <em data-i="prH2b">em semanas.</em></h2></div>
+      <p data-i="prP">Você acompanha cada etapa e recebe tudo pronto para usar, com treinamento.</p>
+    </div>
+    <div class="steps">
+      <div class="stp"><span class="n">01</span><h3 data-i="p1h">Diagnóstico</h3><p data-i="p1p">30 minutos para entender onde o negócio ganha mais tempo e dinheiro.</p></div>
+      <div class="stp"><span class="n">02</span><h3 data-i="p2h">Proposta</h3><p data-i="p2p">Escopo, prazo e investimento fechados, por escrito.</p></div>
+      <div class="stp"><span class="n">03</span><h3 data-i="p3h">Construção</h3><p data-i="p3p">Você vê o sistema ganhando forma e ajusta junto.</p></div>
+      <div class="stp"><span class="n">04</span><h3 data-i="p4h">Entrega</h3><p data-i="p4p">Tudo funcionando, com treinamento para o seu time.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="contato" class="cta">
+  <div class="wrap">
+    <div class="box">
+      <div>
+        <p class="eyebrow" data-i="ctEy">Brasileiros Inspiradores · Milano</p>
+        <h2 style="margin-top:18px"><span data-i="ctH2a">Vamos construir</span> <em data-i="ctH2b">juntos?</em></h2>
+      </div>
+      <div class="side">
+        <p data-i="ctP">Diagnóstico gratuito de 30 minutos para quem nos conheceu no evento. Mande uma mensagem com a palavra OPERATOR.</p>
+        <a class="btn" href="https://www.instagram.com/luccastorres/" target="_blank" rel="noopener" data-i="ctBtn">Falar no Instagram</a>
+        <div class="copyline"><code id="handle">@luccastorres</code><button type="button" id="copy" data-i="ctCopy">Copiar</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer><div class="wrap"><span><b style="font-family:var(--serif)">Operator</b> <i style="font-family:var(--serif);color:var(--taupe)">Studio</i> · Dubai</span><span data-i="foot">Sistemas · Sites · Marca · Conteúdo — by Luccas Torres</span></div></footer>
+
+<script>
+(function(){
+let lang='pt';
+const EN={
+nav1:'About',nav2:'The system',nav3:'Services',nav4:'Who we help',navcta:'Free audit',
+heroEy:'Systems · Websites · Brand · Content',heroH1a:'Your business,',heroH1b:'operated with AI.',
+heroLede:'We build the digital structure of your business, with artificial intelligence working as part of the team. Made by people who run four companies this way every day.',
+heroC1:'Look inside the system',hint:'Scroll to discover',heroC2:'Book a free audit',heroMeta:'by Luccas Torres',
+conLive:'Running now',conEx:'Example',conFoot:'Tasks delivered today',
+abEy:'About us',abH2a:'Born inside',abH2b:'real operations.',
+abP1:'Operator Studio began as the way Luccas Torres runs his own businesses in Dubai: an interior design studio, a holiday homes company and a premium skincare brand.',
+abP2:'Budgets, apps, websites, brands and content were all built there, with AI as the team. It worked so well that it became our service: today we bring the same method to other companies.',
+abP3:'You bring the business and the problem. We build the system and hand it over ready for your team.',
+h1:'Premium design and fit-out',h2:'Short-term rentals',h3:'Premium skincare for Pomeranians',h4:'The method, serving other companies',
+sysEy:'Look inside',sysH2a:'The system,',sysH2b:'at work.',sysP:'Five modules from our own operations. Click, change, test. This is how yours will work.',
+t0:'Salon CRM',t0s:'Sales and returning clients',crmH:'Sales CRM for salons',exTag0:'Sample clients',k1:'Clients in the funnel',k2:'Bookings made',k3:'Ready to come back',
+crmNote:'Click a client, write the message and move them to the next stage. The AI tracks every return date from each service\'s cycle.',
+w0e:'Our focus',w0h:'Hair and beauty salons',w0p:'A full diary and clients who come back at the right time. A CRM that remembers every client, sends the right WhatsApp message and shows what the salon sold this month.',w0a:'Client CRM',w0b:'Return reminders',w0c:'Online booking',w0d:'Google reviews',w0f:'Instagram content',
+t1:'Budgets',t1s:'A full sheet in minutes',t2:'Inspection',t2s:'AI spots the issues',t3:'AI team',t3s:'Agents with clear roles',t4:'Brand',t4s:'Live identity',
+orcH:'Build a budget',exTag:'Sample figures',orcL1:'Rooms',orcL2:'Finish',sh1:'Summary',sh2:'Civil',sh3:'Joinery',sh4:'Finishes',orcTot:'Project total',
+orcNote:'In the real system, every line comes from the project measurements and your own price list.',
+visH:'Handover inspection',exTag2:'Illustrative example',ageH:'Pick an agent and give it a task',exTag3:'Demo',
+marH:'Type your brand name',exTag4:'Live',marL1:'Name',marL2:'Style',marL3:'Palette',marSub:'By Operator Studio',
+svEy:'Services',svH2a:'What we',svH2b:'build.',svP:'Every project starts with your real problem and ends with something your team uses the next day.',
+s1e:'Systems & automation',s1h:'Operations that run themselves',s1p:'Sales CRM, budgets, reports, proposals and AI agents that take care of the repetitive work in your business.',s1z:'Sales CRM',s1a:'Automatic budgets',s1b:'AI agents',s1c:'Internal apps',s1d:'Automations',
+s2e:'Websites & landing pages',s2h:'A website that sells for you',s2p:'Company websites and sales pages with lead capture, ready for campaigns and for mobile.',s2a:'Company website',s2b:'Sales page',s2c:'Lead capture',
+s3e:'Brand',s3h:'An identity with presence',s3p:'Name, positioning, logo, palette, typography and brand book, so the brand is born strong and consistent.',s3a:'Positioning',s3b:'Logo & identity',s3c:'Brand book',
+s4e:'Content',s4h:'Steady presence, with strategy',s4p:'Pillars, calendar, scripts, carousels and AI video, in your brand voice.',s4a:'Calendar',s4b:'Scripts',s4c:'AI video',s4d:'Carousels',
+whEy:'Who we help',whH2a:'Businesses that want',whH2b:'to grow light.',whP:'Owners who want more time to decide and less time putting out fires.',
+w1h:'Architecture & interiors',w1p:'Budgets, schedules, inspections and client presentations.',w2h:'Property & rentals',w2p:'Guest service, unit operations and pages that convert.',w3h:'Brands & e-commerce',w3p:'Launches, identity, content and reseller prospecting.',w4h:'Services & consulting',w4p:'Proposals, client acquisition and a professional presence.',
+dgEy:'20-second audit',dgH:'What would we build for you?',dgL1:'1 · Your sector',dgL2:'2 · Where most of your time goes',
+prEy:'How it works',prH2a:'Four steps,',prH2b:'in weeks.',prP:'You follow every stage and receive everything ready to use, with training.',
+p1h:'Audit',p1p:'30 minutes to find where the business gains the most time and money.',p2h:'Proposal',p2p:'Scope, timeline and investment agreed in writing.',p3h:'Build',p3p:'You watch the system take shape and adjust with us.',p4h:'Handover',p4p:'Everything running, with training for your team.',
+ctEy:'Brasileiros Inspiradores · Milano',ctH2a:"Let's build",ctH2b:'together?',ctP:'A free 30-minute audit for everyone who met us at the event. Send a message with the word OPERATOR.',ctBtn:'Message on Instagram',ctCopy:'Copy',
+foot:'Systems · Websites · Brand · Content — by Luccas Torres'
+};
+const PT={};
+document.querySelectorAll('[data-i]').forEach(el=>{PT[el.dataset.i]=el.textContent});
+const T=(pt,en)=>lang==='pt'?pt:en;
+
+const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+/* ---------- scroll story ---------- */
+const SC=[
+ {w:[['A ideia','The idea'],['Diagnóstico','Audit']],k:[['Entendemos o salão','We learn the salon'],['Onde o tempo e as vendas se perdem.','Where time and sales slip away.']]},
+ {w:[['A marca','The brand'],['Identidade','Identity']],k:[['Nasce a identidade','The identity is born'],['Nome, logo e paleta com presença.','Name, logo and palette with presence.']]},
+ {w:[['O site','The website'],['Agendamento','Booking']],k:[['Um site que agenda','A website that books'],['A cliente reserva em um toque.','Clients book in one tap.']]},
+ {w:[['As vendas','Sales'],['CRM','CRM']],k:[['Cada cliente no lugar certo','Every client in the right place'],['Do primeiro contato ao retorno.','From first contact to return visit.']]},
+ {w:[['A agenda','The diary'],['Cheia','Full']],k:[['A IA chama de volta','AI brings them back'],['Lembretes no WhatsApp, no tempo certo.','WhatsApp reminders, right on time.']]}
+];
+const screenEl=document.getElementById('screen'),wl=document.getElementById('wl'),wr=document.getElementById('wr'),dev=document.getElementById('device'),phone=document.getElementById('phone'),cnt=document.getElementById('cnt'),prog=document.getElementById('prog'),cap=document.getElementById('cap'),storyEl=document.getElementById('story'),pinEl=storyEl.querySelector('.pin'),topEl=document.getElementById('story-top');
+let scenes=[],slots=[],lastIdx=-1,storyPos=0;
+function renderStory(){
+  const pal=['#2A2320','#F3ECE4','#B0896B','#D9C3AE'];
+  const days=T(['Seg','Ter','Qua','Qui','Sex','Sáb'],['Mon','Tue','Wed','Thu','Fri','Sat']);
+  const names=['Giulia','Marco','Sofia','Chiara','Elena','Luca','Bianca','Ana','Marta','Paola','Irene','Davide','Laura','Nina','Rita','Alba','Sara','Gaia'];
+  let ag='<div></div>'+days.map(d=>'<div class="h">'+d+'</div>').join('');
+  ['09:00','10:30','12:00','14:30','16:00','17:30'].forEach((t,r)=>{ag+='<div class="t">'+t+'</div>';for(let c=0;c<6;c++)ag+='<div class="slot" data-o="'+((r*7+c*5)%17)+'">'+names[(r*6+c)%names.length]+'</div>'});
+  screenEl.innerHTML=
+  '<div class="scene"><div class="sc-bar"><span>'+T('Diagnóstico','Audit')+'</span><b>Salão Aurora · Milano</b></div><div class="brief"><h5>'+T('Objetivo:','Goal:')+'<br><i>'+T('agenda cheia e clientes que voltam.','a full diary and clients who return.')+'</i></h5><div class="checks"><div class="ck"><i></i>'+T('Agendamento online','Online booking')+'</div><div class="ck"><i></i>'+T('Lembretes de retorno','Return reminders')+'</div><div class="ck"><i></i>'+T('Marca e Instagram','Brand and Instagram')+'</div></div></div></div>'+
+  '<div class="scene"><div class="sc-bar"><span>'+T('Identidade','Identity')+'</span><b>Brand book</b></div><div class="brandsc"><div><div class="bw"><b>Salão</b> <i>Aurora</i></div><p class="btag">'+T('Cabelo · Cor · Cuidado','Hair · Colour · Care')+'</p></div><div class="bmono">SA</div></div><div class="bpal">'+pal.map(c=>'<span style="background:'+c+'"></span>').join('')+'</div></div>'+
+  '<div class="scene"><div class="mini-nav"><b>Salão <i style="font-weight:400;color:#B0896B">Aurora</i></b><span><span>'+T('Serviços','Services')+'</span><span>'+T('Equipe','Team')+'</span><span>'+T('Agendar','Book')+'</span></span></div><div class="sitehero"><div><h5>'+T('Seu horário,','Your booking,')+'<br><i>'+T('em um toque.','in one tap.')+'</i></h5><p>'+T('Corte, cor e tratamentos no centro de Milano.','Cut, colour and treatments in central Milan.')+'</p><span class="pill">'+T('Agendar agora','Book now')+'</span></div><div class="photo"></div></div></div>'+
+  '<div class="scene"><div class="sc-bar"><span>'+T('CRM de vendas','Sales CRM')+'</span><b>Salão Aurora</b></div><div class="mcrm">'+
+    [[T('Novo','New'),[['Ana','mechas'],['Luca','barba']]],[T('Agendado','Booked'),[['Marco','corte'],['Elena','progressiva']]],[T('Atendido','Visited'),[['Sofia','escova'],['Bianca','manicure']]],[T('Retorno','Return'),[['Giulia','coloração',1],['Chiara','tratamento']]]].map(c=>'<div class="mcol"><h6>'+c[0]+'</h6>'+c[1].map(x=>'<div class="mcard'+(x[2]?' hl':'')+'"><b>'+x[0]+'</b><small>'+x[1]+'</small></div>').join('')+'</div>').join('')+'</div></div>'+
+  '<div class="scene"><div class="sc-bar"><span>'+T('Agenda da semana','This week')+'</span><b class="occ" id="occ">0%</b></div><div class="agenda">'+ag+'</div></div>';
+  scenes=[...screenEl.querySelectorAll('.scene')];slots=[...screenEl.querySelectorAll('.slot')];
+  document.getElementById('ph').innerHTML='Salão Aurora<small>WhatsApp</small>';
+  document.getElementById('pb1').textContent=T('Oi Giulia, já são 41 dias desde a sua coloração. Quinta às 15h está livre, reservo para você?','Hi Giulia, it has been 41 days since your colour. Thursday at 3pm is free, shall I book it?');
+  document.getElementById('pb2').textContent=T('Sim, por favor, obrigada!','Yes please, thank you!');
+  lastIdx=-1;updateStory();
+}
+function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
+function updateStory(){
+  const r=storyEl.getBoundingClientRect(),span=storyEl.offsetHeight-pinEl.offsetHeight;
+  const p=span>0?clamp(-r.top/span,0,1):0;const N=SC.length;const pos=p*(N-1);storyPos=pos;
+  scenes.forEach((el,i)=>{const d=pos-i;const o=clamp(1-Math.abs(d)*1.9,0,1);el.style.opacity=o;el.style.transform='translateY('+(d*-18)+'px) scale('+(1-Math.abs(d)*.04)+')';el.style.visibility=o>0?'visible':'hidden'});
+  const ry=Math.sin(pos*1.1)*9, rx=14-pos*2.6, s=.94+Math.min(pos,1)*.06;
+  dev.style.transform='rotateX('+rx+'deg) rotateY('+ry+'deg) scale('+s+')';
+  const ph=clamp((pos-3.15)/.7,0,1);phone.style.opacity=ph;phone.style.transform='translateZ(60px) translateY('+((1-ph)*60)+'px) rotate('+((1-ph)*6)+'deg)';
+  const fill=clamp((pos-3.3)/.7,0,1);let on=0;slots.forEach(sl=>{const v=+sl.dataset.o/17<fill*0.97;sl.classList.toggle('on',v);if(v)on++});
+  const occ=document.getElementById('occ');if(occ)occ.textContent=Math.round(on/Math.max(1,slots.length)*100)+'%';
+  topEl.style.opacity=clamp(1-p*6,0,1);
+  const idx=clamp(Math.round(pos),0,N-1);
+  const wo=clamp(1-Math.abs(pos-idx)*2.2,0,1),wy=(pos-idx)*-40;
+  wl.style.opacity=wo;wr.style.opacity=wo;wl.style.transform='translateY(calc(-50% + '+wy+'px))';wr.style.transform='translateY(calc(-50% + '+(-wy)+'px))';
+  if(window.innerWidth<=820){wl.style.transform='translateY('+wy+'px)';wr.style.transform='translateY('+(-wy)+'px)'}
+  if(idx!==lastIdx){lastIdx=idx;const sc=SC[idx];
+    wl.innerHTML=T(sc.w[0][0],sc.w[0][1])+'<span>'+String(idx+1).padStart(2,'0')+' · '+T('etapa','step')+'</span>';
+    wr.innerHTML=T(sc.w[1][0],sc.w[1][1])+'<span>Salão Aurora</span>';
+    cnt.textContent=String(idx+1).padStart(2,'0')+' / '+String(N).padStart(2,'0');
+    cap.innerHTML='<b>'+T(sc.k[0][0],sc.k[0][1])+'</b>'+T(sc.k[1][0],sc.k[1][1]);}
+  prog.style.width=(p*100)+'%';
+}
+let ticking=false;
+window.addEventListener('scroll',()=>{if(!ticking){ticking=true;requestAnimationFrame(()=>{ticking=false;updateStory()})}},{passive:true});
+window.addEventListener('resize',updateStory);
+
+/* ---------- tabs ---------- */
+const tabs=[...document.querySelectorAll('.tab')];
+function selectTab(t){
+  tabs.forEach(x=>{const on=x===t;x.setAttribute('aria-selected',on);x.tabIndex=on?0:-1;document.getElementById(x.getAttribute('aria-controls')).hidden=!on});
+  if(t.id==='tab-age'&&!agentStarted){agentStarted=true;pickAgent(0)}
+}
+tabs.forEach((t,i)=>{
+  t.addEventListener('click',()=>selectTab(t));
+  t.addEventListener('keydown',e=>{
+    if(e.key==='ArrowDown'||e.key==='ArrowRight'){e.preventDefault();const n=tabs[(i+1)%tabs.length];n.focus();selectTab(n)}
+    if(e.key==='ArrowUp'||e.key==='ArrowLeft'){e.preventDefault();const n=tabs[(i-1+tabs.length)%tabs.length];n.focus();selectTab(n)}
+  });
+});
+
+/* ---------- salon crm ---------- */
+const STAGES=[['Novo contato','New lead'],['Agendado','Booked'],['Atendido','Visited'],['Retorno','Win-back']];
+const CLIENTS=[
+{n:'Giulia R.',s:['coloração','colour'],st:3,d:41,t:120,src:['Cliente desde 2024','Client since 2024'],when:['','']},
+{n:'Ana P.',s:['mechas','highlights'],st:0,d:0,t:180,src:['Veio pelo Instagram','Came from Instagram'],when:['','']},
+{n:'Marco B.',s:['corte masculino','men\'s cut'],st:1,d:24,t:35,src:['Cliente desde 2023','Client since 2023'],when:['sábado às 10h30','Saturday at 10:30']},
+{n:'Sofia L.',s:['escova e hidratação','blow-dry and treatment'],st:2,d:2,t:65,src:['Indicada pela Giulia','Referred by Giulia'],when:['','']},
+{n:'Chiara M.',s:['corte e tratamento','cut and treatment'],st:3,d:52,t:90,src:['Cliente desde 2022','Client since 2022'],when:['','']},
+{n:'Luca F.',s:['barba','beard trim'],st:0,d:0,t:25,src:['Veio pelo WhatsApp','Came from WhatsApp'],when:['','']},
+{n:'Elena V.',s:['progressiva','keratin treatment'],st:1,d:60,t:220,src:['Cliente desde 2025','Client since 2025'],when:['quinta às 15h','Thursday at 3pm']},
+{n:'Bianca T.',s:['manicure','manicure'],st:2,d:5,t:30,src:['Veio pelo Google','Came from Google'],when:['','']}
+];
+let activeC=0,crmMsgOn=false,crmTimer;
+const boardEl=document.getElementById('board'),clientEl=document.getElementById('client');
+function crmMsg(c){
+  const s=T(c.s[0],c.s[1]);
+  return [
+    [`Oi ${c.n.split(' ')[0]}, que bom te receber por aqui! Para ${s}, tenho quinta às 15h ou sábado às 11h. Qual fica melhor para você?`,`Hi ${c.n.split(' ')[0]}, lovely to hear from you! For ${s}, I have Thursday at 3pm or Saturday at 11am. Which suits you best?`],
+    [`Oi ${c.n.split(' ')[0]}, passando para lembrar do seu horário de ${s} ${c.when[0]}. Estamos te esperando!`,`Hi ${c.n.split(' ')[0]}, a quick reminder of your ${s} on ${c.when[1]}. See you soon!`],
+    [`Oi ${c.n.split(' ')[0]}, foi um prazer te atender! Como ficou o resultado de ${s}? Se puder, deixe sua avaliação no Google, ajuda muito o salão.`,`Hi ${c.n.split(' ')[0]}, it was a pleasure having you! How is your ${s}? If you can, leave us a Google review, it helps the salon a lot.`],
+    [`Oi ${c.n.split(' ')[0]}, já são ${c.d} dias desde o seu último atendimento de ${s}. É o momento ideal para a manutenção. Esta semana tenho quinta às 15h livre, reservo para você?`,`Hi ${c.n.split(' ')[0]}, it's been ${c.d} days since your ${s}, the perfect time for upkeep. I have Thursday at 3pm free this week, shall I book it for you?`]
+  ][c.st];
+}
+function renderCRM(){
+  boardEl.innerHTML='';
+  STAGES.forEach((stg,si)=>{
+    const col=document.createElement('div');col.className='col';
+    const list=CLIENTS.map((c,i)=>[c,i]).filter(([c])=>c.st===si);
+    col.innerHTML='<div class="col-h"><span>'+T(stg[0],stg[1])+'</span><span>'+list.length+'</span></div>';
+    list.forEach(([c,i])=>{const b=document.createElement('button');b.type='button';b.className='cc';b.setAttribute('aria-pressed',i===activeC);
+      const due=si===3?'<span class="due">'+c.d+T(' dias',' days')+'</span>':si===1?'<span class="due">'+T(c.when[0],c.when[1])+'</span>':'';
+      b.innerHTML='<b>'+c.n+'</b><small>'+T(c.s[0],c.s[1])+' · €'+c.t+'</small>'+due;
+      b.onclick=()=>{activeC=i;crmMsgOn=false;renderCRM()};col.appendChild(b)});
+    boardEl.appendChild(col);
+  });
+  document.getElementById('k-funnel').textContent=CLIENTS.length;
+  document.getElementById('k-booked').textContent=CLIENTS.filter(c=>c.st===1).length;
+  document.getElementById('k-back').textContent=CLIENTS.filter(c=>c.st===3).length;
+  const c=CLIENTS[activeC];
+  const next=[T('Marcar horário','Book'),T('Confirmar visita','Mark as visited'),T('Programar retorno','Schedule win-back'),T('Reagendar','Rebook')][c.st];
+  clientEl.innerHTML='<div><p class="eyebrow">'+T(STAGES[c.st][0],STAGES[c.st][1])+'</p><h4>'+c.n+'</h4>'+
+    '<div class="facts"><div><span>'+T('Serviço','Service')+'</span>'+T(c.s[0],c.s[1])+'</div><div><span>'+T('Ticket médio','Avg. ticket')+'</span>€'+c.t+'</div><div><span>'+T('Última visita','Last visit')+'</span>'+(c.d?c.d+T(' dias',' days'):T('Primeira vez','First time'))+'</div><div><span>'+T('Origem','Source')+'</span>'+T(c.src[0],c.src[1])+'</div></div></div><div>'+
+    '<div class="wa"><small>WhatsApp · '+T('mensagem da IA','AI message')+'</small><span id="wa-txt">'+(crmMsgOn?T(crmMsg(c)[0],crmMsg(c)[1]):T('Toque em "Gerar mensagem" para a IA escrever no tom do salão.','Tap "Write message" and the AI writes it in the salon\'s voice.'))+'</span></div>'+
+    '<div class="acts"><button type="button" id="crm-gen">'+T('Gerar mensagem','Write message')+'</button><button type="button" class="alt" id="crm-next">'+next+'</button></div></div>';
+  document.getElementById('crm-gen').onclick=()=>{crmMsgOn=true;const el=document.getElementById('wa-txt'),txt=T(crmMsg(c)[0],crmMsg(c)[1]);clearInterval(crmTimer);
+    if(reduce){el.textContent=txt;return}let n=0;crmTimer=setInterval(()=>{n+=2;el.textContent=txt.slice(0,n);if(n>=txt.length)clearInterval(crmTimer)},18)};
+  document.getElementById('crm-next').onclick=()=>{clearInterval(crmTimer);
+    if(c.st===3||c.st===0){c.st=1;c.when=['quinta às 15h','Thursday at 3pm']}else if(c.st===1){c.st=2;c.d=0}else{c.st=3;c.d=c.d||35}
+    crmMsgOn=false;renderCRM()};
+}
+
+/* ---------- budget ---------- */
+const ROOMS=[
+{id:'sala',pt:'Sala',en:'Living room',lines:[['Pintura de paredes e teto','Wall and ceiling paint','86 m²',5200],['Piso de madeira','Wood flooring','34 m²',13600],['Painel ripado da TV','Fluted TV wall panel','1 un',9800]]},
+{id:'coz',pt:'Cozinha',en:'Kitchen',lines:[['Marcenaria da cozinha','Kitchen joinery','6,2 m',31000],['Bancada em pedra','Stone countertop','4,8 m²',8600],['Revestimento de parede','Wall tiling','9 m²',3100]]},
+{id:'ban',pt:'Banheiro',en:'Bathroom',lines:[['Revestimento completo','Full tiling','28 m²',9400],['Louças e metais','Sanitaryware and fittings','1 conj.',7800],['Box em vidro','Glass shower screen','1 un',3900]]},
+{id:'qto',pt:'Quarto',en:'Bedroom',lines:[['Armário sob medida','Built-in wardrobe','2,8 m',14200],['Pintura','Paint','52 m²',3100],['Cortinas e blackout','Curtains and blackout','2 jan.',4300]]}
+];
+const TIERS=[{id:'e',pt:'Essencial',en:'Essential',k:1},{id:'p',pt:'Premium',en:'Premium',k:1.45}];
+let selRooms=new Set(['sala','coz']),tier='p';
+const roomsEl=document.getElementById('rooms'),tiersEl=document.getElementById('tiers'),rowsEl=document.getElementById('rows'),totalEl=document.getElementById('total');
+function fmt(n){return 'AED '+Math.round(n).toLocaleString('en-US')}
+function renderBudget(){
+  roomsEl.innerHTML='';ROOMS.forEach(r=>{const b=document.createElement('button');b.type='button';b.className='chip';b.textContent=T(r.pt,r.en);b.setAttribute('aria-pressed',selRooms.has(r.id));b.onclick=()=>{selRooms.has(r.id)?selRooms.delete(r.id):selRooms.add(r.id);renderBudget()};roomsEl.appendChild(b)});
+  tiersEl.innerHTML='';TIERS.forEach(t=>{const b=document.createElement('button');b.type='button';b.className='chip';b.textContent=T(t.pt,t.en);b.setAttribute('aria-pressed',tier===t.id);b.onclick=()=>{tier=t.id;renderBudget()};tiersEl.appendChild(b)});
+  const k=TIERS.find(t=>t.id===tier).k;let total=0,i=0;rowsEl.innerHTML='';
+  ROOMS.filter(r=>selRooms.has(r.id)).forEach(r=>r.lines.forEach(l=>{
+    const v=l[3]*k;total+=v;const d=document.createElement('div');d.className='row';d.style.animationDelay=(i++*45)+'ms';
+    d.innerHTML='<span>'+T(r.pt,r.en)+' · '+T(l[0],l[1])+'</span><span class="q">'+l[2]+'</span><span class="v">'+fmt(v)+'</span>';rowsEl.appendChild(d)}));
+  if(!i){rowsEl.innerHTML='<div class="row"><span style="color:var(--taupe)">'+T('Escolha pelo menos um ambiente.','Pick at least one room.')+'</span><span></span><span></span></div>'}
+  animateTotal(total);
+}
+let shownTotal=0,raf;
+function animateTotal(to){cancelAnimationFrame(raf);const from=shownTotal,st=performance.now(),dur=reduce?1:600;
+  (function f(now){const p=Math.min(1,(now-st)/dur),e=1-Math.pow(1-p,3);shownTotal=from+(to-from)*e;totalEl.textContent=fmt(shownTotal);if(p<1)raf=requestAnimationFrame(f)})(st)}
+
+/* ---------- inspection ---------- */
+const FINDS=[
+['Pintura','Paint','Marca de rolo perto da janela','Roller mark near the window','Pintor · 1 dia','Painter · 1 day'],
+['Marcenaria','Joinery','Porta desalinhada, 3 mm no topo','Door misaligned, 3 mm at the top','Marceneiro · 2 horas','Carpenter · 2 hours'],
+['Piso','Flooring','Junta aberta entre réguas','Open joint between boards','Instalador · 1 hora','Installer · 1 hour']
+];
+let activeF=0,reportsOn=false;
+const fEl=document.getElementById('findings'),hots=[...document.querySelectorAll('.hot')];
+function renderFind(){
+  hots.forEach(h=>h.setAttribute('aria-pressed',+h.dataset.f===activeF));
+  fEl.innerHTML='';
+  FINDS.forEach((f,i)=>{const b=document.createElement('button');b.type='button';b.className='find';b.setAttribute('aria-pressed',i===activeF);
+    b.innerHTML='<small>'+(i+1)+' · '+T(f[0],f[1])+'</small><span>'+T(f[2],f[3])+'</span>'+(i===activeF?'<small style="color:var(--linen-2);letter-spacing:.06em;text-transform:none">'+T('Responsável: ','Assigned: ')+T(f[4],f[5])+'</small>':'');
+    b.onclick=()=>{activeF=i;renderFind()};fEl.appendChild(b)});
+  const g=document.createElement('button');g.type='button';g.className='btn';g.style.marginTop='6px';g.style.justifyContent='center';
+  g.textContent=reportsOn?T('Relatórios gerados','Reports generated'):T('Gerar relatórios','Generate reports');
+  g.onclick=()=>{reportsOn=true;renderFind()};fEl.appendChild(g);
+  if(reportsOn){const r=document.createElement('div');r.className='reports';r.innerHTML='<span class="rep">PDF · '+T('Proprietário','Owner')+'</span><span class="rep">PDF · '+T('Empreiteiro','Contractor')+'</span>';fEl.appendChild(r)}
+}
+hots.forEach(h=>h.onclick=()=>{activeF=+h.dataset.f;renderFind()});
+
+/* ---------- agents ---------- */
+const AGENTS=[
+['Vendas','Sales','Prepara a proposta do novo cliente','Draft the new client proposal','Proposta pronta: escopo em 3 fases, prazo de 6 semanas e condições de pagamento. Enviei para sua aprovação antes de mandar ao cliente.','Proposal ready: 3-phase scope, 6-week timeline and payment terms. Sent to you for approval before it goes to the client.'],
+['Marketing','Marketing','Planeja o conteúdo da semana','Plan this week\'s content','Semana planejada: 2 reels, 1 carrossel de antes e depois e 3 stories. Roteiros no seu tom de voz, prontos para gravar.','Week planned: 2 reels, 1 before-and-after carousel and 3 stories. Scripts in your voice, ready to record.'],
+['Operação','Operations','Monta o cronograma da obra','Build the site schedule','Cronograma criado: 6 semanas, 4 equipes, entregas marcadas por ambiente. Avisei o fornecedor de marcenaria sobre a data de medição.','Schedule created: 6 weeks, 4 crews, deliveries by room. The joinery supplier has the measuring date.'],
+['Atendimento','Guest care','Responde o hóspede que chega hoje','Reply to today\'s arriving guest','Mensagem enviada com instruções de check-in, senha do Wi-Fi e três restaurantes perto do apartamento.','Message sent with check-in instructions, Wi-Fi password and three restaurants near the apartment.'],
+['Prospecção','Prospecting','Encontra 30 revendedores','Find 30 resellers','Lista pronta com 30 lojas, decisor de cada uma e uma primeira mensagem personalizada para cada contato.','List ready with 30 stores, each decision-maker and a personalised first message for every contact.'],
+['Financeiro','Finance','Resume o mês','Summarise the month','Resumo do mês: receitas por unidade, custos por categoria e três pontos para revisar na sua reunião de sexta.','Month summary: revenue per unit, costs by category and three points to review in your Friday meeting.']
+];
+let agentStarted=false,typeTimer,activeA=-1;
+const agEl=document.getElementById('agents'),whoEl=document.getElementById('who'),msgEl=document.getElementById('msg');
+function renderAgents(){
+  agEl.innerHTML='';AGENTS.forEach((a,i)=>{const b=document.createElement('button');b.type='button';b.className='agent';b.setAttribute('aria-pressed',i===activeA);
+    b.innerHTML='<span class="st">'+T('ativo','active')+'</span><b>'+T(a[0],a[1])+'</b><small>'+T(a[2],a[3])+'</small>';b.onclick=()=>pickAgent(i);agEl.appendChild(b)});
+}
+function pickAgent(i){
+  activeA=i;renderAgents();clearInterval(typeTimer);
+  const a=AGENTS[i],txt=T(a[4],a[5]);whoEl.textContent=T('Agente de ','Agent · ')+T(a[0].toLowerCase(),a[1])+' · '+T(a[2],a[3]);
+  if(reduce){msgEl.textContent=txt;return}
+  let n=0;msgEl.innerHTML='<span class="caret"></span>';
+  typeTimer=setInterval(()=>{n+=2;msgEl.innerHTML=txt.slice(0,n)+'<span class="caret"></span>';if(n>=txt.length){clearInterval(typeTimer);msgEl.textContent=txt}},22);
+}
+function idleAgentMsg(){if(activeA<0){whoEl.textContent=T('Seu time de IA','Your AI team');msgEl.textContent=T('Escolha um agente acima para ver o trabalho que ele entrega.','Pick an agent above to see the work it delivers.')}}
+
+/* ---------- brand builder ---------- */
+const STYLES=[{id:'ed',pt:'Editorial',en:'Editorial'},{id:'mod',pt:'Moderno',en:'Modern'},{id:'lux',pt:'Luxo',en:'Luxury'}];
+const PALS=[['#151412','#EAE6DF','#7E7669','#B5AEA2'],['#1F2A24','#EDE6D6','#B8935A','#5C5A4E'],['#2E2E2E','#FAFAF8','#C4956A','#D4C4B0'],['#18233A','#F2EFE8','#6F86A6','#C9B79C'],['#3B2A2A','#F4ECE6','#B06C5A','#D9C2B4']];
+let bStyle='ed',bPal=0;
+const nameIn=document.getElementById('brand-name'),pv=document.getElementById('pv'),pvWord=document.getElementById('pv-word'),pvMono=document.getElementById('pv-mono'),pvSub=document.getElementById('pv-sub'),pvPal=document.getElementById('pv-pal'),stEl=document.getElementById('styles'),palEl=document.getElementById('pals');
+function initials(s){const w=s.trim().split(/\s+/).filter(Boolean);return ((w[0]||'O')[0]+(w[1]?w[1][0]:(w[0]||'S')[1]||'')).toUpperCase()}
+function renderBrand(){
+  stEl.innerHTML='';STYLES.forEach(s=>{const b=document.createElement('button');b.type='button';b.className='chip';b.textContent=T(s.pt,s.en);b.setAttribute('aria-pressed',bStyle===s.id);b.onclick=()=>{bStyle=s.id;renderBrand()};stEl.appendChild(b)});
+  palEl.innerHTML='';PALS.forEach((p,i)=>{const b=document.createElement('button');b.type='button';b.className='sw';b.style.background='linear-gradient(135deg,'+p[0]+' 50%,'+p[2]+' 50%)';b.setAttribute('aria-pressed',bPal===i);b.setAttribute('aria-label',T('Paleta ','Palette ')+(i+1));b.onclick=()=>{bPal=i;renderBrand()};palEl.appendChild(b)});
+  const p=PALS[bPal],name=nameIn.value.trim()||'Sua Marca';
+  pv.style.background=bStyle==='mod'?p[1]:p[0];pv.style.color=bStyle==='mod'?p[0]:p[1];
+  pvWord.innerHTML='';
+  if(bStyle==='ed'){const w=name.split(/\s+/);pvWord.style.fontFamily='var(--serif)';pvWord.style.letterSpacing='-.01em';pvWord.style.textTransform='none';pvWord.innerHTML='<b>'+esc(w[0])+'</b>'+(w.length>1?' <i style="font-weight:400;color:'+p[3]+'">'+esc(w.slice(1).join(' '))+'</i>':'')}
+  else if(bStyle==='mod'){pvWord.style.fontFamily='var(--sans)';pvWord.style.letterSpacing='-.04em';pvWord.style.textTransform='lowercase';pvWord.innerHTML='<span style="font-weight:600">'+esc(name)+'</span><span style="color:'+p[2]+'">.</span>'}
+  else{pvWord.style.fontFamily='var(--serif)';pvWord.style.letterSpacing='.22em';pvWord.style.textTransform='uppercase';pvWord.innerHTML='<span style="font-weight:400;font-size:.62em">'+esc(name)+'</span>'}
+  pvMono.textContent=initials(name);pvMono.style.fontFamily=bStyle==='mod'?'var(--sans)':'var(--serif)';pvMono.style.border='1px solid '+p[2];pvMono.style.color=bStyle==='mod'?p[0]:p[1];
+  pvSub.textContent=T('Identidade de marca','Brand identity');pvSub.style.color=p[2];
+  pvPal.innerHTML=p.map(c=>'<span style="background:'+c+'"></span>').join('');
+}
+function esc(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+nameIn.addEventListener('input',renderBrand);
+
+/* ---------- diagnosis ---------- */
+const SECT=[{id:'sal',pt:'Salão de beleza',en:'Hair & beauty salon'},{id:'int',pt:'Interiores / obra',en:'Interiors / build'},{id:'imo',pt:'Imóveis / temporada',en:'Property / rentals'},{id:'mar',pt:'Marca / e-commerce',en:'Brand / e-commerce'},{id:'srv',pt:'Serviços / consultoria',en:'Services / consulting'}];
+const PAIN=[{id:'ret',pt:'Fazer o cliente voltar',en:'Bringing clients back'},{id:'orc',pt:'Orçamentos e propostas',en:'Budgets and proposals'},{id:'cli',pt:'Atender clientes',en:'Answering clients'},{id:'con',pt:'Criar conteúdo',en:'Creating content'},{id:'ven',pt:'Encontrar clientes',en:'Finding clients'}];
+const BUILD={
+ret:[['CRM de clientes','Client CRM','Cada cliente com histórico, ticket e data ideal de retorno.','Every client with history, spend and ideal return date.'],['Lembretes automáticos','Automatic reminders','Mensagem no WhatsApp no momento certo, no tom do seu negócio.','A WhatsApp message at the right moment, in your voice.']],
+orc:[['Gerador de orçamentos','Budget generator','Do levantamento à planilha com a sua marca, em minutos.','From take-off to a branded sheet, in minutes.'],['Propostas automáticas','Automatic proposals','Escopo, prazo e condições montados a partir de um briefing.','Scope, timeline and terms built from one brief.']],
+cli:[['Agente de atendimento','Client-care agent','Responde dúvidas frequentes no seu tom, 24 horas.','Answers common questions in your voice, around the clock.'],['Painel de pedidos','Request dashboard','Cada contato organizado, com próximo passo claro.','Every contact organised, with a clear next step.']],
+con:[['Motor de conteúdo','Content engine','Pilares, calendário e roteiros prontos todo mês.','Pillars, calendar and scripts ready every month.'],['Vídeos com IA','AI video','Reels e anúncios produzidos a partir de um roteiro.','Reels and ads produced from a script.']],
+ven:[['Prospecção com IA','AI prospecting','Lista de decisores do seu mercado com mensagem personalizada.','A list of decision-makers in your market, each with a personal message.'],['Página de vendas','Sales page','Uma página que capta contatos e qualifica o interesse.','A page that captures leads and qualifies interest.']]
+};
+const EXTRA={sal:['Agenda e avaliações','Bookings and reviews','Agendamento online e pedido de avaliação no Google após cada visita.','Online booking and a Google review request after every visit.'],int:['App de vistoria','Inspection app','Pontos encontrados por foto, relatório para cliente e equipe.','Issues found from photos, reports for client and crew.'],imo:['Operação de unidades','Unit operations','Check-in, limpeza e mensagens aos hóspedes no automático.','Check-in, cleaning and guest messages on autopilot.'],mar:['Marca e lançamento','Brand and launch','Identidade, site e campanha de lançamento alinhados.','Identity, website and launch campaign in one line.'],srv:['Site com presença','Website with presence','Um site que transmite autoridade e gera conversas.','A website that conveys authority and starts conversations.']};
+let sec='sal',pain='ret';
+const secEl=document.getElementById('sectors'),painEl=document.getElementById('pains'),planEl=document.getElementById('plan');
+function renderDiag(){
+  secEl.innerHTML='';SECT.forEach(s=>{const b=document.createElement('button');b.type='button';b.className='chip';b.textContent=T(s.pt,s.en);b.setAttribute('aria-pressed',sec===s.id);b.onclick=()=>{sec=s.id;renderDiag()};secEl.appendChild(b)});
+  painEl.innerHTML='';PAIN.forEach(s=>{const b=document.createElement('button');b.type='button';b.className='chip';b.textContent=T(s.pt,s.en);b.setAttribute('aria-pressed',pain===s.id);b.onclick=()=>{pain=s.id;renderDiag()};painEl.appendChild(b)});
+  if(!sec||!pain){planEl.innerHTML='<p class="eyebrow">'+T('Seu plano','Your plan')+'</p><p class="empty">'+T('Escolha o seu setor e onde vai o seu tempo. O plano aparece aqui.','Choose your sector and where your time goes. Your plan appears here.')+'</p>';return}
+  const items=[...BUILD[pain],EXTRA[sec]];
+  planEl.innerHTML='<p class="eyebrow">'+T('Seu plano Operator','Your Operator plan')+'</p><h4>'+T('Três peças que liberam o seu tempo','Three pieces that free up your time')+'</h4><ol>'+items.map(it=>'<li><b>'+T(it[0],it[1])+'</b><span>'+T(it[2],it[3])+'</span></li>').join('')+'</ol><a class="btn" href="#contato" style="align-self:flex-start">'+T('Quero esse diagnóstico','I want this audit')+'</a>';
+}
+
+/* ---------- copy ---------- */
+document.getElementById('copy').addEventListener('click',e=>{
+  const btn=e.currentTarget,txt='@luccastorres';
+  const ok=()=>{btn.textContent=T('Copiado','Copied');setTimeout(()=>btn.textContent=T('Copiar','Copy'),1600)};
+  try{navigator.clipboard.writeText(txt).then(ok,()=>{selectHandle();})}catch(_){selectHandle()}
+});
+function selectHandle(){const r=document.createRange();r.selectNodeContents(document.getElementById('handle'));const s=getSelection();s.removeAllRanges();s.addRange(r)}
+
+/* ---------- language ---------- */
+function setLang(l){
+  lang=l;document.documentElement.lang=l==='pt'?'pt-BR':'en';
+  document.getElementById('lang-pt').setAttribute('aria-pressed',l==='pt');document.getElementById('lang-en').setAttribute('aria-pressed',l==='en');
+  document.querySelectorAll('[data-i]').forEach(el=>{const k=el.dataset.i;const v=l==='pt'?PT[k]:EN[k];if(v!=null)el.textContent=v});
+  renderStory();renderCRM();renderBudget();renderFind();renderAgents();if(activeA>=0){const a=AGENTS[activeA];whoEl.textContent=T('Agente de ','Agent · ')+T(a[0].toLowerCase(),a[1])+' · '+T(a[2],a[3]);msgEl.textContent=T(a[4],a[5])}else idleAgentMsg();renderBrand();renderDiag();
+  try{localStorage.setItem('os-lang',l)}catch(_){}
+}
+document.getElementById('lang-pt').onclick=()=>setLang('pt');
+document.getElementById('lang-en').onclick=()=>setLang('en');
+let saved='pt';try{saved=localStorage.getItem('os-lang')||'pt'}catch(_){}
+setLang(saved==='en'?'en':'pt');
+})();
+</script>
+
+</body>
+</html>
