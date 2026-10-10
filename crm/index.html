@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#F3F1EC">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="OS CRM">
+<link rel="icon" href="/favicon.png">
+<link rel="apple-touch-icon" href="/favicon.png">
+<title>Operator Studio · CRM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600&family=Tinos:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#151412;--linen:#F3F1EC;--linen2:#EAE6DF;--card:#FBFAF7;--line:#D9D3C9;--taupe:#7E7669;--soft:#5F594F;--sand:#B5AEA2;--ok:#4E6B4F;--warn:#9A6B3C;
+--serif:'Tinos','Times New Roman',serif;--sans:'Hanken Grotesk',-apple-system,Helvetica,Arial,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+html,body{background:var(--linen);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+body{min-height:100vh;padding-bottom:env(safe-area-inset-bottom)}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+a{color:inherit}
+.logo{font-family:var(--serif);font-size:22px;letter-spacing:-.01em}
+.logo b{font-weight:700}.logo i{color:var(--taupe)}
+.eyebrow{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--taupe)}
+
+/* login */
+#login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+#login form{width:100%;max-width:360px;display:flex;flex-direction:column;gap:18px}
+#login h1{font-family:var(--serif);font-size:40px;line-height:1.05}
+#login h1 em{color:var(--taupe);font-weight:400}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--taupe)}
+.in{width:100%;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:13px 14px;font-size:16px;outline:none}
+.in:focus{border-color:var(--taupe)}
+textarea.in{min-height:110px;resize:vertical;line-height:1.45}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--ink);color:var(--linen);border-radius:999px;padding:13px 20px;font-size:15px;font-weight:500;text-decoration:none;white-space:nowrap}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.sm{padding:9px 14px;font-size:14px}
+.err{color:#9A3B2E;font-size:14px}
+
+/* app */
+header.top{position:sticky;top:0;z-index:5;background:rgba(243,241,236,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding:calc(12px + env(safe-area-inset-top)) 16px 12px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.top .r{display:flex;gap:8px;align-items:center}
+.iconbtn{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;background:var(--card)}
+.iconbtn svg{width:18px;height:18px}
+main{padding:20px 16px 40px;max-width:1440px;margin:0 auto}
+.hello{display:flex;flex-direction:column;gap:6px;margin-bottom:18px}
+.hello h2{font-family:var(--serif);font-size:32px;line-height:1.05}
+.hello h2 em{color:var(--taupe);font-weight:400}
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:22px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px}
+.kpi b{display:block;font-family:var(--serif);font-size:32px;line-height:1.1}
+.kpi span{font-size:12px;color:var(--soft)}
+.next{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:22px}
+.next h3{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--taupe);margin-bottom:10px;font-weight:500}
+.next ul{list-style:none;display:flex;flex-direction:column}
+.next li{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--line);cursor:pointer}
+.next li:first-child{border-top:0}
+.next .when{font-family:var(--serif);font-size:17px;white-space:nowrap}
+.next .who{font-size:14px;color:var(--soft);text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.empty{font-size:14px;color:var(--soft)}
+
+.tabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin:0 -16px 14px;padding-left:16px;padding-right:16px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:none;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:8px 14px;font-size:14px;color:var(--soft)}
+.tab.on{background:var(--ink);border-color:var(--ink);color:var(--linen)}
+.tab i{font-style:normal;opacity:.6;margin-left:4px}
+
+.board{display:flex;flex-direction:column;gap:10px}
+.col{display:none;flex-direction:column;gap:10px}
+.col.on{display:flex}
+.col>h4{display:none}
+.lead{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;cursor:pointer;text-align:left;width:100%;transition:border-color .15s}
+.lead:hover{border-color:var(--sand)}
+.lead .n{font-family:var(--serif);font-size:20px;font-weight:700;line-height:1.15}
+.lead .b{font-size:14px;color:var(--soft)}
+.lead .row{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.chip{font-size:12px;border-radius:999px;padding:4px 10px;background:var(--linen2);color:var(--soft)}
+.chip.slot{background:var(--ink);color:var(--linen)}
+.chip.src{background:transparent;border:1px solid var(--line)}
+.lead .d{font-size:13px;color:var(--soft);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+@media(min-width:1000px){
+  main{padding:28px 32px 60px}
+  .kpis{grid-template-columns:repeat(4,1fr)}
+  .split{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:20px;align-items:start}
+  .tabs{display:none}
+  .board{flex-direction:row;gap:14px;overflow-x:auto;align-items:flex-start;padding-bottom:8px}
+  .col{display:flex;flex:0 0 250px;background:var(--linen2);border-radius:18px;padding:12px;min-height:200px}
+  .col>h4{display:flex;justify-content:space-between;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--taupe);font-weight:500;padding:4px 4px 6px}
+  .next{position:sticky;top:90px;order:2}
+}
+
+/* sheet */
+.scrim{position:fixed;inset:0;background:rgba(21,20,18,.28);z-index:20;opacity:0;pointer-events:none;transition:opacity .2s}
+.scrim.on{opacity:1;pointer-events:auto}
+.sheet{position:fixed;z-index:21;left:0;right:0;bottom:0;max-height:92vh;overflow-y:auto;background:var(--linen);border-radius:24px 24px 0 0;padding:10px 18px calc(28px + env(safe-area-inset-bottom));transform:translateY(105%);transition:transform .28s cubic-bezier(.2,.8,.2,1)}
+.sheet.on{transform:none}
+.grab{width:40px;height:4px;border-radius:4px;background:var(--line);margin:4px auto 14px}
+@media(min-width:1000px){
+  .sheet{left:auto;top:0;width:460px;max-height:none;border-radius:0;border-left:1px solid var(--line);transform:translateX(105%);padding:28px}
+  .grab{display:none}
+}
+.sh-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:16px}
+.sh-head h3{font-family:var(--serif);font-size:30px;line-height:1.05}
+.sh-head p{font-size:15px;color:var(--soft);margin-top:4px}
+.acts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px}
+.act{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 6px;border:1px solid var(--line);border-radius:14px;background:var(--card);font-size:13px;text-decoration:none}
+.act svg{width:20px;height:20px}
+.act.off{opacity:.35;pointer-events:none}
+.blk{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin-bottom:14px;display:flex;flex-direction:column;gap:10px}
+.kv{display:flex;justify-content:space-between;gap:12px;font-size:14px}
+.kv span:first-child{color:var(--taupe)}
+.kv span:last-child{text-align:right;word-break:break-word}
+.quote{font-family:var(--serif);font-style:italic;font-size:17px;line-height:1.4}
+.stages{display:flex;flex-wrap:wrap;gap:6px}
+.st{border:1px solid var(--line);border-radius:999px;padding:8px 12px;font-size:13px;background:var(--card)}
+.st.on{background:var(--ink);color:var(--linen);border-color:var(--ink)}
+.tpl{display:flex;flex-wrap:wrap;gap:6px}
+.saved{font-size:13px;color:var(--ok);opacity:0;transition:opacity .2s}
+.saved.on{opacity:1}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--linen);padding:10px 16px;border-radius:999px;font-size:14px;opacity:0;transition:.2s;z-index:30;pointer-events:none}
+.toast.on{opacity:1;transform:translateX(-50%)}
+</style>
+</head>
+<body>
+
+<section id="login">
+  <form id="loginForm">
+    <span class="logo"><b>Operator</b> <i>Studio</i></span>
+    <h1>CRM <em>privado.</em></h1>
+    <div class="field"><label for="key">Senha</label><input id="key" class="in" type="password" autocomplete="current-password" required></div>
+    <button class="btn" type="submit">Entrar</button>
+    <p class="err" id="loginErr" hidden>Senha incorreta.</p>
+  </form>
+</section>
+
+<div id="app" hidden>
+  <header class="top">
+    <span class="logo"><b>Operator</b> <i>Studio</i></span>
+    <div class="r">
+      <button class="iconbtn" id="refresh" aria-label="Atualizar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5"/></svg></button>
+      <button class="btn sm" id="newBtn">+ Lead</button>
+    </div>
+  </header>
+  <main>
+    <div class="hello"><span class="eyebrow">Pipeline</span><h2>Seus <em>leads.</em></h2></div>
+    <div class="kpis" id="kpis"></div>
+    <div class="split">
+      <div>
+        <nav class="tabs" id="tabs"></nav>
+        <div class="board" id="board"></div>
+      </div>
+      <aside class="next" id="next"></aside>
+    </div>
+  </main>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<aside class="sheet" id="sheet" aria-modal="true" role="dialog"></aside>
+<div class="toast" id="toast"></div>
+
+<script>
+const STAGE = {novo:'Novo',agendado:'Análise agendada',analise:'Análise feita',proposta:'Proposta',cliente:'Cliente',perdido:'Perdido'};
+const ORDER = Object.keys(STAGE);
+const DOW = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+const MON = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+let KEY = '', LEADS = [], TAB = 'agendado', OPEN = null;
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const store = {get(k){try{return localStorage.getItem(k)}catch{return null}},set(k,v){try{localStorage.setItem(k,v)}catch{}},del(k){try{localStorage.removeItem(k)}catch{}}};
+
+function slotDate(s){ if(!s) return null; const d = new Date(s.slice(0,16)+':00+02:00'); return isNaN(d) ? null : d; }
+function slotLabel(s){ const d = slotDate(s); if(!d) return ''; const p = new Intl.DateTimeFormat('pt-BR',{timeZone:'Europe/Rome',weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}).formatToParts(d); const g = t => (p.find(x=>x.type===t)||{}).value||''; return `${DOW[new Date(s.slice(0,10)+'T12:00:00Z').getUTCDay()]} ${g('day')} ${MON[+s.slice(5,7)-1]} · ${g('hour')}:${g('minute')}`; }
+function waNumber(raw){ let d = String(raw||'').replace(/[^\d+]/g,''); if(d.startsWith('+')) return d.slice(1); if(d.startsWith('00')) return d.slice(2); if(/^3\d{8,9}$/.test(d)) return '39'+d; return d; }
+function first(n){ return String(n||'').trim().split(/\s+/)[0]; }
+
+async function api(method, body){
+  const r = await fetch('/api/crm', {method, headers:{'x-crm-key':KEY,'content-type':'application/json'}, body: body ? JSON.stringify(body) : undefined, cache:'no-store'});
+  if(r.status === 401){ logout(); throw new Error('auth'); }
+  if(!r.ok) throw new Error('api');
+  return r.json();
+}
+
+async function load(){
+  const d = await api('GET');
+  LEADS = d.leads.sort((a,b)=> (a.slot||'9') .localeCompare(b.slot||'9') || (b.createdAt||'').localeCompare(a.createdAt||''));
+  render();
+  if(OPEN){ const l = LEADS.find(x=>x.id===OPEN); if(l) openLead(l.id, true); }
+}
+
+function render(){
+  const c = s => LEADS.filter(l=>l.stage===s).length;
+  $('#kpis').innerHTML = [
+    [LEADS.filter(l=>l.stage!=='perdido').length,'Leads ativos'],
+    [c('agendado'),'Análises agendadas'],
+    [c('proposta'),'Propostas'],
+    [c('cliente'),'Clientes']
+  ].map(([n,t])=>`<div class="kpi"><b>${n}</b><span>${t}</span></div>`).join('');
+
+  if(!LEADS.some(l=>l.stage===TAB)) TAB = ORDER.find(s=>c(s)) || 'agendado';
+  $('#tabs').innerHTML = ORDER.map(s=>`<button class="tab ${s===TAB?'on':''}" data-tab="${s}">${STAGE[s]}<i>${c(s)}</i></button>`).join('');
+  $('#board').innerHTML = ORDER.map(s=>{
+    const ls = LEADS.filter(l=>l.stage===s);
+    return `<section class="col ${s===TAB?'on':''}"><h4><span>${STAGE[s]}</span><span>${ls.length}</span></h4>${ls.length?ls.map(card).join(''):'<p class="empty" style="padding:4px">Nada aqui ainda.</p>'}</section>`;
+  }).join('');
+
+  const now = Date.now()-30*60*1000;
+  const up = LEADS.filter(l=>l.stage==='agendado' && slotDate(l.slot) && slotDate(l.slot).getTime()>now).sort((a,b)=>a.slot.localeCompare(b.slot));
+  $('#next').innerHTML = `<h3>Próximas análises</h3>${up.length?`<ul>${up.map(l=>`<li data-id="${esc(l.id)}"><span class="when">${esc(slotLabel(l.slot))}</span><span class="who">${esc(l.nome)}${l.negocio?' · '+esc(l.negocio):''}</span></li>`).join('')}</ul>`:'<p class="empty">Nenhuma análise marcada.</p>'}`;
+}
+
+function card(l){
+  return `<button class="lead" data-id="${esc(l.id)}">
+    <span class="n">${esc(l.nome)}</span>
+    ${l.negocio||l.setor?`<span class="b">${esc(l.negocio)}${l.negocio&&l.setor?' · ':''}${esc(l.setor)}</span>`:''}
+    <span class="row">${l.slot?`<span class="chip slot">${esc(slotLabel(l.slot))}</span>`:''}${l.value?`<span class="chip">€ ${esc(l.value)}</span>`:''}<span class="chip src">${l.source==='site'?'Site':'Manual'}</span></span>
+    ${l.desafio?`<span class="d">${esc(l.desafio)}</span>`:''}
+  </button>`;
+}
+
+const ICON = {
+  wa:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 20l1.3-3.9A8 8 0 1 1 8 19z"/><path d="M9 9.5c.3 2 2.5 4.2 4.5 4.5l1.2-1.2 1.8.8-.4 1.6c-3.6.4-7.7-3.7-7.3-7.3l1.6-.4.8 1.8z"/></svg>',
+  mail:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>',
+  cal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>'
+};
+
+function gcal(l){
+  const d = slotDate(l.slot); if(!d) return '';
+  const f = x => x.toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,'');
+  const e = new Date(d.getTime()+30*60000);
+  const txt = `Análise Operator Studio · ${l.nome}${l.negocio?' ('+l.negocio+')':''}`;
+  const det = [l.whatsapp&&'WhatsApp: '+l.whatsapp, l.email&&'E-mail: '+l.email, l.setor&&'Setor: '+l.setor, l.desafio&&'Desafio: '+l.desafio].filter(Boolean).join('\n');
+  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(txt)}&dates=${f(d)}/${f(e)}&details=${encodeURIComponent(det)}${l.email?'&add='+encodeURIComponent(l.email):''}`;
+}
+
+function templates(l){
+  const n = first(l.nome), when = l.slot ? slotLabel(l.slot).replace(' · ',' às ') : '';
+  return {
+    'Confirmar análise': `Oi, ${n}! Aqui é o Luccas, da Operator Studio. Recebi a sua reserva${when?' para '+when+' (horário de Milão)':''}. Vou te mandar o link da videochamada antes do horário. Até lá!`,
+    'Enviar link da call': `Oi, ${n}! Segue o link da nossa videochamada${when?' de '+when:''}: `,
+    'Pós-análise': `Oi, ${n}! Obrigado pela conversa de hoje. Como combinamos, vou te mandar a proposta com os próximos passos para o ${l.negocio||'seu negócio'}.`
+  };
+}
+
+function openLead(id, keep){
+  const l = LEADS.find(x=>x.id===id); if(!l) return;
+  OPEN = id;
+  const wa = waNumber(l.whatsapp), manual = l.source==='manual';
+  const tpl = templates(l);
+  $('#sheet').innerHTML = `<div class="grab"></div>
+    <div class="sh-head"><div><span class="eyebrow">${l.source==='site'?'Reserva pelo site':'Lead manual'}</span><h3>${esc(l.nome)}</h3><p>${esc(l.negocio)}${l.negocio&&l.setor?' · ':''}${esc(l.setor)}</p></div>
+      <button class="iconbtn" id="close" aria-label="Fechar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="acts">
+      <a class="act ${wa?'':'off'}" href="https://wa.me/${wa}" target="_blank" rel="noopener">${ICON.wa}WhatsApp</a>
+      <a class="act ${l.email?'':'off'}" href="mailto:${esc(l.email)}">${ICON.mail}E-mail</a>
+      <a class="act ${l.slot?'':'off'}" href="${esc(gcal(l))}" target="_blank" rel="noopener">${ICON.cal}Agenda</a>
+    </div>
+    <div class="blk">
+      ${l.slot?`<div class="kv"><span>Análise</span><span>${esc(slotLabel(l.slot))} · Milão</span></div>`:''}
+      ${l.whatsapp?`<div class="kv"><span>WhatsApp</span><span>${esc(l.whatsapp)}</span></div>`:''}
+      ${l.email?`<div class="kv"><span>E-mail</span><span>${esc(l.email)}</span></div>`:''}
+      ${l.createdAt?`<div class="kv"><span>Entrou em</span><span>${esc(new Date(l.createdAt).toLocaleString('pt-BR',{timeZone:'Europe/Rome',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}))}</span></div>`:''}
+      ${l.desafio?`<span class="eyebrow" style="margin-top:4px">O que mais toma o tempo</span><p class="quote">“${esc(l.desafio)}”</p>`:''}
+    </div>
+    <div class="blk"><span class="eyebrow">Etapa</span><div class="stages">${ORDER.map(s=>`<button class="st ${s===l.stage?'on':''}" data-stage="${s}">${STAGE[s]}</button>`).join('')}</div></div>
+    ${wa?`<div class="blk"><span class="eyebrow">Mensagem rápida</span><div class="tpl">${Object.keys(tpl).map(k=>`<a class="btn ghost sm" target="_blank" rel="noopener" href="https://wa.me/${wa}?text=${encodeURIComponent(tpl[k])}">${k}</a>`).join('')}</div></div>`:''}
+    <div class="blk">
+      <div class="field"><label for="val">Valor do projeto (€)</label><input id="val" class="in" inputmode="decimal" value="${esc(l.value)}"></div>
+      <div class="field"><label for="notes">Notas</label><textarea id="notes" class="in" placeholder="Dores, ideias, próximos passos…">${esc(l.notes)}</textarea></div>
+      <div style="display:flex;align-items:center;gap:12px"><button class="btn" id="save">Salvar</button><span class="saved" id="saved">Salvo</span>
+      ${manual?'<button class="btn ghost sm" id="del" style="margin-left:auto">Excluir</button>':''}</div>
+    </div>`;
+  if(!keep){ $('#sheet').scrollTop = 0; }
+  $('#sheet').classList.add('on'); $('#scrim').classList.add('on');
+  $('#close').onclick = closeSheet;
+  $('#sheet').querySelectorAll('[data-stage]').forEach(b=>b.onclick = async()=>{
+    const s = b.dataset.stage; l.stage = s;
+    $('#sheet').querySelectorAll('[data-stage]').forEach(x=>x.classList.toggle('on', x===b));
+    TAB = s; render();
+    try{ await api('POST',{action:'update',id:l.id,stage:s}); toast('Etapa: '+STAGE[s]); }catch{ toast('Erro ao salvar'); }
+  });
+  $('#save').onclick = async()=>{
+    l.value = $('#val').value; l.notes = $('#notes').value;
+    try{ await api('POST',{action:'update',id:l.id,value:l.value,notes:l.notes}); $('#saved').classList.add('on'); setTimeout(()=>$('#saved').classList.remove('on'),1600); render(); }catch{ toast('Erro ao salvar'); }
+  };
+  if(manual) $('#del').onclick = async()=>{
+    if(!confirmDel(l)) return;
+    try{ await api('POST',{action:'delete',id:l.id}); closeSheet(); await load(); toast('Lead excluído'); }catch{ toast('Erro'); }
+  };
+}
+let delArm = null;
+function confirmDel(l){ if(delArm===l.id) return true; delArm = l.id; $('#del').textContent='Toque de novo'; setTimeout(()=>{delArm=null; const d=$('#del'); if(d) d.textContent='Excluir';},2500); return false; }
+
+function newLead(){
+  OPEN = null;
+  $('#sheet').innerHTML = `<div class="grab"></div>
+    <div class="sh-head"><div><span class="eyebrow">Adicionar</span><h3>Novo lead</h3></div>
+      <button class="iconbtn" id="close" aria-label="Fechar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <form id="nf" class="blk">
+      <div class="field"><label>Nome</label><input class="in" name="nome" required></div>
+      <div class="grid2"><div class="field"><label>WhatsApp</label><input class="in" name="whatsapp" inputmode="tel"></div><div class="field"><label>E-mail</label><input class="in" name="email" type="email"></div></div>
+      <div class="grid2"><div class="field"><label>Negócio</label><input class="in" name="negocio"></div><div class="field"><label>Setor</label><input class="in" name="setor" placeholder="Salão de beleza"></div></div>
+      <div class="field"><label>Etapa</label><select class="in" name="stage">${ORDER.map(s=>`<option value="${s}">${STAGE[s]}</option>`).join('')}</select></div>
+      <div class="field"><label>Notas</label><textarea class="in" name="notes" placeholder="Onde conheceu, o que precisa…"></textarea></div>
+      <button class="btn" type="submit">Adicionar lead</button>
+    </form>`;
+  $('#sheet').classList.add('on'); $('#scrim').classList.add('on'); $('#sheet').scrollTop = 0;
+  $('#close').onclick = closeSheet;
+  $('#nf').onsubmit = async e=>{
+    e.preventDefault();
+    const body = Object.fromEntries(new FormData(e.target)); body.action = 'create';
+    try{ await api('POST', body); closeSheet(); TAB = body.stage; await load(); toast('Lead adicionado'); }catch{ toast('Erro ao salvar'); }
+  };
+}
+
+function closeSheet(){ OPEN = null; $('#sheet').classList.remove('on'); $('#scrim').classList.remove('on'); }
+function toast(t){ const el = $('#toast'); el.textContent = t; el.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(()=>el.classList.remove('on'),1800); }
+
+function logout(){ store.del('os_crm_key'); KEY=''; $('#app').hidden = true; $('#login').hidden = false; }
+async function start(){
+  try{ await load(); $('#login').hidden = true; $('#app').hidden = false; return true; }
+  catch(e){ return false; }
+}
+
+document.addEventListener('click', e=>{
+  const t = e.target.closest('[data-tab]'); if(t){ TAB = t.dataset.tab; render(); return; }
+  const c = e.target.closest('.lead, .next li'); if(c){ openLead(c.dataset.id); }
+});
+$('#scrim').onclick = closeSheet;
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeSheet(); });
+$('#refresh').onclick = async()=>{ try{ await load(); toast('Atualizado'); }catch{} };
+$('#newBtn').onclick = newLead;
+document.addEventListener('visibilitychange', ()=>{ if(!document.hidden && KEY) load().catch(()=>{}); });
+
+$('#loginForm').onsubmit = async e=>{
+  e.preventDefault(); KEY = $('#key').value.trim(); $('#loginErr').hidden = true;
+  if(await start()) store.set('os_crm_key', KEY); else { $('#loginErr').hidden = false; KEY=''; }
+};
+(async()=>{ const k = store.get('os_crm_key'); if(k){ KEY = k; if(!(await start())) logout(); } })();
+</script>
+</body>
+</html>

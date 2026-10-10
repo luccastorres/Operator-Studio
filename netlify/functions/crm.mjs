@@ -1,0 +1,105 @@
+import { getStore } from "@netlify/blobs";
+
+// Private CRM API for Operator Studio.
+// Leads = every booking from the site (store "bookings") + leads added by hand.
+// Pipeline data (stage, notes, value) lives in store "crm", keyed by lead id.
+
+const STAGES = ["novo", "agendado", "analise", "proposta", "cliente", "perdido"];
+const clip = (v, n) => String(v ?? "").trim().slice(0, n);
+const json = (data, status = 200) =>
+  Response.json(data, { status, headers: { "cache-control": "no-store" } });
+
+function authorized(req) {
+  const key = process.env.CRM_KEY;
+  return key && req.headers.get("x-crm-key") === key;
+}
+
+export default async (req) => {
+  if (!authorized(req)) return json({ error: "unauthorized" }, 401);
+
+  const bookings = getStore({ name: "bookings", consistency: "strong" });
+  const crm = getStore({ name: "crm", consistency: "strong" });
+
+  if (req.method === "GET") {
+    const [{ blobs: bk }, { blobs: cm }] = await Promise.all([bookings.list(), crm.list()]);
+    const meta = {};
+    await Promise.all(cm.map(async (b) => (meta[b.key] = await crm.get(b.key, { type: "json" }))));
+
+    const leads = [];
+    await Promise.all(
+      bk.map(async (b) => {
+        const r = await bookings.get(b.key, { type: "json" });
+        if (!r) return;
+        const m = meta[b.key] || {};
+        leads.push({ id: b.key, source: "site", stage: "agendado", notes: "", value: "", ...r, ...m });
+        delete meta[b.key];
+      })
+    );
+    // manual leads (and any orphaned meta that carries its own data)
+    for (const [id, m] of Object.entries(meta)) {
+      if (m && m.nome) leads.push({ id, source: "manual", stage: "novo", notes: "", value: "", ...m });
+    }
+    return json({ leads, stages: STAGES });
+  }
+
+  if (req.method === "POST") {
+    let b;
+    try {
+      b = await req.json();
+    } catch {
+      return json({ error: "invalid" }, 400);
+    }
+
+    if (b.action === "update") {
+      const id = clip(b.id, 40);
+      if (!id) return json({ error: "invalid" }, 400);
+      const cur = (await crm.get(id, { type: "json" })) || {};
+      const next = { ...cur, updatedAt: new Date().toISOString() };
+      if (b.stage !== undefined) {
+        if (!STAGES.includes(b.stage)) return json({ error: "stage" }, 400);
+        next.stage = b.stage;
+      }
+      if (b.notes !== undefined) next.notes = clip(b.notes, 4000);
+      if (b.value !== undefined) next.value = clip(b.value, 20);
+      // manual leads can edit their contact fields too
+      for (const f of ["nome", "whatsapp", "email", "negocio", "setor", "desafio", "slot"]) {
+        if (b[f] !== undefined && cur.nome) next[f] = clip(b[f], f === "desafio" ? 1000 : 160);
+      }
+      await crm.setJSON(id, next);
+      return json({ ok: true });
+    }
+
+    if (b.action === "create") {
+      const nome = clip(b.nome, 120);
+      if (!nome) return json({ error: "invalid" }, 400);
+      const id = "m-" + Date.now().toString(36);
+      await crm.setJSON(id, {
+        nome,
+        whatsapp: clip(b.whatsapp, 40),
+        email: clip(b.email, 160),
+        negocio: clip(b.negocio, 160),
+        setor: clip(b.setor, 80),
+        desafio: clip(b.desafio, 1000),
+        slot: clip(b.slot, 20),
+        stage: STAGES.includes(b.stage) ? b.stage : "novo",
+        notes: clip(b.notes, 4000),
+        value: clip(b.value, 20),
+        createdAt: new Date().toISOString(),
+      });
+      return json({ ok: true, id });
+    }
+
+    if (b.action === "delete") {
+      const id = clip(b.id, 40);
+      if (!id.startsWith("m-")) return json({ error: "only manual leads" }, 400);
+      await crm.delete(id);
+      return json({ ok: true });
+    }
+
+    return json({ error: "action" }, 400);
+  }
+
+  return json({ error: "method" }, 405);
+};
+
+export const config = { path: "/api/crm" };
