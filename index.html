@@ -384,6 +384,21 @@ section{padding-block:clamp(64px,9vw,120px)}
 .fld input:focus,.fld select:focus,.fld textarea:focus{outline:2px solid var(--taupe);outline-offset:1px}
 .fld textarea{resize:vertical}
 .lead .btn{justify-content:center}
+
+.lbl{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--taupe)}
+.days{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.day{background:#FBFAF7;border:1px solid var(--line);border-radius:12px;padding:10px 8px;text-align:center;display:flex;flex-direction:column;gap:2px;color:var(--ink)}
+.day b{font-family:var(--serif);font-size:20px;font-weight:700}
+.day small{font-size:12px;color:var(--taupe)}
+.day[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--linen)}
+.day[aria-pressed="true"] small{color:var(--sand)}
+.slots{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:4px}
+.slot-b{background:#FBFAF7;border:1px solid var(--line);border-radius:10px;padding:11px 4px;font-size:15px;font-variant-numeric:tabular-nums;color:var(--ink)}
+.slot-b[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--linen)}
+.slot-b:disabled{color:#B9B3A8;text-decoration:line-through;cursor:not-allowed;background:transparent}
+.tz{font-size:13px;color:var(--soft)}
+.fmsg a{color:var(--ink)}
+@media(max-width:420px){.slots{grid-template-columns:repeat(3,minmax(0,1fr))}}
 .fmsg{grid-column:1/-1;font-size:14px;color:var(--soft);min-height:1em}
 .fmsg.ok{font-family:var(--serif);font-size:20px;color:var(--ink)}
 .cta .box{align-items:start}
@@ -591,19 +606,21 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
       <div class="side">
         <p class="eyebrow" data-i="ctEy">Brasileiros Inspiradores · Milano</p>
         <h2 style="margin-top:18px"><span data-i="ctH2a">Análise gratuita</span> <em data-i="ctH2b">de 30 minutos.</em></h2>
-        <p data-i="ctP">Deixe seus dados e entramos em contato para mostrar onde o seu negócio pode economizar tempo e dinheiro.</p>
+        <p data-i="ctP">Escolha um horário e reserve sua análise gratuita de 30 minutos. Vamos mostrar onde o seu negócio pode economizar tempo e dinheiro.</p>
         <div class="copyline"><span data-i="ctOr">Ou fale direto:</span><a href="https://www.instagram.com/luccastorres/" target="_blank" rel="noopener"><code id="handle">@luccastorres</code></a><button type="button" id="copy" data-i="ctCopy">Copiar</button></div>
       </div>
       <form class="lead" id="lead" name="lead" method="POST" data-netlify="true" netlify-honeypot="bot-field" novalidate>
         <input type="hidden" name="form-name" value="lead">
         <p hidden><label>Bot <input name="bot-field"></label></p>
+        <input type="hidden" name="horario" id="f-slot">
+        <div class="fld full"><span class="lbl" data-i="fPick">Escolha o dia e o horário</span><div class="days" id="days" role="group" aria-label="Dia"></div><div class="slots" id="slots" role="group" aria-label="Horário"></div><p class="tz" data-i="fTz">Horário de Milão · 30 minutos · por videochamada</p></div>
         <div class="fld"><label for="f-name" data-i="fName">Nome</label><input id="f-name" name="nome" type="text" autocomplete="name" required></div>
         <div class="fld"><label for="f-wa" data-i="fWa">WhatsApp</label><input id="f-wa" name="whatsapp" type="tel" autocomplete="tel" placeholder="+39 ..." required></div>
         <div class="fld"><label for="f-mail" data-i="fMail">E-mail</label><input id="f-mail" name="email" type="email" autocomplete="email"></div>
         <div class="fld"><label for="f-biz" data-i="fBiz">Nome do negócio</label><input id="f-biz" name="negocio" type="text" autocomplete="organization"></div>
         <div class="fld"><label for="f-sec" data-i="fSec">Setor</label><select id="f-sec" name="setor"><option data-i="o1">Salão de beleza</option><option data-i="o2">Estética e bem-estar</option><option data-i="o3">Restaurante e café</option><option data-i="o4">Imóveis</option><option data-i="o5">Loja e e-commerce</option><option data-i="o6">Serviços e consultoria</option><option data-i="o7">Outro</option></select></div>
         <div class="fld full"><label for="f-msg" data-i="fMsg">O que mais toma o seu tempo hoje?</label><textarea id="f-msg" name="desafio" rows="3"></textarea></div>
-        <button class="btn full" type="submit" id="f-send" data-i="fSend">Quero minha análise gratuita</button>
+        <button class="btn full" type="submit" id="f-send" data-i="fSend">Reservar minha análise</button>
         <p class="fmsg" id="f-status" role="status" aria-live="polite"></p>
       </form>
     </div>
@@ -646,7 +663,7 @@ w1h:'Architecture & interiors',w1p:'Budgets, schedules, inspections and client p
 dgEy:'20-second audit',dgH:'What would we build for you?',dgL1:'1 · Your sector',dgL2:'2 · Where most of your time goes',
 prEy:'How it works',prH2a:'Four steps,',prH2b:'in weeks.',prP:'You follow every stage and receive everything ready to use, with training.',
 p1h:'Audit',p1p:'30 minutes to find where the business gains the most time and money.',p2h:'Proposal',p2p:'Scope, timeline and investment agreed in writing.',p3h:'Build',p3p:'You watch the system take shape and adjust with us.',p4h:'Handover',p4p:'Everything running, with training for your team.',
-ctEy:'Brasileiros Inspiradores · Milano',ctH2a:'Free analysis',ctH2b:'in 30 minutes.',ctP:'Leave your details and we will show you where your business can save time and money.',ctOr:'Or reach us directly:',fName:'Name',fWa:'WhatsApp',fMail:'Email',fBiz:'Business name',fSec:'Sector',o1:'Hair & beauty salon',o2:'Beauty & wellness',o3:'Restaurant & café',o4:'Property',o5:'Shop & e-commerce',o6:'Services & consulting',o7:'Other',fMsg:'What takes most of your time today?',fSend:'Get my free analysis',ctCopy:'Copy',
+ctEy:'Brasileiros Inspiradores · Milano',ctH2a:'Free analysis',ctH2b:'in 30 minutes.',ctP:'Pick a time and book your free 30-minute analysis. We will show you where your business can save time and money.',ctOr:'Or reach us directly:',fName:'Name',fWa:'WhatsApp',fMail:'Email',fBiz:'Business name',fSec:'Sector',o1:'Hair & beauty salon',o2:'Beauty & wellness',o3:'Restaurant & café',o4:'Property',o5:'Shop & e-commerce',o6:'Services & consulting',o7:'Other',fMsg:'What takes most of your time today?',fSend:'Book my analysis',fPick:'Pick a day and time',fTz:'Milan time · 30 minutes · video call',ctCopy:'Copy',
 sn1:'Home',sn2:'The system',sn3:'Services',sn4:'Who we help',sn5:'Free analysis',mc1:'See the system',mc2:'Free analysis',foot:'Systems · Websites · Brand · Content — by Luccas Torres'
 };
 const PT={};
@@ -842,16 +859,46 @@ function renderDiag(){
 }
 
 
-/* ---------- lead form ---------- */
+/* ---------- booking ---------- */
+const BDAYS=[{d:'2026-10-16',pt:['Sex','16 out'],en:['Fri','16 Oct']},{d:'2026-10-17',pt:['Sáb','17 out'],en:['Sat','17 Oct']},{d:'2026-10-18',pt:['Dom','18 out'],en:['Sun','18 Oct']}];
+const BTIMES=['10:00','10:30','11:00','11:30','12:00','12:30','13:00','13:30'];
+let booked=new Set(),bDay=0,bSlot=null;
+const daysEl=document.getElementById('days'),slotsEl=document.getElementById('slots');
 const form=document.getElementById('lead'),fst=document.getElementById('f-status'),fsend=document.getElementById('f-send');
+const slotDate=k=>new Date(k+':00+02:00');
+const isOpen=k=>!booked.has(k)&&slotDate(k)>new Date();
+function renderBooking(){
+  daysEl.innerHTML='';
+  BDAYS.forEach((d,i)=>{const free=BTIMES.filter(t=>isOpen(d.d+'T'+t)).length;const b=document.createElement('button');b.type='button';b.className='day';b.setAttribute('aria-pressed',i===bDay);
+    const l=lang==='pt'?d.pt:d.en;b.innerHTML='<small>'+l[0]+'</small><b>'+l[1]+'</b><small>'+free+T(' livres',' open')+'</small>';
+    b.onclick=()=>{bDay=i;bSlot=null;renderBooking()};daysEl.appendChild(b)});
+  slotsEl.innerHTML='';
+  BTIMES.forEach(t=>{const k=BDAYS[bDay].d+'T'+t;const b=document.createElement('button');b.type='button';b.className='slot-b';b.textContent=t;b.disabled=!isOpen(k);b.setAttribute('aria-pressed',bSlot===k);
+    b.onclick=()=>{bSlot=k;renderBooking()};slotsEl.appendChild(b)});
+}
+function loadBooked(){return fetch('/api/booking',{cache:'no-store'}).then(r=>r.ok?r.json():{booked:[]}).then(j=>{booked=new Set(j.booked||[]);if(bSlot&&!isOpen(bSlot))bSlot=null;renderBooking()}).catch(()=>{})}
+loadBooked();
+function slotLabel(k){const d=BDAYS.find(x=>k.startsWith(x.d));const l=lang==='pt'?d.pt:d.en;return l[0]+' '+l[1]+' · '+k.slice(11)}
+function gcal(k){const st=slotDate(k),en=new Date(st.getTime()+30*60000);const f=x=>x.toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,'');
+  return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent('Operator Studio · Análise gratuita')+'&dates='+f(st)+'/'+f(en)+'&details='+encodeURIComponent('Análise de 30 minutos com Luccas Torres. O link da videochamada chega pelo WhatsApp.')}
 form.addEventListener('submit',e=>{
   e.preventDefault();
   const n=form.nome.value.trim(),w=form.whatsapp.value.trim();
+  if(!bSlot){fst.className='fmsg';fst.textContent=T('Escolha um dia e um horário.','Pick a day and a time.');slotsEl.scrollIntoView({block:'center'});return}
   if(!n||!w){fst.className='fmsg';fst.textContent=T('Preencha nome e WhatsApp.','Please fill in name and WhatsApp.');(n?form.whatsapp:form.nome).focus();return}
-  fsend.disabled=true;fst.className='fmsg';fst.textContent=T('Enviando...','Sending...');
-  fetch('/',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams(new FormData(form)).toString()})
-   .then(r=>{if(!r.ok)throw 0;form.querySelectorAll('.fld,#f-send').forEach(x=>x.hidden=true);fst.className='fmsg ok';fst.textContent=T('Recebido! Vamos falar com você em breve pelo WhatsApp.','Received! We will contact you soon on WhatsApp.')})
-   .catch(()=>{fsend.disabled=false;fst.className='fmsg';fst.textContent=T('O envio não completou. Tente de novo ou chame @luccastorres no Instagram.','It did not go through. Try again or message @luccastorres on Instagram.')});
+  fsend.disabled=true;fst.className='fmsg';fst.textContent=T('Reservando...','Booking...');
+  const data={slot:bSlot,nome:n,whatsapp:w,email:form.email.value.trim(),negocio:form.negocio.value.trim(),setor:form.setor.value,desafio:form.desafio.value.trim()};
+  fetch('/api/booking',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)})
+   .then(r=>{
+     if(r.status===409){booked.add(bSlot);bSlot=null;renderBooking();throw 'taken'}
+     if(!r.ok)throw 'err';
+     const k=bSlot;document.getElementById('f-slot').value=k+' ('+slotLabel(k)+', Milão)';
+     fetch('/',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams(new FormData(form)).toString()}).catch(()=>{});
+     form.querySelectorAll('.fld,#f-send').forEach(x=>x.hidden=true);
+     fst.className='fmsg ok';
+     fst.innerHTML=T('Reservado! ','Booked! ')+'<b>'+slotLabel(k)+'</b> ('+T('horário de Milão','Milan time')+').<br>'+T('O link da videochamada chega pelo WhatsApp.','The video call link will arrive on WhatsApp.')+'<br><a href="'+gcal(k)+'" target="_blank" rel="noopener">'+T('Adicionar ao Google Calendar','Add to Google Calendar')+'</a>';
+   })
+   .catch(x=>{fsend.disabled=false;fst.className='fmsg';fst.textContent=x==='taken'?T('Esse horário acabou de ser reservado. Escolha outro.','That time was just booked. Please pick another.'):T('A reserva não completou. Tente de novo ou chame @luccastorres no Instagram.','The booking did not go through. Try again or message @luccastorres on Instagram.')});
 });
 
 /* ---------- side nav ---------- */
@@ -877,7 +924,7 @@ function setLang(l){
   lang=l;document.documentElement.lang=l==='pt'?'pt-BR':'en';
   document.getElementById('lang-pt').setAttribute('aria-pressed',l==='pt');document.getElementById('lang-en').setAttribute('aria-pressed',l==='en');
   document.querySelectorAll('[data-i]').forEach(el=>{const k=el.dataset.i;const v=l==='pt'?PT[k]:EN[k];if(v!=null)el.textContent=v});
-  renderStory();renderCRM();renderAgents();if(activeA>=0){const a=AGENTS[activeA];whoEl.textContent=T('Agente de ','Agent · ')+T(a[0].toLowerCase(),a[1])+' · '+T(a[2],a[3]);msgEl.textContent=T(a[4],a[5])}else idleAgentMsg();renderBrand();renderDiag();
+  renderStory();renderCRM();if(typeof renderBooking==="function")renderBooking();renderAgents();if(activeA>=0){const a=AGENTS[activeA];whoEl.textContent=T('Agente de ','Agent · ')+T(a[0].toLowerCase(),a[1])+' · '+T(a[2],a[3]);msgEl.textContent=T(a[4],a[5])}else idleAgentMsg();renderBrand();renderDiag();
   try{localStorage.setItem('os-lang',l)}catch(_){}
 }
 document.getElementById('lang-pt').onclick=()=>setLang('pt');
