@@ -81,7 +81,7 @@ button{font:inherit;cursor:pointer}
 
 
 /* scroll story (hero) */
-.story{position:relative;height:560vh;background:radial-gradient(120% 80% at 50% 30%,#F7F5F1 0%,var(--linen) 55%,#E9E4DB 100%)}
+.story{position:relative;height:340vh;background:radial-gradient(120% 80% at 50% 30%,#F7F5F1 0%,var(--linen) 55%,#E9E4DB 100%)}
 .pin{position:sticky;top:calc(env(safe-area-inset-top,0px) + 62px);height:calc(100vh - 62px);overflow:hidden;display:grid;grid-template-rows:auto 1fr auto}
 .story-top{text-align:center;padding:clamp(18px,3.4vh,40px) 16px 0;display:flex;flex-direction:column;align-items:center;gap:10px;transition:opacity .2s}
 .story-top h1{font-size:clamp(34px,5.4vw,74px);letter-spacing:-.02em}
@@ -159,7 +159,7 @@ button{font:inherit;cursor:pointer}
 .hint:before{content:"";width:1px;height:28px;background:linear-gradient(var(--taupe),transparent);animation:drip 1.8s infinite}
 @keyframes drip{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
 @media(max-width:820px){
- .story{height:600vh}
+ .story{height:360vh}
  .device{width:min(560px,82vw)}
  .word{top:auto;bottom:0;width:46%;font-size:clamp(18px,5vw,26px)}
  .word.l{left:16px}.word.r{right:16px}
@@ -354,6 +354,27 @@ section{padding-block:clamp(64px,9vw,120px)}
 @media(max-width:820px){.cta .box{grid-template-columns:1fr}}
 
 [hidden]{display:none!important}
+/* side nav + mobile cta */
+.sidenav{position:fixed;right:clamp(12px,2vw,28px);top:50%;transform:translateY(-50%);z-index:30;display:flex;flex-direction:column;gap:6px;padding:10px;border-radius:16px;background:rgba(243,241,236,.86);backdrop-filter:blur(10px);border:1px solid var(--line)}
+.sidenav a{display:flex;align-items:center;justify-content:flex-end;gap:10px;text-decoration:none;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--taupe);padding:7px 8px;border-radius:10px}
+.sidenav a i{width:8px;height:8px;border-radius:50%;border:1px solid var(--taupe);flex:none;transition:all .2s}
+.sidenav a:hover{color:var(--ink)}
+.sidenav a.on{color:var(--ink)}
+.sidenav a.on i{background:var(--ink);border-color:var(--ink);transform:scale(1.25)}
+.sidenav a.cta{background:var(--ink);color:var(--linen);margin-top:4px}
+.sidenav a.cta i{display:none}
+.mcta{display:none}
+@media(max-width:1520px){.sidenav span{display:none}.sidenav a{padding:8px}}
+@media(max-width:860px){
+ .sidenav{display:none}
+ .mcta{display:flex;position:fixed;left:16px;right:16px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:30;gap:8px;transition:opacity .25s,transform .25s}
+ .mcta a{flex:1;display:flex;align-items:center;justify-content:center;border-radius:999px;padding:14px 12px;font-size:14px;font-weight:500;text-decoration:none;box-shadow:0 12px 30px -10px rgba(21,20,18,.35)}
+ .mcta a.go{background:var(--ink);color:var(--linen);flex:2}
+ .mcta a.menu{background:rgba(243,241,236,.95);color:var(--ink);border:1px solid var(--line)}
+ .mcta.away{opacity:0;transform:translateY(20px);pointer-events:none}
+ footer{padding-bottom:90px}
+}
+
 /* lead form */
 .lead{background:var(--linen-2);border-radius:16px;padding:clamp(20px,3vw,32px);display:grid;grid-template-columns:1fr 1fr;gap:14px 16px;min-width:0}
 .fld{display:flex;flex-direction:column;gap:6px;min-width:0}
@@ -394,6 +415,14 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
   </div>
 </header>
 
+<nav class="sidenav" aria-label="Seções">
+  <a href="#top" data-s="story" title="Início" aria-label="Início"><span data-i="sn1">Início</span><i></i></a>
+  <a href="#sistema" data-s="sistema" title="O sistema" aria-label="O sistema"><span data-i="sn2">O sistema</span><i></i></a>
+  <a href="#servicos" data-s="servicos" title="Serviços" aria-label="Serviços"><span data-i="sn3">Serviços</span><i></i></a>
+  <a href="#para-quem" data-s="para-quem" title="Para quem" aria-label="Para quem"><span data-i="sn4">Para quem</span><i></i></a>
+  <a href="#contato" data-s="contato" class="cta" title="Análise grátis" aria-label="Análise grátis"><span data-i="sn5">Análise grátis</span><i></i></a>
+</nav>
+<div class="mcta" id="mcta"><a class="menu" href="#sistema" data-i="mc1">Ver o sistema</a><a class="go" href="#contato" data-i="mc2">Análise gratuita</a></div>
 <main id="top">
 <!-- STORY HERO -->
 <section class="story" id="story" aria-label="Operator Studio">
@@ -618,7 +647,7 @@ dgEy:'20-second audit',dgH:'What would we build for you?',dgL1:'1 · Your sector
 prEy:'How it works',prH2a:'Four steps,',prH2b:'in weeks.',prP:'You follow every stage and receive everything ready to use, with training.',
 p1h:'Audit',p1p:'30 minutes to find where the business gains the most time and money.',p2h:'Proposal',p2p:'Scope, timeline and investment agreed in writing.',p3h:'Build',p3p:'You watch the system take shape and adjust with us.',p4h:'Handover',p4p:'Everything running, with training for your team.',
 ctEy:'Brasileiros Inspiradores · Milano',ctH2a:'Free analysis',ctH2b:'in 30 minutes.',ctP:'Leave your details and we will show you where your business can save time and money.',ctOr:'Or reach us directly:',fName:'Name',fWa:'WhatsApp',fMail:'Email',fBiz:'Business name',fSec:'Sector',o1:'Hair & beauty salon',o2:'Beauty & wellness',o3:'Restaurant & café',o4:'Property',o5:'Shop & e-commerce',o6:'Services & consulting',o7:'Other',fMsg:'What takes most of your time today?',fSend:'Get my free analysis',ctCopy:'Copy',
-foot:'Systems · Websites · Brand · Content — by Luccas Torres'
+sn1:'Home',sn2:'The system',sn3:'Services',sn4:'Who we help',sn5:'Free analysis',mc1:'See the system',mc2:'Free analysis',foot:'Systems · Websites · Brand · Content — by Luccas Torres'
 };
 const PT={};
 document.querySelectorAll('[data-i]').forEach(el=>{PT[el.dataset.i]=el.textContent});
@@ -824,6 +853,17 @@ form.addEventListener('submit',e=>{
    .then(r=>{if(!r.ok)throw 0;form.querySelectorAll('.fld,#f-send').forEach(x=>x.hidden=true);fst.className='fmsg ok';fst.textContent=T('Recebido! Vamos falar com você em breve pelo WhatsApp.','Received! We will contact you soon on WhatsApp.')})
    .catch(()=>{fsend.disabled=false;fst.className='fmsg';fst.textContent=T('O envio não completou. Tente de novo ou chame @luccastorres no Instagram.','It did not go through. Try again or message @luccastorres on Instagram.')});
 });
+
+/* ---------- side nav ---------- */
+const snLinks=[...document.querySelectorAll('.sidenav a')],mcta=document.getElementById('mcta');
+const secs=['story','sistema','servicos','para-quem','contato'].map(id=>document.getElementById(id));
+function updNav(){
+  const y=window.innerHeight*.4;let cur='story';
+  secs.forEach(el=>{if(el&&el.getBoundingClientRect().top<y)cur=el.id});
+  snLinks.forEach(a=>a.classList.toggle('on',a.dataset.s===cur));
+  mcta.classList.toggle('away',cur==='contato');
+}
+window.addEventListener('scroll',()=>requestAnimationFrame(updNav),{passive:true});updNav();
 /* ---------- copy ---------- */
 document.getElementById('copy').addEventListener('click',e=>{
   const btn=e.currentTarget,txt='@luccastorres';
