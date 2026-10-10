@@ -412,9 +412,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
         <h2 style="margin-top:18px"><span data-i="abH2a">Nascemos dentro</span> <em data-i="abH2b">da operação.</em></h2>
       </div>
       <div class="body">
-        <p data-i="abP1">A Operator Studio começou como a forma de Luccas Torres tocar os próprios negócios em Dubai: um estúdio de interiores, uma empresa de holiday homes e uma marca de skincare premium.</p>
-        <p data-i="abP2">Orçamentos, aplicativos, sites, marcas e conteúdo foram construídos ali, com a IA como equipe. Funcionou tão bem que virou o nosso serviço: hoje levamos o mesmo método para outras empresas.</p>
-        <p data-i="abP3">Você traz o negócio e o problema. Nós construímos o sistema e entregamos pronto para o seu time usar.</p>
+        <p data-i="abP1">Nasceu para operar os meus próprios negócios com IA. Hoje faz o mesmo pelo seu.</p>
       </div>
     </div>
     <div class="houses">
@@ -431,16 +429,15 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
   <div class="wrap">
     <div class="sec-head">
       <div><p class="eyebrow" data-i="sysEy">Olhe por dentro</p><h2 style="margin-top:18px"><span data-i="sysH2a">O sistema,</span> <em data-i="sysH2b">funcionando.</em></h2></div>
-      <p data-i="sysP">Cinco módulos que usamos na nossa própria operação. Clique, mude, teste. É assim que o seu vai funcionar.</p>
     </div>
 
     <div class="explorer">
       <div class="tabs" role="tablist" aria-label="Módulos">
-        <button class="tab" role="tab" id="tab-crm" aria-controls="p-crm" aria-selected="true"><b data-i="t0">CRM do salão</b><span data-i="t0s">Vendas e retorno de clientes</span></button>
-        <button class="tab" role="tab" id="tab-orc" aria-controls="p-orc" aria-selected="false" tabindex="-1"><b data-i="t1">Orçamentos</b><span data-i="t1s">Planilha pronta em minutos</span></button>
-        <button class="tab" role="tab" id="tab-vis" aria-controls="p-vis" aria-selected="false" tabindex="-1"><b data-i="t2">Vistoria</b><span data-i="t2s">A IA encontra os pontos</span></button>
-        <button class="tab" role="tab" id="tab-age" aria-controls="p-age" aria-selected="false" tabindex="-1"><b data-i="t3">Time de IA</b><span data-i="t3s">Agentes com funções claras</span></button>
-        <button class="tab" role="tab" id="tab-mar" aria-controls="p-mar" aria-selected="false" tabindex="-1"><b data-i="t4">Marca</b><span data-i="t4s">Identidade ao vivo</span></button>
+        <button class="tab" role="tab" id="tab-crm" aria-controls="p-crm" aria-selected="true"><b data-i="t0">CRM do salão</b></button>
+        
+        
+        <button class="tab" role="tab" id="tab-age" aria-controls="p-age" aria-selected="false" tabindex="-1"><b data-i="t3">Time de IA</b></button>
+        <button class="tab" role="tab" id="tab-mar" aria-controls="p-mar" aria-selected="false" tabindex="-1"><b data-i="t4">Marca</b></button>
       </div>
 
       <!-- salon crm -->
@@ -454,36 +451,6 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
         <div class="crm">
           <div class="board-wrap"><div class="board" id="board"></div></div>
           <div class="client" id="client" aria-live="polite"></div>
-        </div>
-        <p class="note" data-i="crmNote">Clique numa cliente, gere a mensagem e avance a etapa. A IA lembra de cada retorno pelo ciclo de cada serviço.</p>
-      </div>
-
-      <!-- budget -->
-      <div class="panel" role="tabpanel" id="p-orc" aria-labelledby="tab-orc" hidden>
-        <div class="panel-top"><h3 data-i="orcH">Monte um orçamento</h3><span class="tag" data-i="exTag">Valores de exemplo</span></div>
-        <div class="ctrls">
-          <div><p class="ctrl-label" data-i="orcL1">Ambientes</p><div class="chips" id="rooms"></div></div>
-          <div><p class="ctrl-label" data-i="orcL2">Acabamento</p><div class="chips" id="tiers"></div></div>
-        </div>
-        <div class="sheet">
-          <div class="sheet-tabs"><span class="on" data-i="sh1">Resumo</span><span data-i="sh2">Civil</span><span data-i="sh3">Marcenaria</span><span data-i="sh4">Acabamentos</span></div>
-          <div class="rows" id="rows"></div>
-          <div class="total"><span data-i="orcTot">Total do projeto</span><b id="total">AED 0</b></div>
-        </div>
-        <p class="note" data-i="orcNote">No sistema real, cada linha vem das medidas do projeto e da sua tabela de preços.</p>
-      </div>
-
-      <!-- inspection -->
-      <div class="panel" role="tabpanel" id="p-vis" aria-labelledby="tab-vis" hidden>
-        <div class="panel-top"><h3 data-i="visH">Vistoria de entrega</h3><span class="tag" data-i="exTag2">Exemplo ilustrativo</span></div>
-        <div class="insp">
-          <div class="room" aria-label="Sala de estar">
-            <div class="win"></div><div class="door"></div><div class="floor"></div><div class="sofa"></div><div class="scan"></div>
-            <button class="hot" style="left:22%;top:54%" data-f="0" aria-pressed="false" aria-label="Ponto 1">1</button>
-            <button class="hot" style="left:80%;top:34%" data-f="1" aria-pressed="false" aria-label="Ponto 2">2</button>
-            <button class="hot" style="left:58%;top:78%" data-f="2" aria-pressed="false" aria-label="Ponto 3">3</button>
-          </div>
-          <div class="findings" id="findings"></div>
         </div>
       </div>
 
@@ -522,13 +489,12 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
   <div class="wrap">
     <div class="sec-head">
       <div><p class="eyebrow" data-i="svEy">Serviços</p><h2 style="margin-top:18px"><span data-i="svH2a">O que</span> <em data-i="svH2b">construímos.</em></h2></div>
-      <p data-i="svP">Cada projeto começa no seu problema real e termina com algo que o seu time usa no dia seguinte.</p>
     </div>
     <div class="services">
-      <div class="svc"><p class="eyebrow" data-i="s1e">Sistemas e automações</p><h3 data-i="s1h">A operação trabalhando sozinha</h3><p data-i="s1p">CRM de vendas, orçamentos, relatórios, propostas e agentes de IA que cuidam das tarefas repetitivas do seu negócio.</p><ul><li data-i="s1z">CRM de vendas</li><li data-i="s1a">Orçamentos automáticos</li><li data-i="s1b">Agentes de IA</li><li data-i="s1c">Apps internos</li><li data-i="s1d">Automações</li></ul></div>
-      <div class="svc"><p class="eyebrow" data-i="s2e">Sites e landing pages</p><h3 data-i="s2h">Um site que vende por você</h3><p data-i="s2p">Sites institucionais e páginas de venda com captura de contatos, prontos para campanha e para o celular.</p><ul><li data-i="s2a">Site institucional</li><li data-i="s2b">Página de vendas</li><li data-i="s2c">Captura de leads</li></ul></div>
-      <div class="svc"><p class="eyebrow" data-i="s3e">Marca</p><h3 data-i="s3h">Uma identidade com presença</h3><p data-i="s3p">Nome, posicionamento, logo, paleta, tipografia e brand book para a marca nascer forte e consistente.</p><ul><li data-i="s3a">Posicionamento</li><li data-i="s3b">Logo e identidade</li><li data-i="s3c">Brand book</li></ul></div>
-      <div class="svc"><p class="eyebrow" data-i="s4e">Conteúdo</p><h3 data-i="s4h">Presença constante, com estratégia</h3><p data-i="s4p">Pilares, calendário, roteiros, carrosséis e vídeos com IA, no tom da sua marca.</p><ul><li data-i="s4a">Calendário</li><li data-i="s4b">Roteiros</li><li data-i="s4c">Vídeos com IA</li><li data-i="s4d">Carrosséis</li></ul></div>
+      <div class="svc"><p class="eyebrow" data-i="s1e">Sistemas e automações</p><h3 data-i="s1h">A operação trabalhando sozinha</h3><ul><li data-i="s1z">CRM de vendas</li><li data-i="s1a">Orçamentos automáticos</li><li data-i="s1b">Agentes de IA</li><li data-i="s1c">Apps internos</li><li data-i="s1d">Automações</li></ul></div>
+      <div class="svc"><p class="eyebrow" data-i="s2e">Sites e landing pages</p><h3 data-i="s2h">Um site que vende por você</h3><ul><li data-i="s2a">Site institucional</li><li data-i="s2b">Página de vendas</li><li data-i="s2c">Captura de leads</li></ul></div>
+      <div class="svc"><p class="eyebrow" data-i="s3e">Marca</p><h3 data-i="s3h">Uma identidade com presença</h3><ul><li data-i="s3a">Posicionamento</li><li data-i="s3b">Logo e identidade</li><li data-i="s3c">Brand book</li></ul></div>
+      <div class="svc"><p class="eyebrow" data-i="s4e">Conteúdo</p><h3 data-i="s4h">Presença constante, com estratégia</h3><ul><li data-i="s4a">Calendário</li><li data-i="s4b">Roteiros</li><li data-i="s4c">Vídeos com IA</li><li data-i="s4d">Carrosséis</li></ul></div>
     </div>
   </div>
 </section>
@@ -538,14 +504,13 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
   <div class="wrap">
     <div class="sec-head">
       <div><p class="eyebrow" data-i="whEy">Para quem</p><h2 style="margin-top:18px"><span data-i="whH2a">Empresas que querem</span> <em data-i="whH2b">crescer leves.</em></h2></div>
-      <p data-i="whP">Donos de negócio que querem mais tempo para decidir e menos tempo apagando incêndio.</p>
     </div>
     <div class="who">
-      <div class="who-card feat"><div><p class="eyebrow" data-i="w0e">Nosso foco</p><h3 style="margin-top:10px" data-i="w0h">Salões de beleza e cabeleireiros</h3></div><div style="display:flex;flex-direction:column;gap:14px"><p data-i="w0p">Agenda cheia e clientes que voltam no tempo certo. Um CRM que lembra de cada cliente, manda a mensagem certa no WhatsApp e mostra quanto o salão vendeu no mês.</p><ul><li data-i="w0a">CRM de clientes</li><li data-i="w0b">Lembretes de retorno</li><li data-i="w0c">Agendamento</li><li data-i="w0d">Avaliações no Google</li><li data-i="w0f">Conteúdo para Instagram</li></ul></div></div>
-      <div class="who-card"><h3 data-i="w1h">Arquitetura e interiores</h3><p data-i="w1p">Orçamentos, cronogramas, vistorias e apresentações para cliente.</p></div>
-      <div class="who-card"><h3 data-i="w2h">Imóveis e temporada</h3><p data-i="w2p">Atendimento, operação de unidades e páginas que convertem.</p></div>
-      <div class="who-card"><h3 data-i="w3h">Marcas e e-commerce</h3><p data-i="w3p">Lançamento, identidade, conteúdo e prospecção de revendedores.</p></div>
-      <div class="who-card"><h3 data-i="w4h">Serviços e consultoria</h3><p data-i="w4p">Propostas, captação de clientes e presença profissional.</p></div>
+      <div class="who-card feat"><div><p class="eyebrow" data-i="w0e">Nosso foco</p><h3 style="margin-top:10px" data-i="w0h">Salões de beleza e cabeleireiros</h3></div><div style="display:flex;flex-direction:column;gap:14px"><p data-i="w0p">Agenda cheia e clientes que voltam no tempo certo.</p><ul><li data-i="w0a">CRM de clientes</li><li data-i="w0b">Lembretes de retorno</li><li data-i="w0c">Agendamento</li><li data-i="w0d">Avaliações no Google</li><li data-i="w0f">Conteúdo para Instagram</li></ul></div></div>
+      <div class="who-card"><h3 data-i="w1h">Arquitetura e interiores</h3></div>
+      <div class="who-card"><h3 data-i="w2h">Imóveis e temporada</h3></div>
+      <div class="who-card"><h3 data-i="w3h">Marcas e e-commerce</h3></div>
+      <div class="who-card"><h3 data-i="w4h">Serviços e consultoria</h3></div>
     </div>
 
     <div class="diag">
@@ -565,13 +530,12 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
   <div class="wrap">
     <div class="sec-head">
       <div><p class="eyebrow" data-i="prEy">Como funciona</p><h2 style="margin-top:18px"><span data-i="prH2a">Quatro passos,</span> <em data-i="prH2b">em semanas.</em></h2></div>
-      <p data-i="prP">Você acompanha cada etapa e recebe tudo pronto para usar, com treinamento.</p>
     </div>
     <div class="steps">
-      <div class="stp"><span class="n">01</span><h3 data-i="p1h">Diagnóstico</h3><p data-i="p1p">30 minutos para entender onde o negócio ganha mais tempo e dinheiro.</p></div>
-      <div class="stp"><span class="n">02</span><h3 data-i="p2h">Proposta</h3><p data-i="p2p">Escopo, prazo e investimento fechados, por escrito.</p></div>
-      <div class="stp"><span class="n">03</span><h3 data-i="p3h">Construção</h3><p data-i="p3p">Você vê o sistema ganhando forma e ajusta junto.</p></div>
-      <div class="stp"><span class="n">04</span><h3 data-i="p4h">Entrega</h3><p data-i="p4p">Tudo funcionando, com treinamento para o seu time.</p></div>
+      <div class="stp"><span class="n">01</span><h3 data-i="p1h">Diagnóstico</h3></div>
+      <div class="stp"><span class="n">02</span><h3 data-i="p2h">Proposta</h3></div>
+      <div class="stp"><span class="n">03</span><h3 data-i="p3h">Construção</h3></div>
+      <div class="stp"><span class="n">04</span><h3 data-i="p4h">Entrega</h3></div>
     </div>
   </div>
 </section>
@@ -585,7 +549,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
         <h2 style="margin-top:18px"><span data-i="ctH2a">Vamos construir</span> <em data-i="ctH2b">juntos?</em></h2>
       </div>
       <div class="side">
-        <p data-i="ctP">Diagnóstico gratuito de 30 minutos para quem nos conheceu no evento. Mande uma mensagem com a palavra OPERATOR.</p>
+        <p data-i="ctP">30 minutos de análise gratuita do seu negócio. Mande OPERATOR no Instagram.</p>
         <a class="btn" href="https://www.instagram.com/luccastorres/" target="_blank" rel="noopener" data-i="ctBtn">Falar no Instagram</a>
         <div class="copyline"><code id="handle">@luccastorres</code><button type="button" id="copy" data-i="ctCopy">Copiar</button></div>
       </div>
@@ -606,14 +570,14 @@ heroLede:'We build the digital structure of your business, with artificial intel
 heroC1:'Look inside the system',hint:'Scroll to discover',heroC2:'Book a free audit',heroMeta:'by Luccas Torres',
 conLive:'Running now',conEx:'Example',conFoot:'Tasks delivered today',
 abEy:'About us',abH2a:'Born inside',abH2b:'real operations.',
-abP1:'Operator Studio began as the way Luccas Torres runs his own businesses in Dubai: an interior design studio, a holiday homes company and a premium skincare brand.',
+abP1:'Built to run my own businesses with AI. Now it does the same for yours.',
 abP2:'Budgets, apps, websites, brands and content were all built there, with AI as the team. It worked so well that it became our service: today we bring the same method to other companies.',
 abP3:'You bring the business and the problem. We build the system and hand it over ready for your team.',
 h1:'Premium design and fit-out',h2:'Short-term rentals',h3:'Premium skincare for Pomeranians',h4:'The method, serving other companies',
 sysEy:'Look inside',sysH2a:'The system,',sysH2b:'at work.',sysP:'Five modules from our own operations. Click, change, test. This is how yours will work.',
 t0:'Salon CRM',t0s:'Sales and returning clients',crmH:'Sales CRM for salons',exTag0:'Sample clients',k1:'Clients in the funnel',k2:'Bookings made',k3:'Ready to come back',
 crmNote:'Click a client, write the message and move them to the next stage. The AI tracks every return date from each service\'s cycle.',
-w0e:'Our focus',w0h:'Hair and beauty salons',w0p:'A full diary and clients who come back at the right time. A CRM that remembers every client, sends the right WhatsApp message and shows what the salon sold this month.',w0a:'Client CRM',w0b:'Return reminders',w0c:'Online booking',w0d:'Google reviews',w0f:'Instagram content',
+w0e:'Our focus',w0h:'Hair and beauty salons',w0p:'A full diary and clients who come back at the right time.',w0a:'Client CRM',w0b:'Return reminders',w0c:'Online booking',w0d:'Google reviews',w0f:'Instagram content',
 t1:'Budgets',t1s:'A full sheet in minutes',t2:'Inspection',t2s:'AI spots the issues',t3:'AI team',t3s:'Agents with clear roles',t4:'Brand',t4s:'Live identity',
 orcH:'Build a budget',exTag:'Sample figures',orcL1:'Rooms',orcL2:'Finish',sh1:'Summary',sh2:'Civil',sh3:'Joinery',sh4:'Finishes',orcTot:'Project total',
 orcNote:'In the real system, every line comes from the project measurements and your own price list.',
@@ -629,7 +593,7 @@ w1h:'Architecture & interiors',w1p:'Budgets, schedules, inspections and client p
 dgEy:'20-second audit',dgH:'What would we build for you?',dgL1:'1 · Your sector',dgL2:'2 · Where most of your time goes',
 prEy:'How it works',prH2a:'Four steps,',prH2b:'in weeks.',prP:'You follow every stage and receive everything ready to use, with training.',
 p1h:'Audit',p1p:'30 minutes to find where the business gains the most time and money.',p2h:'Proposal',p2p:'Scope, timeline and investment agreed in writing.',p3h:'Build',p3p:'You watch the system take shape and adjust with us.',p4h:'Handover',p4p:'Everything running, with training for your team.',
-ctEy:'Brasileiros Inspiradores · Milano',ctH2a:"Let's build",ctH2b:'together?',ctP:'A free 30-minute audit for everyone who met us at the event. Send a message with the word OPERATOR.',ctBtn:'Message on Instagram',ctCopy:'Copy',
+ctEy:'Brasileiros Inspiradores · Milano',ctH2a:"Let's build",ctH2b:'together?',ctP:'A free 30-minute analysis of your business. Send OPERATOR on Instagram.',ctBtn:'Message on Instagram',ctCopy:'Copy',
 foot:'Systems · Websites · Brand · Content — by Luccas Torres'
 };
 const PT={};
@@ -757,52 +721,6 @@ function renderCRM(){
     crmMsgOn=false;renderCRM()};
 }
 
-/* ---------- budget ---------- */
-const ROOMS=[
-{id:'sala',pt:'Sala',en:'Living room',lines:[['Pintura de paredes e teto','Wall and ceiling paint','86 m²',5200],['Piso de madeira','Wood flooring','34 m²',13600],['Painel ripado da TV','Fluted TV wall panel','1 un',9800]]},
-{id:'coz',pt:'Cozinha',en:'Kitchen',lines:[['Marcenaria da cozinha','Kitchen joinery','6,2 m',31000],['Bancada em pedra','Stone countertop','4,8 m²',8600],['Revestimento de parede','Wall tiling','9 m²',3100]]},
-{id:'ban',pt:'Banheiro',en:'Bathroom',lines:[['Revestimento completo','Full tiling','28 m²',9400],['Louças e metais','Sanitaryware and fittings','1 conj.',7800],['Box em vidro','Glass shower screen','1 un',3900]]},
-{id:'qto',pt:'Quarto',en:'Bedroom',lines:[['Armário sob medida','Built-in wardrobe','2,8 m',14200],['Pintura','Paint','52 m²',3100],['Cortinas e blackout','Curtains and blackout','2 jan.',4300]]}
-];
-const TIERS=[{id:'e',pt:'Essencial',en:'Essential',k:1},{id:'p',pt:'Premium',en:'Premium',k:1.45}];
-let selRooms=new Set(['sala','coz']),tier='p';
-const roomsEl=document.getElementById('rooms'),tiersEl=document.getElementById('tiers'),rowsEl=document.getElementById('rows'),totalEl=document.getElementById('total');
-function fmt(n){return 'AED '+Math.round(n).toLocaleString('en-US')}
-function renderBudget(){
-  roomsEl.innerHTML='';ROOMS.forEach(r=>{const b=document.createElement('button');b.type='button';b.className='chip';b.textContent=T(r.pt,r.en);b.setAttribute('aria-pressed',selRooms.has(r.id));b.onclick=()=>{selRooms.has(r.id)?selRooms.delete(r.id):selRooms.add(r.id);renderBudget()};roomsEl.appendChild(b)});
-  tiersEl.innerHTML='';TIERS.forEach(t=>{const b=document.createElement('button');b.type='button';b.className='chip';b.textContent=T(t.pt,t.en);b.setAttribute('aria-pressed',tier===t.id);b.onclick=()=>{tier=t.id;renderBudget()};tiersEl.appendChild(b)});
-  const k=TIERS.find(t=>t.id===tier).k;let total=0,i=0;rowsEl.innerHTML='';
-  ROOMS.filter(r=>selRooms.has(r.id)).forEach(r=>r.lines.forEach(l=>{
-    const v=l[3]*k;total+=v;const d=document.createElement('div');d.className='row';d.style.animationDelay=(i++*45)+'ms';
-    d.innerHTML='<span>'+T(r.pt,r.en)+' · '+T(l[0],l[1])+'</span><span class="q">'+l[2]+'</span><span class="v">'+fmt(v)+'</span>';rowsEl.appendChild(d)}));
-  if(!i){rowsEl.innerHTML='<div class="row"><span style="color:var(--taupe)">'+T('Escolha pelo menos um ambiente.','Pick at least one room.')+'</span><span></span><span></span></div>'}
-  animateTotal(total);
-}
-let shownTotal=0,raf;
-function animateTotal(to){cancelAnimationFrame(raf);const from=shownTotal,st=performance.now(),dur=reduce?1:600;
-  (function f(now){const p=Math.min(1,(now-st)/dur),e=1-Math.pow(1-p,3);shownTotal=from+(to-from)*e;totalEl.textContent=fmt(shownTotal);if(p<1)raf=requestAnimationFrame(f)})(st)}
-
-/* ---------- inspection ---------- */
-const FINDS=[
-['Pintura','Paint','Marca de rolo perto da janela','Roller mark near the window','Pintor · 1 dia','Painter · 1 day'],
-['Marcenaria','Joinery','Porta desalinhada, 3 mm no topo','Door misaligned, 3 mm at the top','Marceneiro · 2 horas','Carpenter · 2 hours'],
-['Piso','Flooring','Junta aberta entre réguas','Open joint between boards','Instalador · 1 hora','Installer · 1 hour']
-];
-let activeF=0,reportsOn=false;
-const fEl=document.getElementById('findings'),hots=[...document.querySelectorAll('.hot')];
-function renderFind(){
-  hots.forEach(h=>h.setAttribute('aria-pressed',+h.dataset.f===activeF));
-  fEl.innerHTML='';
-  FINDS.forEach((f,i)=>{const b=document.createElement('button');b.type='button';b.className='find';b.setAttribute('aria-pressed',i===activeF);
-    b.innerHTML='<small>'+(i+1)+' · '+T(f[0],f[1])+'</small><span>'+T(f[2],f[3])+'</span>'+(i===activeF?'<small style="color:var(--linen-2);letter-spacing:.06em;text-transform:none">'+T('Responsável: ','Assigned: ')+T(f[4],f[5])+'</small>':'');
-    b.onclick=()=>{activeF=i;renderFind()};fEl.appendChild(b)});
-  const g=document.createElement('button');g.type='button';g.className='btn';g.style.marginTop='6px';g.style.justifyContent='center';
-  g.textContent=reportsOn?T('Relatórios gerados','Reports generated'):T('Gerar relatórios','Generate reports');
-  g.onclick=()=>{reportsOn=true;renderFind()};fEl.appendChild(g);
-  if(reportsOn){const r=document.createElement('div');r.className='reports';r.innerHTML='<span class="rep">PDF · '+T('Proprietário','Owner')+'</span><span class="rep">PDF · '+T('Empreiteiro','Contractor')+'</span>';fEl.appendChild(r)}
-}
-hots.forEach(h=>h.onclick=()=>{activeF=+h.dataset.f;renderFind()});
-
 /* ---------- agents ---------- */
 const AGENTS=[
 ['Vendas','Sales','Prepara a proposta do novo cliente','Draft the new client proposal','Proposta pronta: escopo em 3 fases, prazo de 6 semanas e condições de pagamento. Enviei para sua aprovação antes de mandar ao cliente.','Proposal ready: 3-phase scope, 6-week timeline and payment terms. Sent to you for approval before it goes to the client.'],
@@ -883,7 +801,7 @@ function setLang(l){
   lang=l;document.documentElement.lang=l==='pt'?'pt-BR':'en';
   document.getElementById('lang-pt').setAttribute('aria-pressed',l==='pt');document.getElementById('lang-en').setAttribute('aria-pressed',l==='en');
   document.querySelectorAll('[data-i]').forEach(el=>{const k=el.dataset.i;const v=l==='pt'?PT[k]:EN[k];if(v!=null)el.textContent=v});
-  renderStory();renderCRM();renderBudget();renderFind();renderAgents();if(activeA>=0){const a=AGENTS[activeA];whoEl.textContent=T('Agente de ','Agent · ')+T(a[0].toLowerCase(),a[1])+' · '+T(a[2],a[3]);msgEl.textContent=T(a[4],a[5])}else idleAgentMsg();renderBrand();renderDiag();
+  renderStory();renderCRM();renderAgents();if(activeA>=0){const a=AGENTS[activeA];whoEl.textContent=T('Agente de ','Agent · ')+T(a[0].toLowerCase(),a[1])+' · '+T(a[2],a[3]);msgEl.textContent=T(a[4],a[5])}else idleAgentMsg();renderBrand();renderDiag();
   try{localStorage.setItem('os-lang',l)}catch(_){}
 }
 document.getElementById('lang-pt').onclick=()=>setLang('pt');
