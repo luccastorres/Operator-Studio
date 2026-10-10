@@ -134,7 +134,7 @@ main{padding:20px 16px 40px;max-width:1440px;margin:0 auto}
   <form id="loginForm">
     <span class="logo"><b>Operator</b> <i>Studio</i></span>
     <h1>CRM <em>privado.</em></h1>
-    <div class="field"><label for="key">Senha</label><input id="key" class="in" type="password" autocomplete="current-password" required></div>
+    <div class="field"><label for="key">Senha</label><input id="key" class="in" type="password" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="current-password" required></div>
     <button class="btn" type="submit">Entrar</button>
     <p class="err" id="loginErr" hidden>Senha incorreta.</p>
   </form>
@@ -325,8 +325,8 @@ function toast(t){ const el = $('#toast'); el.textContent = t; el.classList.add(
 
 function logout(){ store.del('os_crm_key'); KEY=''; $('#app').hidden = true; $('#login').hidden = false; }
 async function start(){
-  try{ await load(); $('#login').hidden = true; $('#app').hidden = false; return true; }
-  catch(e){ return false; }
+  try{ await load(); $('#login').hidden = true; $('#app').hidden = false; return 'ok'; }
+  catch(e){ return e.message === 'auth' ? 'auth' : 'net'; }
 }
 
 document.addEventListener('click', e=>{
@@ -341,9 +341,9 @@ document.addEventListener('visibilitychange', ()=>{ if(!document.hidden && KEY) 
 
 $('#loginForm').onsubmit = async e=>{
   e.preventDefault(); KEY = $('#key').value.trim(); $('#loginErr').hidden = true;
-  if(await start()) store.set('os_crm_key', KEY); else { $('#loginErr').hidden = false; KEY=''; }
+  const r = await start(); if(r==='ok') store.set('os_crm_key', KEY); else { $('#loginErr').textContent = r==='auth' ? 'Senha incorreta.' : 'Erro de conexão. Tente de novo.'; $('#loginErr').hidden = false; KEY=''; }
 };
-(async()=>{ const k = store.get('os_crm_key'); if(k){ KEY = k; if(!(await start())) logout(); } })();
+(async()=>{ const k = store.get('os_crm_key'); if(k){ KEY = k; if((await start())!=='ok') logout(); } })();
 </script>
 </body>
 </html>

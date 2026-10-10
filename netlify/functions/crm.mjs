@@ -1,4 +1,5 @@
 import { getStore } from "@netlify/blobs";
+import { createHash } from "node:crypto";
 
 // Private CRM API for Operator Studio.
 // Leads = every booking from the site (store "bookings") + leads added by hand.
@@ -9,9 +10,17 @@ const clip = (v, n) => String(v ?? "").trim().slice(0, n);
 const json = (data, status = 200) =>
   Response.json(data, { status, headers: { "cache-control": "no-store" } });
 
+// SHA-256 of the CRM password (the password itself is not stored in the repo).
+// To change it, set CRM_KEY in Netlify env vars, or replace this hash.
+const KEY_HASH = "b7ee52e1e6d2859701e020158c043a7f0341b724360e6ad2a41fdb29fa29f8d2";
+const sha = (v) => createHash("sha256").update(v).digest("hex");
+
 function authorized(req) {
-  const key = process.env.CRM_KEY;
-  return key && req.headers.get("x-crm-key") === key;
+  const given = String(req.headers.get("x-crm-key") || "").trim().toLowerCase();
+  if (!given) return false;
+  const env = process.env.CRM_KEY;
+  if (env && given === env.trim().toLowerCase()) return true;
+  return sha(given) === KEY_HASH;
 }
 
 export default async (req) => {
