@@ -29,7 +29,8 @@ const fold = (line) => {
 };
 
 export default async (req) => {
-  const k = new URL(req.url).searchParams.get("k") || "";
+  const url = new URL(req.url);
+  const k = url.searchParams.get("k") || "";
   if (!k || sha(k) !== TOKEN_HASH) return new Response("Not found", { status: 404 });
 
   const bookings = getStore({ name: "bookings", consistency: "strong" });
@@ -80,7 +81,7 @@ export default async (req) => {
 
   return new Response(lines.map(fold).join("\r\n") + "\r\n", {
     headers: {
-      "content-type": "text/calendar; charset=utf-8",
+      "content-type": url.searchParams.has("txt") ? "text/plain; charset=utf-8" : "text/calendar; charset=utf-8",
       "cache-control": "no-store",
       "content-disposition": 'inline; filename="operator-studio.ics"',
     },
