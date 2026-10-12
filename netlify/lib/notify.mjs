@@ -135,7 +135,7 @@ export async function send(type, rec) {
 
 const LOCK_MS = 5 * 60000;
 // Safety switch: real customer emails go out only when LIVE is true.
-export const LIVE = false;
+export const LIVE = true;
 
 // Sends whatever is due for one booking and records it. Safe to call repeatedly.
 export async function processBooking(store, key, now = new Date()) {
