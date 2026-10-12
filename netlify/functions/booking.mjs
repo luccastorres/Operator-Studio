@@ -1,11 +1,12 @@
 import { getStore } from "@netlify/blobs";
+import { processBooking } from "../lib/notify.mjs";
 
 const DAYS = ["2026-10-16", "2026-10-17", "2026-10-18"];
 const TIMES = ["10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30"];
 const VALID = new Set(DAYS.flatMap((d) => TIMES.map((t) => `${d}T${t}`)));
 const clip = (v, n) => String(v ?? "").trim().slice(0, n);
 
-export default async (req) => {
+export default async (req, context) => {
   const store = getStore({ name: "bookings", consistency: "strong" });
 
   if (req.method === "GET") {
@@ -45,6 +46,10 @@ export default async (req) => {
     };
     const { modified } = await store.setJSON(slot, record, { onlyIfNew: true });
     if (!modified) return Response.json({ error: "taken" }, { status: 409 });
+    // confirmation email + Google Meet, sent in the background
+    const job = processBooking(store, slot).catch(() => {});
+    if (context && typeof context.waitUntil === "function") context.waitUntil(job);
+    else await job;
     return Response.json({ ok: true });
   }
 
