@@ -4,6 +4,7 @@ import { processBooking } from "../lib/notify.mjs";
 const DAYS = ["2026-10-16", "2026-10-17", "2026-10-18"];
 const TIMES = ["10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30"];
 const VALID = new Set(DAYS.flatMap((d) => TIMES.map((t) => `${d}T${t}`)));
+const CAP = 10; // total analyses offered; booking closes when reached
 const clip = (v, n) => String(v ?? "").trim().slice(0, n);
 
 export default async (req, context) => {
@@ -12,7 +13,7 @@ export default async (req, context) => {
   if (req.method === "GET") {
     const { blobs } = await store.list();
     return Response.json(
-      { booked: blobs.map((b) => b.key) },
+      { booked: blobs.map((b) => b.key), full: blobs.length >= CAP },
       { headers: { "cache-control": "no-store" } }
     );
   }
@@ -44,6 +45,8 @@ export default async (req, context) => {
       desafio: clip(body.desafio, 1000),
       createdAt: new Date().toISOString(),
     };
+    const { blobs: existing } = await store.list();
+    if (existing.length >= CAP) return Response.json({ error: "full" }, { status: 409 });
     const { modified } = await store.setJSON(slot, record, { onlyIfNew: true });
     if (!modified) return Response.json({ error: "taken" }, { status: 409 });
     // confirmation email + Google Meet, sent in the background

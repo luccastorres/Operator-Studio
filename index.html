@@ -862,12 +862,13 @@ function renderDiag(){
 /* ---------- booking ---------- */
 const BDAYS=[{d:'2026-10-16',pt:['Sex','16 out'],en:['Fri','16 Oct']},{d:'2026-10-17',pt:['Sáb','17 out'],en:['Sat','17 Oct']},{d:'2026-10-18',pt:['Dom','18 out'],en:['Sun','18 Oct']}];
 const BTIMES=['10:00','10:30','11:00','11:30','12:00','12:30','13:00','13:30'];
-let booked=new Set(),bDay=0,bSlot=null;
+let booked=new Set(),bDay=0,bSlot=null,full=false;
 const daysEl=document.getElementById('days'),slotsEl=document.getElementById('slots');
 const form=document.getElementById('lead'),fst=document.getElementById('f-status'),fsend=document.getElementById('f-send');
 const slotDate=k=>new Date(k+':00+02:00');
-const isOpen=k=>!booked.has(k)&&slotDate(k)>new Date();
+const isOpen=k=>!full&&!booked.has(k)&&slotDate(k)>new Date();
 function renderBooking(){
+  if(full){daysEl.innerHTML='';slotsEl.innerHTML='<p class="fmsg" style="grid-column:1/-1">'+T('Agenda completa: as 10 análises foram reservadas. Me chame no Instagram <a href="https://instagram.com/luccastorres" target="_blank" rel="noopener">@luccastorres</a> para entrar na lista de espera.','Fully booked: all 10 analyses are taken. Message <a href="https://instagram.com/luccastorres" target="_blank" rel="noopener">@luccastorres</a> on Instagram to join the waitlist.')+'</p>';form.querySelectorAll('.fld:not(.full),#f-send').forEach(x=>x.hidden=true);return}
   daysEl.innerHTML='';
   BDAYS.forEach((d,i)=>{const free=BTIMES.filter(t=>isOpen(d.d+'T'+t)).length;const b=document.createElement('button');b.type='button';b.className='day';b.setAttribute('aria-pressed',i===bDay);
     const l=lang==='pt'?d.pt:d.en;b.innerHTML='<small>'+l[0]+'</small><b>'+l[1]+'</b><small>'+free+T(' livres',' open')+'</small>';
@@ -876,29 +877,29 @@ function renderBooking(){
   BTIMES.forEach(t=>{const k=BDAYS[bDay].d+'T'+t;const b=document.createElement('button');b.type='button';b.className='slot-b';b.textContent=t;b.disabled=!isOpen(k);b.setAttribute('aria-pressed',bSlot===k);
     b.onclick=()=>{bSlot=k;renderBooking()};slotsEl.appendChild(b)});
 }
-function loadBooked(){return fetch('/api/booking',{cache:'no-store'}).then(r=>r.ok?r.json():{booked:[]}).then(j=>{booked=new Set(j.booked||[]);if(bSlot&&!isOpen(bSlot))bSlot=null;renderBooking()}).catch(()=>{})}
+function loadBooked(){return fetch('/api/booking',{cache:'no-store'}).then(r=>r.ok?r.json():{booked:[]}).then(j=>{booked=new Set(j.booked||[]);full=!!j.full;if(bSlot&&!isOpen(bSlot))bSlot=null;renderBooking()}).catch(()=>{})}
 loadBooked();
 function slotLabel(k){const d=BDAYS.find(x=>k.startsWith(x.d));const l=lang==='pt'?d.pt:d.en;return l[0]+' '+l[1]+' · '+k.slice(11)}
 function gcal(k){const st=slotDate(k),en=new Date(st.getTime()+30*60000);const f=x=>x.toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,'');
   return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent('Operator Studio · Análise gratuita')+'&dates='+f(st)+'/'+f(en)+'&details='+encodeURIComponent('Análise de 30 minutos com Luccas Torres. O link da videochamada chega pelo WhatsApp.')}
 form.addEventListener('submit',e=>{
   e.preventDefault();
-  const n=form.nome.value.trim(),w=form.whatsapp.value.trim();
+  const n=form.nome.value.trim(),w=form.whatsapp.value.trim(),em=form.email.value.trim();
   if(!bSlot){fst.className='fmsg';fst.textContent=T('Escolha um dia e um horário.','Pick a day and a time.');slotsEl.scrollIntoView({block:'center'});return}
-  if(!n||!w){fst.className='fmsg';fst.textContent=T('Preencha nome e WhatsApp.','Please fill in name and WhatsApp.');(n?form.whatsapp:form.nome).focus();return}
+  if(!n||!w||!/^\S+@\S+\.\S+$/.test(em)){fst.className='fmsg';fst.textContent=T('Preencha nome, WhatsApp e e-mail.','Please fill in name, WhatsApp and email.');(!n?form.nome:!w?form.whatsapp:form.email).focus();return}
   fsend.disabled=true;fst.className='fmsg';fst.textContent=T('Reservando...','Booking...');
   const data={slot:bSlot,nome:n,whatsapp:w,email:form.email.value.trim(),negocio:form.negocio.value.trim(),setor:form.setor.value,desafio:form.desafio.value.trim()};
   fetch('/api/booking',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)})
    .then(r=>{
-     if(r.status===409){booked.add(bSlot);bSlot=null;renderBooking();throw 'taken'}
+     if(r.status===409){return r.json().catch(()=>({})).then(j=>{if(j.error==='full'){full=true;bSlot=null;renderBooking();throw 'full'}booked.add(bSlot);bSlot=null;renderBooking();throw 'taken'})}
      if(!r.ok)throw 'err';
      const k=bSlot;document.getElementById('f-slot').value=k+' ('+slotLabel(k)+', Milão)';
      fetch('/',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams(new FormData(form)).toString()}).catch(()=>{});
      form.querySelectorAll('.fld,#f-send').forEach(x=>x.hidden=true);
      fst.className='fmsg ok';
-     fst.innerHTML=T('Reservado! ','Booked! ')+'<b>'+slotLabel(k)+'</b> ('+T('horário de Milão','Milan time')+').<br>'+T('O link da videochamada chega pelo WhatsApp.','The video call link will arrive on WhatsApp.')+'<br><a href="'+gcal(k)+'" target="_blank" rel="noopener">'+T('Adicionar ao Google Calendar','Add to Google Calendar')+'</a>';
+     fst.innerHTML=T('Reservado! ','Booked! ')+'<b>'+slotLabel(k)+'</b> ('+T('horário de Milão','Milan time')+').<br>'+T('A confirmação com o link do Google Meet chega no seu e-mail em instantes.','Your confirmation with the Google Meet link is on its way to your inbox.')+'<br><a href="'+gcal(k)+'" target="_blank" rel="noopener">'+T('Adicionar ao Google Calendar','Add to Google Calendar')+'</a>';
    })
-   .catch(x=>{fsend.disabled=false;fst.className='fmsg';fst.textContent=x==='taken'?T('Esse horário acabou de ser reservado. Escolha outro.','That time was just booked. Please pick another.'):T('A reserva não completou. Tente de novo ou chame @luccastorres no Instagram.','The booking did not go through. Try again or message @luccastorres on Instagram.')});
+   .catch(x=>{if(x==='full')return;fsend.disabled=false;fst.className='fmsg';fst.textContent=x==='taken'?T('Esse horário acabou de ser reservado. Escolha outro.','That time was just booked. Please pick another.'):T('A reserva não completou. Tente de novo ou chame @luccastorres no Instagram.','The booking did not go through. Try again or message @luccastorres on Instagram.')});
 });
 
 /* ---------- side nav ---------- */
