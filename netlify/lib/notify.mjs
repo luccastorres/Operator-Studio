@@ -134,9 +134,12 @@ export async function send(type, rec) {
 }
 
 const LOCK_MS = 5 * 60000;
+// Safety switch: real customer emails go out only when LIVE is true.
+export const LIVE = false;
 
 // Sends whatever is due for one booking and records it. Safe to call repeatedly.
 export async function processBooking(store, key, now = new Date()) {
+  if (!LIVE) return "not-live";
   const rec = await store.get(key, { type: "json" });
   if (!rec || !rec.email || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(rec.slot || "")) return "skip";
   const start = romeToUtc(rec.slot);
