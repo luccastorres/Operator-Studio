@@ -862,13 +862,20 @@ function renderDiag(){
 /* ---------- booking ---------- */
 const BDAYS=[{d:'2026-10-16',pt:['Sex','16 out'],en:['Fri','16 Oct']},{d:'2026-10-17',pt:['Sáb','17 out'],en:['Sat','17 Oct']},{d:'2026-10-18',pt:['Dom','18 out'],en:['Sun','18 Oct']}];
 const BTIMES=['10:00','10:30','11:00','11:30','12:00','12:30','13:00','13:30'];
-let booked=new Set(),bDay=0,bSlot=null,full=false;
+let booked=new Set(),bDay=0,bSlot=null,full=false,waitDone=false;
 const daysEl=document.getElementById('days'),slotsEl=document.getElementById('slots');
 const form=document.getElementById('lead'),fst=document.getElementById('f-status'),fsend=document.getElementById('f-send');
 const slotDate=k=>new Date(k+':00+02:00');
 const isOpen=k=>!full&&!booked.has(k)&&slotDate(k)>new Date();
 function renderBooking(){
-  if(full){daysEl.innerHTML='';slotsEl.innerHTML='<p class="fmsg" style="grid-column:1/-1">'+T('Agenda completa: as 10 análises foram reservadas. Me chame no Instagram <a href="https://instagram.com/luccastorres" target="_blank" rel="noopener">@luccastorres</a> para entrar na lista de espera.','Fully booked: all 10 analyses are taken. Message <a href="https://instagram.com/luccastorres" target="_blank" rel="noopener">@luccastorres</a> on Instagram to join the waitlist.')+'</p>';form.querySelectorAll('.fld:not(.full),#f-send').forEach(x=>x.hidden=true);return}
+  if(full){
+    form.querySelectorAll('.fld,#f-send').forEach(x=>x.hidden=waitDone);
+    daysEl.closest('.fld').hidden=true;
+    const sideP=document.querySelector('[data-i="ctP"]'),h2a=document.querySelector('[data-i="ctH2a"]'),h2b=document.querySelector('[data-i="ctH2b"]');
+    h2a.textContent=T('Agenda completa.','Fully booked.');h2b.textContent=T('Entre na lista de espera.','Join the waitlist.');
+    sideP.textContent=T('As 10 análises gratuitas foram reservadas. Deixe seu contato e eu te chamo assim que abrir uma nova agenda.','All 10 free analyses are booked. Leave your details and I will reach out as soon as a new round opens.');
+    fsend.textContent=T('Entrar na lista de espera','Join the waitlist');
+    return}
   daysEl.innerHTML='';
   BDAYS.forEach((d,i)=>{const free=BTIMES.filter(t=>isOpen(d.d+'T'+t)).length;const b=document.createElement('button');b.type='button';b.className='day';b.setAttribute('aria-pressed',i===bDay);
     const l=lang==='pt'?d.pt:d.en;b.innerHTML='<small>'+l[0]+'</small><b>'+l[1]+'</b><small>'+free+T(' livres',' open')+'</small>';
@@ -885,6 +892,13 @@ function gcal(k){const st=slotDate(k),en=new Date(st.getTime()+30*60000);const f
 form.addEventListener('submit',e=>{
   e.preventDefault();
   const n=form.nome.value.trim(),w=form.whatsapp.value.trim(),em=form.email.value.trim();
+  if(full){
+    if(!n||!w||!/^\S+@\S+\.\S+$/.test(em)){fst.className='fmsg';fst.textContent=T('Preencha nome, WhatsApp e e-mail.','Please fill in name, WhatsApp and email.');(!n?form.nome:!w?form.whatsapp:form.email).focus();return}
+    fsend.disabled=true;fst.className='fmsg';fst.textContent=T('Enviando...','Sending...');
+    fetch('/api/booking',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({waitlist:true,nome:n,whatsapp:w,email:em,negocio:form.negocio.value.trim(),setor:form.setor.value,desafio:form.desafio.value.trim()})})
+     .then(r=>{if(!r.ok)throw 'err';waitDone=true;renderBooking();fst.className='fmsg ok';fst.innerHTML=T('Pronto, você está na lista de espera.','Done, you are on the waitlist.')+'<br>'+T('Assim que abrir uma nova agenda, eu te chamo no WhatsApp.','As soon as a new round opens, I will message you on WhatsApp.')})
+     .catch(()=>{fsend.disabled=false;fst.className='fmsg';fst.textContent=T('Não foi possível enviar. Tente de novo ou chame @luccastorres no Instagram.','Could not send. Try again or message @luccastorres on Instagram.')});
+    return}
   if(!bSlot){fst.className='fmsg';fst.textContent=T('Escolha um dia e um horário.','Pick a day and a time.');slotsEl.scrollIntoView({block:'center'});return}
   if(!n||!w||!/^\S+@\S+\.\S+$/.test(em)){fst.className='fmsg';fst.textContent=T('Preencha nome, WhatsApp e e-mail.','Please fill in name, WhatsApp and email.');(!n?form.nome:!w?form.whatsapp:form.email).focus();return}
   fsend.disabled=true;fst.className='fmsg';fst.textContent=T('Reservando...','Booking...');

@@ -220,7 +220,7 @@ function card(l){
   return `<button class="lead" data-id="${esc(l.id)}">
     <span class="n">${esc(l.nome)}</span>
     ${l.negocio||l.setor?`<span class="b">${esc(l.negocio)}${l.negocio&&l.setor?' · ':''}${esc(l.setor)}</span>`:''}
-    <span class="row">${l.slot?`<span class="chip slot">${esc(slotLabel(l.slot))}</span>`:''}${l.value?`<span class="chip">€ ${esc(l.value)}</span>`:''}<span class="chip src">${l.source==='site'?'Site':'Manual'}</span></span>
+    <span class="row">${l.slot?`<span class="chip slot">${esc(slotLabel(l.slot))}</span>`:''}${l.value?`<span class="chip">€ ${esc(l.value)}</span>`:''}<span class="chip src">${l.source==='site'?'Site':l.source==='waitlist'?'Lista de espera':'Manual'}</span></span>
     ${l.desafio?`<span class="d">${esc(l.desafio)}</span>`:''}
   </button>`;
 }
@@ -252,10 +252,10 @@ function templates(l){
 function openLead(id, keep){
   const l = LEADS.find(x=>x.id===id); if(!l) return;
   OPEN = id;
-  const wa = waNumber(l.whatsapp), manual = l.source==='manual';
+  const wa = waNumber(l.whatsapp), manual = l.source!=='site';
   const tpl = templates(l);
   $('#sheet').innerHTML = `<div class="grab"></div>
-    <div class="sh-head"><div><span class="eyebrow">${l.source==='site'?'Reserva pelo site':'Lead manual'}</span><h3>${esc(l.nome)}</h3><p>${esc(l.negocio)}${l.negocio&&l.setor?' · ':''}${esc(l.setor)}</p></div>
+    <div class="sh-head"><div><span class="eyebrow">${l.source==='site'?'Reserva pelo site':l.source==='waitlist'?'Lista de espera':'Lead manual'}</span><h3>${esc(l.nome)}</h3><p>${esc(l.negocio)}${l.negocio&&l.setor?' · ':''}${esc(l.setor)}</p></div>
       <button class="iconbtn" id="close" aria-label="Fechar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
     <div class="acts">
       <a class="act ${wa?'':'off'}" href="https://wa.me/${wa}" target="_blank" rel="noopener">${ICON.wa}WhatsApp</a>

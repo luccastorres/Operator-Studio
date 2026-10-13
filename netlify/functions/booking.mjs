@@ -25,6 +25,20 @@ export default async (req, context) => {
     } catch {
       return Response.json({ error: "invalid" }, { status: 400 });
     }
+    if (body.waitlist === true) {
+      const nome = clip(body.nome, 120), whatsapp = clip(body.whatsapp, 40);
+      if (!nome || !whatsapp) return Response.json({ error: "invalid" }, { status: 400 });
+      const crm = getStore({ name: "crm", consistency: "strong" });
+      const id = "w-" + Date.now().toString(36);
+      await crm.setJSON(id, {
+        nome, whatsapp,
+        email: clip(body.email, 160), negocio: clip(body.negocio, 160),
+        setor: clip(body.setor, 80), desafio: clip(body.desafio, 1000),
+        source: "waitlist", stage: "novo", notes: "Lista de espera", value: "",
+        createdAt: new Date().toISOString(),
+      });
+      return Response.json({ ok: true, waitlist: true });
+    }
     const slot = clip(body.slot, 20);
     const nome = clip(body.nome, 120);
     const whatsapp = clip(body.whatsapp, 40);

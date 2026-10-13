@@ -100,7 +100,7 @@ export default async (req) => {
 
     if (b.action === "delete") {
       const id = clip(b.id, 40);
-      if (!id.startsWith("m-")) return json({ error: "only manual leads" }, 400);
+      if (!id.startsWith("m-") && !id.startsWith("w-")) return json({ error: "only manual leads" }, 400);
       await crm.delete(id);
       return json({ ok: true });
     }
