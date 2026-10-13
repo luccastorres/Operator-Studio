@@ -872,7 +872,10 @@ function renderBooking(){
     form.querySelectorAll('.fld,#f-send').forEach(x=>x.hidden=waitDone);
     daysEl.closest('.fld').hidden=true;
     const sideP=document.querySelector('[data-i="ctP"]'),h2a=document.querySelector('[data-i="ctH2a"]'),h2b=document.querySelector('[data-i="ctH2b"]');
-    h2a.textContent=T('Agenda completa.','Fully booked.');h2b.textContent=T('Entre na lista de espera.','Join the waitlist.');
+    let tag=document.getElementById('full-tag');
+    if(!tag){tag=document.createElement('span');tag.id='full-tag';tag.style.cssText='display:inline-flex;width:fit-content;align-self:flex-start;align-items:center;gap:10px;margin-top:18px;background:#151412;color:#F3F1EC;padding:9px 18px;border-radius:999px;font-size:13px;letter-spacing:.16em;text-transform:uppercase';h2a.parentElement.before(tag)}
+    tag.innerHTML='<i style="width:9px;height:9px;border-radius:50%;background:#C9A36A;box-shadow:0 0 0 5px rgba(201,163,106,.25)"></i>'+T('10 de 10 vagas reservadas','10 of 10 spots booked');
+    h2a.textContent=T('Agenda completa.','Fully booked.');h2b.textContent=T('Entre na nossa lista de espera.','Join our waiting list.');
     sideP.textContent=T('As 10 análises gratuitas foram reservadas. Deixe seu contato e eu te chamo assim que abrir uma nova agenda.','All 10 free analyses are booked. Leave your details and I will reach out as soon as a new round opens.');
     fsend.textContent=T('Entrar na lista de espera','Join the waitlist');
     return}
