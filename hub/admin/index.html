@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#F3F1EC">
+<link rel="icon" href="/favicon.png">
+<title>Hub · Painel do mentor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600&family=Tinos:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#151412;--linen:#F3F1EC;--linen2:#EAE6DF;--card:#FBFAF7;--line:#D9D3C9;--taupe:#7E7669;--soft:#5F594F;--sand:#B5AEA2;--gold:#C9A36A;--ok:#4E6B4F;
+--serif:'Tinos','Times New Roman',serif;--sans:'Hanken Grotesk',-apple-system,Helvetica,Arial,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+html,body{background:var(--linen);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+a{color:inherit}
+.logo{font-family:var(--serif);font-size:21px}.logo b{font-weight:700}.logo i{color:var(--taupe)}
+.ey{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--taupe)}
+.h1{font-family:var(--serif);font-size:34px;line-height:1.05}.h1 em{font-weight:400;color:var(--taupe)}
+.h3{font-family:var(--serif);font-size:20px;line-height:1.15}
+.muted{color:var(--soft)}
+.in{width:100%;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:11px 12px;font-size:16px;outline:none}
+.in:focus{border-color:var(--taupe)}
+textarea.in{min-height:90px;resize:vertical;line-height:1.5}
+label.l{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--taupe);margin-bottom:5px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;background:var(--ink);color:var(--linen);border-radius:999px;padding:11px 18px;font-size:14px;font-weight:500;text-decoration:none;white-space:nowrap}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.sm{padding:7px 12px;font-size:13px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.g3{display:grid;grid-template-columns:2fr 2fr 1fr auto;gap:8px;align-items:end}
+@media(max-width:640px){.g2{grid-template-columns:1fr}.g3{grid-template-columns:1fr 1fr}}
+.chip{font-size:12px;border-radius:999px;padding:4px 10px;background:var(--linen2);color:var(--soft)}
+.chip.ok{background:#E3EADF;color:var(--ok)}
+.chip.wait{background:#F1E7D6;color:#8A6A3A}
+.wk{display:flex;gap:6px;flex-wrap:wrap}
+.wk button{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--linen);font-family:var(--serif);font-size:16px}
+.wk button.on{background:var(--ink);color:var(--linen);border-color:var(--ink)}
+.err{color:#9A3B2E;font-size:14px}
+header{position:sticky;top:0;z-index:5;background:rgba(243,241,236,.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding:calc(12px + env(safe-area-inset-top)) 16px 0}
+.hin{max-width:1100px;margin:0 auto}
+.htop{display:flex;justify-content:space-between;align-items:center}
+.tabs{display:flex;gap:4px;overflow-x:auto;margin-top:10px;scrollbar-width:none}
+.tab{flex:none;padding:10px 14px;font-size:14px;color:var(--soft);border-bottom:2px solid transparent}
+.tab.on{color:var(--ink);border-color:var(--ink)}
+main{max-width:1100px;margin:0 auto;padding:22px 16px 80px;display:flex;flex-direction:column;gap:14px}
+.list>*{padding:10px 0;border-top:1px solid var(--line)}.list>*:first-child{border-top:0}
+.day h4{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--taupe);font-weight:500;margin:6px 0 8px}
+.sl{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--card);border-radius:10px;padding:8px 10px;font-size:14px;margin:0 6px 6px 0}
+.sl.b{background:var(--ink);color:var(--linen);border-color:var(--ink)}
+.sl button{font-size:12px;text-decoration:underline;opacity:.75}
+.post{padding:10px 0;border-top:1px solid var(--line)}
+.post b{font-size:13px}.post p{white-space:pre-wrap;font-size:14.5px;line-height:1.5;margin-top:4px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:var(--linen);padding:10px 16px;border-radius:999px;font-size:14px;opacity:0;transition:.2s;z-index:30;pointer-events:none}
+.toast.on{opacity:1}
+.login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.login form{width:100%;max-width:360px;display:flex;flex-direction:column;gap:16px}
+</style>
+</head>
+<body>
+<section class="login" id="vLogin" hidden><form id="fL">
+  <span class="logo"><b>Operator</b> <i>Studio</i></span>
+  <h1 class="h1">Painel do <em>mentor.</em></h1>
+  <div><label class="l">Senha do CRM</label><input class="in" id="k" type="password" autocomplete="current-password" required></div>
+  <button class="btn" type="submit">Entrar</button><p class="err" id="eL" hidden>Senha incorreta.</p>
+</form></section>
+
+<div id="app" hidden>
+  <header><div class="hin">
+    <div class="htop"><span class="logo"><b>Operator</b> <i>Studio</i> <span class="ey" style="margin-left:6px">Student Hub</span></span>
+      <div class="row"><a class="btn ghost sm" href="/hub/" target="_blank">Ver como aluno</a><a class="btn ghost sm" href="/crm/">CRM</a></div></div>
+    <nav class="tabs" id="tabs"></nav>
+  </div></header>
+  <main id="main"></main>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const store = {get(k){try{return localStorage.getItem(k)}catch{return null}},set(k,v){try{localStorage.setItem(k,v)}catch{}},del(k){try{localStorage.removeItem(k)}catch{}}};
+const TZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
+let KEY = store.get('os_crm_key')||'', S = null, TAB = location.hash.slice(1)||'alunos', OPEN = {}, INVITES = {};
+const TABS = [['alunos','Alunos'],['materiais','Materiais'],['agenda','Agenda'],['comunidade','Comunidade']];
+const KINDS = ['Aula','PDF','Vídeo','Template','Link'];
+
+function toast(t){ const el=$('#toast'); el.textContent=t; el.classList.add('on'); clearTimeout(toast.t); toast.t=setTimeout(()=>el.classList.remove('on'),2000); }
+async function api(path, body){
+  const r = await fetch('/api/hub/admin/'+path,{method:body?'POST':'GET',headers:{'x-crm-key':KEY,'content-type':'application/json'},body:body?JSON.stringify(body):undefined,cache:'no-store'});
+  const j = await r.json().catch(()=>({}));
+  if(r.status===401){ logout(); throw new Error('auth'); }
+  if(!r.ok){ const e=new Error(j.error||'api'); e.code=j.error; throw e; }
+  return j;
+}
+const fDT = iso => new Intl.DateTimeFormat('pt-BR',{timeZone:TZ,weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}).format(new Date(iso));
+const fDay = iso => new Intl.DateTimeFormat('pt-BR',{timeZone:TZ,weekday:'long',day:'numeric',month:'long'}).format(new Date(iso));
+const fT = iso => new Intl.DateTimeFormat('pt-BR',{timeZone:TZ,hour:'2-digit',minute:'2-digit'}).format(new Date(iso));
+const first = n => String(n||'').trim().split(/\s+/)[0];
+function waNumber(raw){ let d=String(raw||'').replace(/[^\d+]/g,''); if(d.startsWith('+')) return d.slice(1); if(d.startsWith('00')) return d.slice(2); return d; }
+const inviteUrl = t => `${location.origin}/hub/?convite=${t}`;
+const inviteMsg = (s,t) => `Oi, ${first(s.nome)}! Bem-vindo à mentoria Operator Studio. Este é o seu Student Hub, onde ficam os materiais de cada semana, a agenda das sessões e a comunidade dos alunos. Crie sua senha por aqui: ${inviteUrl(t)}`;
+
+async function load(){ S = await api('state'); render(); }
+function render(){
+  $('#tabs').innerHTML = TABS.map(([k,t])=>`<button class="tab ${k===TAB?'on':''}" data-tab="${k}">${t}</button>`).join('');
+  const m=$('#main');
+  m.innerHTML = TAB==='materiais'?vMat():TAB==='agenda'?vAgenda():TAB==='comunidade'?vForum():vStudents();
+  bind();
+}
+document.addEventListener('click',e=>{ const t=e.target.closest('[data-tab]'); if(t){ TAB=t.dataset.tab; history.replaceState(null,'','#'+TAB); render(); } });
+
+/* ---------- students ---------- */
+function vStudents(){
+  const sl = S.slots;
+  return `<div><span class="ey">Alunos</span><h1 class="h1">Sua <em>turma.</em></h1></div>
+  <form class="card" id="fNew"><span class="ey">Novo aluno</span>
+    <div class="g2"><div><label class="l">Nome</label><input class="in" name="nome" required></div><div><label class="l">E-mail (login)</label><input class="in" name="email" type="email" required></div></div>
+    <div class="g2"><div><label class="l">WhatsApp</label><input class="in" name="whatsapp" inputmode="tel"></div><div><label class="l">Negócio</label><input class="in" name="negocio"></div></div>
+    <div class="g2"><div><label class="l">Perfil</label><select class="in" name="perfil"><option>Construir</option><option>Otimizar</option><option>Automatizar</option></select></div><div style="display:flex;align-items:flex-end"><button class="btn" type="submit">Criar e gerar convite</button></div></div>
+  </form>
+  ${S.students.length ? S.students.sort((a,b)=>a.nome.localeCompare(b.nome)).map(s=>{
+    const mine = sl.filter(x=>x.studentId===s.id).sort((a,b)=>a.start.localeCompare(b.start));
+    const nextS = mine.find(x=>new Date(x.start)>Date.now());
+    const inv = INVITES[s.id]; const wa = waNumber(s.whatsapp);
+    return `<div class="card">
+      <div class="row" style="justify-content:space-between"><div><p class="h3">${esc(s.nome)}</p><p class="muted" style="font-size:14px">${esc(s.email)}${s.negocio?' · '+esc(s.negocio):''}</p></div>
+        <div class="row"><span class="chip">${esc(s.perfil||'')}</span>${s.active?'<span class="chip ok">Ativo</span>':'<span class="chip wait">Convite pendente</span>'}</div></div>
+      <p class="muted" style="font-size:14px">Sessões: ${mine.length}/8${nextS?' · próxima '+esc(fDT(nextS.start)):''}</p>
+      <div><label class="l">Semanas liberadas (toque para liberar depois da aula)</label><div class="wk" data-rel="${esc(s.id)}">${[1,2,3,4,5,6,7,8].map(w=>`<button class="${(s.released||[]).includes(w)?'on':''}" data-w="${w}">${w}</button>`).join('')}</div></div>
+      ${inv?`<div class="card" style="background:var(--linen)"><span class="ey">Convite pronto</span><p style="font-size:13px;word-break:break-all">${esc(inviteUrl(inv))}</p><div class="row">${wa?`<a class="btn sm" target="_blank" rel="noopener" href="https://wa.me/${wa}?text=${encodeURIComponent(inviteMsg(s,inv))}">Enviar no WhatsApp</a>`:''}<button class="btn ghost sm" data-copy="${esc(inviteUrl(inv))}">Copiar link</button></div></div>`:''}
+      <div class="row">
+        <button class="btn ghost sm" data-extra="${esc(s.id)}">${OPEN['x'+s.id]?'Fechar links da sessão':'Links da sessão (gravação etc.)'}</button>
+        <button class="btn ghost sm" data-reinv="${esc(s.id)}">${s.active?'Novo link de senha':'Gerar convite'}</button>
+        <button class="btn ghost sm" data-del="${esc(s.id)}">Remover</button></div>
+      ${OPEN['x'+s.id]?extraEditor(s):''}
+    </div>`; }).join('') : '<p class="muted">Nenhum aluno ainda.</p>'}`;
+}
+function extraEditor(s){
+  const ex = s.extra||{};
+  return `<div class="card" style="background:var(--linen)" data-exed="${esc(s.id)}"><span class="ey">Links individuais por semana · só ${esc(first(s.nome))} vê</span>
+    ${[1,2,3,4,5,6,7,8].map(w=>`<div><label class="l">Semana ${w}</label><textarea class="in" style="min-height:52px" data-exw="${w}" placeholder="Uma linha por link: Título | https://...">${esc((ex[w]||[]).map(i=>i.label+' | '+i.url).join('\n'))}</textarea></div>`).join('')}
+    <div><button class="btn sm" data-exsave="${esc(s.id)}">Salvar links</button></div></div>`;
+}
+
+/* ---------- materials ---------- */
+function vMat(){
+  return `<div><span class="ey">Materiais</span><h1 class="h1">Conteúdo das <em>8 semanas.</em></h1><p class="muted" style="margin-top:6px">O mesmo material para todos. Cada aluno só vê a semana depois que você liberar na aba Alunos.</p></div>
+  ${S.materials.map(m=>`<div class="card" data-mat="${m.week}">
+    <div class="row" style="justify-content:space-between"><p class="h3">Semana ${m.week} · ${esc(m.title)}</p><button class="btn ghost sm" data-open="m${m.week}">${OPEN['m'+m.week]?'Fechar':'Editar'}</button></div>
+    <p class="muted" style="font-size:14px">${(m.items||[]).length} itens${m.updatedAt?' · atualizado '+esc(fDT(m.updatedAt)):''}</p>
+    ${OPEN['m'+m.week]?`<div><label class="l">Título</label><input class="in" data-f="title" value="${esc(m.title)}"></div>
+      <div><label class="l">Resumo</label><textarea class="in" style="min-height:60px" data-f="summary">${esc(m.summary||'')}</textarea></div>
+      <div><label class="l">Texto da semana (passo a passo, tarefas)</label><textarea class="in" style="min-height:140px" data-f="body">${esc(m.body||'')}</textarea></div>
+      <span class="ey">Itens</span><div data-items>${(m.items||[]).map(itemRow).join('')}</div>
+      <div class="row"><button class="btn ghost sm" data-additem>+ Link</button><label class="btn ghost sm" style="cursor:pointer">Enviar arquivo (até 5 MB)<input type="file" data-up hidden></label></div>
+      <div><button class="btn" data-savemat="${m.week}">Salvar semana ${m.week}</button></div>`:''}
+  </div>`).join('')}`;
+}
+const itemRow = i => `<div class="g3" style="margin-bottom:8px"><div><label class="l">Título</label><input class="in" data-i="label" value="${esc(i.label||'')}"></div><div><label class="l">Link</label><input class="in" data-i="url" value="${esc(i.url||'')}"></div><div><label class="l">Tipo</label><select class="in" data-i="kind">${KINDS.map(k=>`<option ${i.kind===k?'selected':''}>${k}</option>`).join('')}</select></div><button class="btn ghost sm" data-rmitem>×</button></div>`;
+
+/* ---------- agenda ---------- */
+function vAgenda(){
+  const fut = S.slots.filter(s=>new Date(s.start)>Date.now()-2*3600000).sort((a,b)=>a.start.localeCompare(b.start));
+  const groups={}; fut.forEach(s=>{ const k=new Intl.DateTimeFormat('en-CA',{timeZone:TZ}).format(new Date(s.start)); (groups[k]=groups[k]||[]).push(s); });
+  const name = id => (S.students.find(x=>x.id===id)||{}).nome || 'Aluno';
+  return `<div><span class="ey">Agenda</span><h1 class="h1">Horários das <em>sessões.</em></h1><p class="muted" style="margin-top:6px">Você abre os horários, cada aluno escolhe o seu. Horários no seu fuso: ${esc(TZ)}. Sessões de 90 minutos.</p></div>
+  <form class="card" id="fSlots"><span class="ey">Abrir horários</span>
+    <div class="g2"><div><label class="l">A partir do dia</label><input class="in" type="date" name="date" required></div><div><label class="l">Horários (separados por vírgula)</label><input class="in" name="times" placeholder="10:00, 14:00, 16:00" required></div></div>
+    <div class="g2"><div><label class="l">Dias da semana</label><div class="wk" id="dows">${['D','S','T','Q','Q','S','S'].map((d,i)=>`<button type="button" data-dow="${i}" class="${[1,2,3,4,5].includes(i)?'on':''}">${d}</button>`).join('')}</div></div><div><label class="l">Por quantas semanas</label><select class="in" name="weeks">${[1,2,3,4,6,8].map(n=>`<option ${n===2?'selected':''}>${n}</option>`).join('')}</select></div></div>
+    <div><button class="btn" type="submit">Abrir horários</button></div></form>
+  <div class="card"><span class="ey">Próximos horários</span>
+    ${Object.keys(groups).length?Object.entries(groups).map(([k,arr])=>`<div class="day"><h4>${esc(fDay(arr[0].start))}</h4>${arr.map(s=>s.studentId?`<span class="sl b">${fT(s.start)} · ${esc(first(name(s.studentId)))} · S${s.week}${s.meet?` · <a href="${esc(s.meet)}" target="_blank" rel="noopener" style="color:inherit">Meet</a>`:''} <button data-acancel="${esc(s.start)}">desmarcar</button></span>`:`<span class="sl">${fT(s.start)} <button data-rm="${esc(s.start)}">remover</button></span>`).join('')}</div>`).join(''):'<p class="muted">Nenhum horário aberto.</p>'}
+  </div>`;
+}
+
+/* ---------- forum ---------- */
+function vForum(){
+  const ts=[...S.forum].sort((a,b)=>(b.lastAt||'').localeCompare(a.lastAt||''));
+  return `<div><span class="ey">Comunidade</span><h1 class="h1">Conversas dos <em>alunos.</em></h1></div>
+  <form class="card" id="fPost"><span class="ey">Nova conversa como mentor</span><div class="g2"><div><label class="l">Título</label><input class="in" name="title" required></div><div><label class="l">Tema</label><select class="in" name="topic">${['Avisos','Geral','IA e prompts','Marca','Website','Conteúdo','Vendas e CRM','Automações','Agentes','Vitórias'].map(t=>`<option>${t}</option>`).join('')}</select></div></div><textarea class="in" name="body" required></textarea><div><button class="btn" type="submit">Publicar</button></div></form>
+  ${ts.map(t=>`<div class="card"><div class="row" style="justify-content:space-between"><div><span class="ey">${esc(t.topic)}</span><p class="h3" style="margin-top:4px">${esc(t.title)}</p><p class="muted" style="font-size:13px">${esc(t.author)} · ${t.replies.length} respostas</p></div><div class="row"><button class="btn ghost sm" data-open="t${t.id}">${OPEN['t'+t.id]?'Fechar':'Abrir'}</button><button class="btn ghost sm" data-delt="${esc(t.id)}">Apagar</button></div></div>
+    ${OPEN['t'+t.id]?`<div class="post" style="border-top:0"><b>${esc(t.author)}</b><p>${esc(t.body)}</p></div>${t.replies.map(r=>`<div class="post"><b>${esc(r.author)}</b> <button class="muted" style="font-size:12px;text-decoration:underline" data-delr="${esc(t.id)}|${esc(r.id)}">apagar</button><p>${esc(r.body)}</p></div>`).join('')}
+      <form data-reply="${esc(t.id)}" style="display:flex;flex-direction:column;gap:8px"><textarea class="in" name="body" placeholder="Responder como mentor…" required></textarea><div><button class="btn sm" type="submit">Responder</button></div></form>`:''}</div>`).join('')}`;
+}
+
+/* ---------- bind ---------- */
+function bind(){
+  const fn=$('#fNew'); if(fn) fn.onsubmit=async e=>{ e.preventDefault(); try{ const r=await api('student',Object.fromEntries(new FormData(fn))); INVITES[r.student.id]=r.invite; await load(); toast('Aluno criado'); }catch(x){ toast(x.code==='exists'?'Esse e-mail já existe':'Preencha nome e e-mail'); } };
+  document.querySelectorAll('[data-rel]').forEach(box=>box.querySelectorAll('[data-w]').forEach(b=>b.onclick=async()=>{
+    const s=S.students.find(x=>x.id===box.dataset.rel); const w=+b.dataset.w; const set=new Set(s.released||[]); set.has(w)?set.delete(w):set.add(w); s.released=[...set].sort((a,b)=>a-b); b.classList.toggle('on');
+    try{ await api('student',{id:s.id,released:s.released}); toast(set.has(w)?`Semana ${w} liberada`:`Semana ${w} bloqueada`); }catch{ toast('Erro'); } }));
+  document.querySelectorAll('[data-copy]').forEach(b=>b.onclick=async()=>{ try{ await navigator.clipboard.writeText(b.dataset.copy); toast('Link copiado'); }catch{ prompt('Copie:',b.dataset.copy); } });
+  document.querySelectorAll('[data-reinv]').forEach(b=>b.onclick=async()=>{ try{ const r=await api('reinvite',{id:b.dataset.reinv}); INVITES[b.dataset.reinv]=r.invite; render(); }catch{ toast('Erro'); } });
+  document.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{ const s=S.students.find(x=>x.id===b.dataset.del); if(!confirm(`Remover ${s.nome} do hub? As sessões marcadas voltam a ficar livres.`)) return; try{ await api('student-delete',{id:s.id}); await load(); toast('Aluno removido'); }catch{ toast('Erro'); } });
+  document.querySelectorAll('[data-extra]').forEach(b=>b.onclick=()=>{ OPEN['x'+b.dataset.extra]=!OPEN['x'+b.dataset.extra]; render(); });
+  document.querySelectorAll('[data-exsave]').forEach(b=>b.onclick=async()=>{ const id=b.dataset.exsave, box=document.querySelector(`[data-exed="${CSS.escape(id)}"]`); const extra={};
+    box.querySelectorAll('[data-exw]').forEach(t=>{ extra[t.dataset.exw]=t.value.split('\n').map(l=>l.split('|')).filter(p=>p.length>=2).map(p=>({label:p[0].trim(),url:p.slice(1).join('|').trim()})); });
+    try{ await api('student',{id,extra}); await load(); toast('Links salvos'); }catch{ toast('Erro'); } });
+  document.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>{ OPEN[b.dataset.open]=!OPEN[b.dataset.open]; render(); });
+  document.querySelectorAll('[data-additem]').forEach(b=>b.onclick=()=>b.closest('[data-mat]').querySelector('[data-items]').insertAdjacentHTML('beforeend',itemRow({kind:'Link'})));
+  document.querySelectorAll('[data-up]').forEach(inp=>inp.onchange=async()=>{ const f=inp.files[0]; if(!f) return; if(f.size>5.5*1024*1024){ toast('Arquivo maior que 5 MB: use um link do Drive'); return; }
+    toast('Enviando…'); const r=await fetch('/api/hub/admin/upload?name='+encodeURIComponent(f.name),{method:'POST',headers:{'x-crm-key':KEY,'content-type':f.type||'application/octet-stream'},body:f}); const j=await r.json().catch(()=>({}));
+    if(!r.ok){ toast('Erro no envio'); return; } inp.closest('[data-mat]').querySelector('[data-items]').insertAdjacentHTML('beforeend',itemRow({label:f.name.replace(/\.[^.]+$/,''),url:j.url,kind:/pdf/i.test(f.type)?'PDF':'Template'})); toast('Arquivo enviado: salve a semana'); inp.value=''; });
+  document.querySelectorAll('[data-savemat]').forEach(b=>b.onclick=async()=>{ const box=b.closest('[data-mat]'); const v=k=>box.querySelector(`[data-f="${k}"]`).value;
+    const items=[...box.querySelectorAll('[data-items]>.g3')].map(r=>({label:r.querySelector('[data-i=label]').value,url:r.querySelector('[data-i=url]').value,kind:r.querySelector('[data-i=kind]').value}));
+    try{ await api('material',{week:+b.dataset.savemat,title:v('title'),summary:v('summary'),body:v('body'),items}); await load(); toast('Semana salva'); }catch{ toast('Erro ao salvar'); } });
+  const fs=$('#fSlots'); if(fs){
+    fs.querySelectorAll('[data-dow]').forEach(b=>b.onclick=()=>b.classList.toggle('on'));
+    fs.onsubmit=async e=>{ e.preventDefault(); const fd=new FormData(fs); const dows=[...fs.querySelectorAll('[data-dow].on')].map(b=>+b.dataset.dow);
+      const times=String(fd.get('times')).split(/[,\s]+/).filter(t=>/^\d{1,2}:\d{2}$/.test(t)); const [y,mo,d]=String(fd.get('date')).split('-').map(Number); const n=+fd.get('weeks')*7; const add=[];
+      for(let i=0;i<n;i++){ const day=new Date(y,mo-1,d+i); if(!dows.includes(day.getDay())) continue; for(const t of times){ const [h,mi]=t.split(':').map(Number); const dt=new Date(y,mo-1,d+i,h,mi); if(dt>new Date()) add.push(dt.toISOString()); } }
+      if(!add.length){ toast('Nenhum horário gerado'); return; }
+      try{ const r=await api('slots',{add}); await load(); toast(`${r.added} horários abertos`); }catch{ toast('Erro'); } };
+  }
+  document.querySelectorAll('[data-rm]').forEach(b=>b.onclick=async()=>{ try{ await api('slots',{remove:[b.dataset.rm]}); await load(); }catch{ toast('Erro'); } });
+  document.querySelectorAll('[data-acancel]').forEach(b=>b.onclick=async()=>{ if(!confirm('Desmarcar esta sessão? O aluno recebe um e-mail para escolher outro horário.')) return; try{ await api('slot-cancel',{start:b.dataset.acancel}); await load(); toast('Sessão desmarcada'); }catch{ toast('Erro'); } });
+  const fp=$('#fPost'); if(fp) fp.onsubmit=async e=>{ e.preventDefault(); try{ await api('post',Object.fromEntries(new FormData(fp))); await load(); toast('Publicado'); }catch{ toast('Erro'); } };
+  document.querySelectorAll('[data-reply]').forEach(f=>f.onsubmit=async e=>{ e.preventDefault(); try{ await api('post',{thread:f.dataset.reply,body:new FormData(f).get('body')}); await load(); toast('Resposta publicada'); }catch{ toast('Erro'); } });
+  document.querySelectorAll('[data-delt]').forEach(b=>b.onclick=async()=>{ if(!confirm('Apagar a conversa inteira?')) return; try{ await api('forum-delete',{thread:b.dataset.delt}); await load(); }catch{ toast('Erro'); } });
+  document.querySelectorAll('[data-delr]').forEach(b=>b.onclick=async()=>{ const [thread,reply]=b.dataset.delr.split('|'); try{ await api('forum-delete',{thread,reply}); await load(); }catch{ toast('Erro'); } });
+}
+document.addEventListener('click',rmItem);
+function rmItem(e){ const b=e.target.closest('[data-rmitem]'); if(b){ b.closest('.g3').remove(); } }
+
+function logout(){ store.del('os_crm_key'); KEY=''; $('#app').hidden=true; $('#vLogin').hidden=false; }
+$('#fL').onsubmit=async e=>{ e.preventDefault(); KEY=$('#k').value.trim(); try{ await load(); store.set('os_crm_key',KEY); $('#vLogin').hidden=true; $('#app').hidden=false; }catch{ $('#eL').hidden=false; } };
+(async()=>{ if(KEY){ try{ await load(); $('#app').hidden=false; return; }catch{} } $('#vLogin').hidden=false; })();
+</script>
+</body>
+</html>

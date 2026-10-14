@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#F3F1EC">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Student Hub">
+<link rel="icon" href="/favicon.png">
+<link rel="apple-touch-icon" href="/favicon.png">
+<title>Student Hub · Operator Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600&family=Tinos:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#151412;--linen:#F3F1EC;--linen2:#EAE6DF;--card:#FBFAF7;--line:#D9D3C9;--taupe:#7E7669;--soft:#5F594F;--sand:#B5AEA2;--gold:#C9A36A;--ok:#4E6B4F;
+--serif:'Tinos','Times New Roman',serif;--sans:'Hanken Grotesk',-apple-system,Helvetica,Arial,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+html,body{background:var(--linen);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+body{min-height:100vh}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+a{color:inherit}
+.logo{font-family:var(--serif);font-size:21px}.logo b{font-weight:700}.logo i{color:var(--taupe)}
+.ey{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--taupe)}
+.h1{font-family:var(--serif);font-size:38px;line-height:1.02;letter-spacing:-.01em}
+.h1 em,.h2 em{font-weight:400;color:var(--taupe)}
+.h2{font-family:var(--serif);font-size:24px;line-height:1.1}
+.muted{color:var(--soft)}
+.in{width:100%;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:13px 14px;font-size:16px;outline:none}
+.in:focus{border-color:var(--taupe)}
+textarea.in{min-height:110px;resize:vertical;line-height:1.5}
+label.l{display:block;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--taupe);margin-bottom:6px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--ink);color:var(--linen);border-radius:999px;padding:13px 20px;font-size:15px;font-weight:500;text-decoration:none;white-space:nowrap}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.sm{padding:9px 14px;font-size:14px}
+.btn[disabled]{opacity:.45;pointer-events:none}
+.err{color:#9A3B2E;font-size:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px}
+.pill{display:inline-flex;align-items:center;gap:7px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;background:var(--ink);color:var(--linen);padding:7px 12px;border-radius:999px}
+.pill i{width:6px;height:6px;border-radius:50%;background:var(--gold)}
+.chip{font-size:12px;border-radius:999px;padding:4px 10px;background:var(--linen2);color:var(--soft)}
+
+/* auth */
+.auth{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:28px 20px}
+.auth form{width:100%;max-width:380px;display:flex;flex-direction:column;gap:18px}
+
+/* app shell */
+header.top{position:sticky;top:0;z-index:5;background:rgba(243,241,236,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding:calc(12px + env(safe-area-inset-top)) 18px 12px}
+.topin{max-width:1040px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+nav.tabs{display:none}
+.tab{display:flex;align-items:center;gap:8px;padding:9px 14px;border-radius:999px;font-size:14px;color:var(--soft);text-decoration:none}
+.tab.on{background:var(--ink);color:var(--linen)}
+.tab svg{width:18px;height:18px}
+.me{display:flex;align-items:center;gap:10px}
+.av{width:36px;height:36px;border-radius:50%;background:var(--linen2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:16px}
+main{max-width:1040px;margin:0 auto;padding:22px 18px calc(100px + env(safe-area-inset-bottom))}
+nav.bottom{position:fixed;left:0;right:0;bottom:0;z-index:6;background:rgba(251,250,247,.96);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);padding:8px 6px calc(8px + env(safe-area-inset-bottom))}
+nav.bottom a{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:var(--sand);text-decoration:none;padding:4px 0}
+nav.bottom a svg{width:22px;height:22px}
+nav.bottom a.on{color:var(--ink)}
+@media(min-width:900px){
+  nav.tabs{display:flex;gap:4px}
+  nav.bottom{display:none}
+  main{padding:34px 18px 60px}
+  .h1{font-size:48px}
+}
+.sec{display:flex;flex-direction:column;gap:14px}
+.hello{margin-bottom:22px}
+.hello p{margin-top:10px;font-size:16px;line-height:1.5}
+
+/* home */
+.grid{display:grid;gap:14px}
+@media(min-width:900px){.grid.two{grid-template-columns:1.3fr 1fr}}
+.prog{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;margin-top:12px}
+.prog span{height:8px;border-radius:4px;background:var(--line)}
+.prog span.on{background:var(--ink)}
+.prog span.next{background:var(--gold)}
+.next .when{font-family:var(--serif);font-size:26px;line-height:1.1;margin:8px 0 4px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.list{display:flex;flex-direction:column}
+.list>*{padding:12px 0;border-top:1px solid var(--line)}
+.list>*:first-child{border-top:0}
+
+/* weeks */
+.weeks{display:grid;gap:12px}
+@media(min-width:900px){.weeks{grid-template-columns:1fr 1fr}}
+.wk{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:10px}
+.wk.lock{background:transparent;border-style:dashed}
+.wk .top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.wk .num{font-family:var(--serif);font-size:34px;line-height:.9;color:var(--sand)}
+.wk.open .num{color:var(--taupe)}
+.wk h3{font-family:var(--serif);font-size:21px;line-height:1.15}
+.wk p{font-size:14.5px;line-height:1.5;color:var(--soft)}
+.items{display:flex;flex-direction:column;gap:8px;margin-top:4px}
+.item{display:flex;align-items:center;gap:12px;padding:11px 12px;border:1px solid var(--line);border-radius:12px;background:var(--linen);text-decoration:none;font-size:15px}
+.item svg{width:18px;height:18px;flex:none;color:var(--taupe)}
+.item span{flex:1}
+.item small{color:var(--sand);font-size:12px;letter-spacing:.08em;text-transform:uppercase}
+.body{white-space:pre-wrap;font-size:15px;line-height:1.6;color:var(--ink)}
+.lockmsg{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--taupe)}
+.lockmsg svg{width:15px;height:15px}
+
+/* agenda */
+.day{margin-top:8px}
+.day h4{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--taupe);margin:14px 0 8px;font-weight:500}
+.slots{display:flex;flex-wrap:wrap;gap:8px}
+.slot{border:1px solid var(--line);background:var(--card);border-radius:12px;padding:11px 16px;font-size:15px}
+.slot:hover{border-color:var(--ink)}
+.sess{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.sess .w{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--taupe)}
+.sess .d{font-family:var(--serif);font-size:20px;margin-top:3px}
+.banner{background:var(--ink);color:var(--linen);border-radius:16px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+
+/* forum */
+.thread{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;cursor:pointer;display:flex;flex-direction:column;gap:6px;text-align:left;width:100%}
+.thread h3{font-family:var(--serif);font-size:20px;line-height:1.2}
+.meta{font-size:13px;color:var(--taupe)}
+.post{padding:14px 0;border-top:1px solid var(--line)}
+.post .who{font-size:13px;font-weight:600}
+.post .who em{font-style:normal;font-weight:500;background:var(--ink);color:var(--linen);font-size:10px;letter-spacing:.12em;text-transform:uppercase;padding:3px 7px;border-radius:999px;margin-left:6px}
+.post p{white-space:pre-wrap;font-size:15px;line-height:1.55;margin-top:6px}
+.post .x{font-size:12px;color:var(--sand);text-decoration:underline;margin-top:6px}
+.empty{font-size:15px;color:var(--soft);padding:10px 0}
+
+.scrim{position:fixed;inset:0;background:rgba(21,20,18,.28);z-index:20}
+.sheet{position:fixed;z-index:21;left:0;right:0;bottom:0;max-height:92vh;overflow-y:auto;background:var(--linen);border-radius:24px 24px 0 0;padding:22px 18px calc(28px + env(safe-area-inset-bottom))}
+@media(min-width:900px){.sheet{left:50%;bottom:auto;top:8vh;width:560px;transform:translateX(-50%);border-radius:24px;max-height:84vh}}
+.toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:var(--linen);padding:10px 16px;border-radius:999px;font-size:14px;opacity:0;transition:.2s;z-index:30;pointer-events:none}
+.toast.on{opacity:1}
+</style>
+</head>
+<body>
+
+<section class="auth" id="vLogin" hidden>
+  <form id="fLogin">
+    <span class="logo"><b>Operator</b> <i>Studio</i></span>
+    <div><span class="pill"><i></i>Student Hub</span></div>
+    <h1 class="h1">Bem-vindo <em>de volta.</em></h1>
+    <div><label class="l" for="em">E-mail</label><input class="in" id="em" type="email" autocomplete="username" required></div>
+    <div><label class="l" for="pw">Senha</label><input class="in" id="pw" type="password" autocomplete="current-password" required></div>
+    <button class="btn" type="submit">Entrar</button>
+    <p class="err" id="eLogin" hidden></p>
+    <p class="muted" style="font-size:14px;line-height:1.5">Primeiro acesso? Use o link de convite que você recebeu. Esqueceu a senha? Fale com o Luccas no WhatsApp.</p>
+  </form>
+</section>
+
+<section class="auth" id="vInvite" hidden>
+  <form id="fInvite">
+    <span class="logo"><b>Operator</b> <i>Studio</i></span>
+    <div><span class="pill"><i></i>Student Hub</span></div>
+    <h1 class="h1">Olá, <em id="invName">aluno.</em></h1>
+    <p class="muted" style="font-size:16px;line-height:1.5">Crie sua senha para entrar no seu Student Hub. Seu login é <b id="invEmail"></b>.</p>
+    <div><label class="l" for="npw">Nova senha (mínimo 8 caracteres)</label><input class="in" id="npw" type="password" autocomplete="new-password" minlength="8" required></div>
+    <button class="btn" type="submit">Criar senha e entrar</button>
+    <p class="err" id="eInvite" hidden></p>
+  </form>
+</section>
+
+<div id="app" hidden>
+  <header class="top"><div class="topin">
+    <span class="logo"><b>Operator</b> <i>Studio</i></span>
+    <nav class="tabs" id="tabs"></nav>
+    <button class="me" id="meBtn" aria-label="Minha conta"><span class="av" id="av"></span></button>
+  </div></header>
+  <main id="main"></main>
+  <nav class="bottom" id="bottom"></nav>
+</div>
+<div class="scrim" id="scrim" hidden></div>
+<aside class="sheet" id="sheet" hidden></aside>
+<div class="toast" id="toast"></div>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const store = {get(k){try{return localStorage.getItem(k)}catch{return null}},set(k,v){try{localStorage.setItem(k,v)}catch{}},del(k){try{localStorage.removeItem(k)}catch{}}};
+const TZ = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+let TOKEN = store.get('os_hub_token') || '', DATA = null, FORUM = null, VIEW = 'inicio', OPEN_T = null, RESCHED = null;
+
+const I = {
+  home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>',
+  book:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19V5M8 7h7"/></svg>',
+  cal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>',
+  chat:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 5h16v11H9l-5 4z"/></svg>',
+  lock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>',
+  file:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/></svg>',
+  play:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M10 8.5l5 3.5-5 3.5z"/></svg>',
+  link:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>',
+  video:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10l5-3v10l-5-3z"/></svg>'
+};
+const TABS = [['inicio','Início',I.home],['materiais','Materiais',I.book],['agenda','Agenda',I.cal],['comunidade','Comunidade',I.chat]];
+const TOPICS = ['Geral','IA e prompts','Marca','Website','Conteúdo','Vendas e CRM','Automações','Agentes','Vitórias'];
+
+function toast(t){ const el=$('#toast'); el.textContent=t; el.classList.add('on'); clearTimeout(toast.t); toast.t=setTimeout(()=>el.classList.remove('on'),2000); }
+async function api(path, body, method){
+  const r = await fetch('/api/hub/'+path, {method: method || (body?'POST':'GET'), headers:{'content-type':'application/json','authorization':'Bearer '+TOKEN}, body: body?JSON.stringify(body):undefined, cache:'no-store'});
+  const j = await r.json().catch(()=>({}));
+  if(r.status===401 && path!=='login'){ logout(true); throw new Error('auth'); }
+  if(!r.ok){ const e = new Error(j.error||'api'); e.code = j.error; throw e; }
+  return j;
+}
+const fDay = iso => new Intl.DateTimeFormat('pt-BR',{timeZone:TZ,weekday:'long',day:'numeric',month:'long'}).format(new Date(iso));
+const fTime = iso => new Intl.DateTimeFormat('pt-BR',{timeZone:TZ,hour:'2-digit',minute:'2-digit'}).format(new Date(iso));
+const fShort = iso => new Intl.DateTimeFormat('pt-BR',{timeZone:TZ,day:'numeric',month:'short'}).format(new Date(iso));
+const cap = s => s.charAt(0).toUpperCase()+s.slice(1);
+const first = n => String(n||'').trim().split(/\s+/)[0];
+function ago(iso){ const m=Math.round((Date.now()-new Date(iso))/60000); if(m<1)return'agora'; if(m<60)return m+' min'; const h=Math.round(m/60); if(h<24)return h+' h'; const d=Math.round(h/24); return d<30?d+' d':fShort(iso); }
+const canChange = s => new Date(s.start) - Date.now() > 24*3600000;
+function kindIcon(i){ const k=(i.kind||'').toLowerCase(), u=(i.url||'').toLowerCase(); if(k==='video'||/youtu|vimeo|loom|\.mp4/.test(u)) return I.video; if(k==='pdf'||k==='arquivo'||/\.pdf|\/api\/hub\/file\//.test(u)) return I.file; if(k==='aula'||k==='slides') return I.play; return I.link; }
+function fileUrl(u){ return u.startsWith('/api/hub/file/') ? u+'?t='+encodeURIComponent(TOKEN) : u; }
+
+/* ---------- routing ---------- */
+function go(v){ VIEW=v; OPEN_T=null; if(location.hash!=='#'+v) history.replaceState(null,'','#'+v); render(); window.scrollTo(0,0); }
+window.addEventListener('hashchange',()=>{ const v=location.hash.slice(1); if(TABS.some(t=>t[0]===v) && v!==VIEW){ VIEW=v; OPEN_T=null; render(); } });
+
+function shell(){
+  const nav = TABS.map(([k,t,ic])=>`<a href="#${k}" class="tab ${k===VIEW?'on':''}" data-go="${k}">${ic}${t}</a>`).join('');
+  $('#tabs').innerHTML = nav;
+  $('#bottom').innerHTML = TABS.map(([k,t,ic])=>`<a href="#${k}" class="${k===VIEW?'on':''}" data-go="${k}">${ic}${t}</a>`).join('');
+  $('#av').textContent = first(DATA.me.nome).charAt(0).toUpperCase();
+}
+document.addEventListener('click',e=>{ const g=e.target.closest('[data-go]'); if(g){ e.preventDefault(); go(g.dataset.go); } });
+
+function render(){
+  if(!DATA) return;
+  shell();
+  const m = $('#main');
+  if(VIEW==='materiais') m.innerHTML = vMaterials();
+  else if(VIEW==='agenda') m.innerHTML = vAgenda();
+  else if(VIEW==='comunidade'){ m.innerHTML = vForum(); if(!FORUM) loadForum(); }
+  else m.innerHTML = vHome();
+  bind();
+}
+
+/* ---------- home ---------- */
+function vHome(){
+  const d = DATA, open = d.weeks.filter(w=>w.open), nextS = d.sessions.find(s=>new Date(s.start) > Date.now()-90*60000);
+  const done = open.length, nextWeek = Math.min(done+1, 8);
+  const last = open[open.length-1];
+  return `<div class="hello"><span class="ey">Mentoria individual · ${esc(d.me.perfil||'')}</span><h1 class="h1">Olá, <em>${esc(first(d.me.nome))}.</em></h1>
+    <p class="muted">${done? `Você já tem ${done} de 8 semanas liberadas. Siga construindo.` : 'Sua jornada de 8 semanas começa aqui. Reserve a sua primeira sessão.'}</p></div>
+  <div class="grid two">
+    <div class="card next"><span class="ey">Próxima sessão</span>
+      ${nextS ? `<p class="when">${cap(fDay(nextS.start))}</p><p class="muted">${fTime(nextS.start)} · Semana ${nextS.week} · ${nextS.dur||90} min</p>
+        <div class="row" style="margin-top:14px">${nextS.meet?`<a class="btn sm" href="${esc(nextS.meet)}" target="_blank" rel="noopener">Entrar na videochamada</a>`:''}<button class="btn ghost sm" data-go="agenda">Ver agenda</button></div>`
+      : `<p class="when">Nenhuma marcada.</p><p class="muted">Escolha um horário para a semana ${nextWeek}.</p><div class="row" style="margin-top:14px"><button class="btn sm" data-go="agenda">Reservar sessão</button></div>`}
+    </div>
+    <div class="card"><span class="ey">Seu progresso</span><p class="h2" style="margin-top:8px">${done}<span class="muted" style="font-size:18px">/8 semanas</span></p>
+      <div class="prog">${d.weeks.map(w=>`<span class="${w.open?'on':w.week===nextWeek?'next':''}"></span>`).join('')}</div>
+      <div class="row" style="margin-top:14px"><button class="btn ghost sm" data-go="materiais">Abrir materiais</button></div></div>
+  </div>
+  ${last ? `<div class="card" style="margin-top:14px"><span class="ey">Último material liberado · Semana ${last.week}</span><h3 class="h2" style="margin:8px 0 6px">${esc(last.title)}</h3><p class="muted" style="font-size:15px;line-height:1.5">${esc(last.summary||'')}</p><div class="row" style="margin-top:12px"><button class="btn sm" data-go="materiais">Ver materiais</button></div></div>` : ''}
+  <div class="card" style="margin-top:14px"><span class="ey">Comunidade</span><p class="muted" style="margin:8px 0 12px;font-size:15px;line-height:1.5">Troque com os outros alunos: dúvidas, ferramentas e vitórias da semana.</p><button class="btn ghost sm" data-go="comunidade">Ir para a comunidade</button></div>`;
+}
+
+/* ---------- materials ---------- */
+function vMaterials(){
+  return `<div class="hello"><span class="ey">Materiais</span><h1 class="h1">Suas 8 <em>semanas.</em></h1><p class="muted">Cada semana é liberada depois da sua sessão, com tudo o que vimos juntos.</p></div>
+  <div class="weeks">${DATA.weeks.map(w=> w.open ? `<article class="wk open">
+      <div class="top"><div><span class="ey">Semana ${w.week}</span><h3 style="margin-top:6px">${esc(w.title)}</h3></div><span class="num">${String(w.week).padStart(2,'0')}</span></div>
+      ${w.summary?`<p>${esc(w.summary)}</p>`:''}
+      ${w.body?`<div class="body">${esc(w.body)}</div>`:''}
+      ${(w.items||[]).length?`<div class="items">${w.items.map(i=>`<a class="item" href="${esc(fileUrl(i.url))}" target="_blank" rel="noopener">${kindIcon(i)}<span>${esc(i.label)}</span>${i.kind?`<small>${esc(i.kind)}</small>`:''}</a>`).join('')}</div>`:''}
+      ${(w.extra||[]).length?`<span class="ey" style="margin-top:6px">Da sua sessão</span><div class="items">${w.extra.map(i=>`<a class="item" href="${esc(fileUrl(i.url))}" target="_blank" rel="noopener">${kindIcon(i)}<span>${esc(i.label)}</span></a>`).join('')}</div>`:''}
+    </article>` : `<article class="wk lock">
+      <div class="top"><div><span class="ey">Semana ${w.week}</span><h3 style="margin-top:6px">${esc(w.title)}</h3></div><span class="num">${String(w.week).padStart(2,'0')}</span></div>
+      <p>${esc(w.summary||'')}</p><span class="lockmsg">${I.lock}Liberado depois da sua sessão</span></article>`).join('')}</div>`;
+}
+
+/* ---------- agenda ---------- */
+function vAgenda(){
+  const d = DATA, mine = d.sessions, future = mine.filter(s=>new Date(s.start) > Date.now()), past = mine.filter(s=>new Date(s.start) <= Date.now());
+  const groups = {};
+  d.free.forEach(s=>{ const k = new Intl.DateTimeFormat('en-CA',{timeZone:TZ}).format(new Date(s.start)); (groups[k]=groups[k]||[]).push(s); });
+  const canBook = RESCHED || (future.length < 2 && mine.length < 8);
+  return `<div class="hello"><span class="ey">Agenda</span><h1 class="h1">Suas <em>sessões.</em></h1><p class="muted">Sessões individuais de 90 minutos. Você pode remarcar até 24 horas antes. Horários no seu fuso: ${esc(TZ.replace('_',' '))}.</p></div>
+  ${RESCHED ? `<div class="banner" style="margin-bottom:14px"><span>Remarcando a sessão de ${esc(fShort(RESCHED))} às ${fTime(RESCHED)}. Escolha o novo horário.</span><button class="btn ghost sm" style="color:var(--linen);border-color:#5F594F" id="stopR">Cancelar troca</button></div>`:''}
+  <div class="card"><span class="ey">Marcadas</span>
+    ${future.length ? `<div class="list" style="margin-top:6px">${future.map(s=>`<div class="sess"><div><div class="w">Semana ${s.week}</div><div class="d">${cap(fDay(s.start))} · ${fTime(s.start)}</div></div>
+      <div class="row">${s.meet?`<a class="btn sm" href="${esc(s.meet)}" target="_blank" rel="noopener">Videochamada</a>`:''}${canChange(s)?`<button class="btn ghost sm" data-resched="${esc(s.start)}">Remarcar</button><button class="btn ghost sm" data-cancel="${esc(s.start)}">Desmarcar</button>`:'<span class="chip">Menos de 24h · fale com o Luccas</span>'}</div></div>`).join('')}</div>`
+    : '<p class="empty">Nenhuma sessão marcada.</p>'}
+    ${past.length?`<p class="meta" style="margin-top:10px">Concluídas: ${past.map(s=>'semana '+s.week).join(', ')}</p>`:''}
+  </div>
+  <div style="margin-top:18px"><span class="ey">Horários disponíveis</span>
+    ${!canBook ? '<p class="empty">Você já tem 2 sessões marcadas. Depois da próxima, novos horários aparecem aqui.</p>' :
+      Object.keys(groups).length ? Object.entries(groups).map(([k,arr])=>`<div class="day"><h4>${esc(cap(fDay(arr[0].start)))}</h4><div class="slots">${arr.map(s=>`<button class="slot" data-book="${esc(s.start)}">${fTime(s.start)}</button>`).join('')}</div></div>`).join('')
+      : '<p class="empty">Nenhum horário aberto no momento. O Luccas abre novos horários toda semana.</p>'}
+  </div>`;
+}
+
+/* ---------- forum ---------- */
+function vForum(){
+  if(OPEN_T){ const t = (FORUM?.threads||[]).find(x=>x.id===OPEN_T); if(t) return vThread(t); }
+  const ts = FORUM?.threads;
+  return `<div class="hello"><span class="ey">Comunidade</span><h1 class="h1">Entre <em>operators.</em></h1><p class="muted">Dúvidas, ferramentas, bastidores e vitórias. O que você aprende ajuda o próximo.</p></div>
+  <div class="row" style="margin-bottom:14px"><button class="btn" id="newT">Nova conversa</button></div>
+  <div class="sec">${!ts ? '<p class="empty">Carregando…</p>' : ts.length ? ts.map(t=>`<button class="thread" data-t="${esc(t.id)}"><span class="meta">${esc(t.topic)} · ${ago(t.lastAt||t.createdAt)}</span><h3>${esc(t.title)}</h3><span class="meta">${esc(t.author)}${t.mentor?' · mentor':''} · ${t.replies.length} ${t.replies.length===1?'resposta':'respostas'}</span></button>`).join('') : '<p class="empty">Ainda não há conversas. Comece a primeira.</p>'}</div>`;
+}
+function vThread(t){
+  const mine = x => x.authorId === FORUM.meId;
+  return `<button class="btn ghost sm" id="backT" style="margin-bottom:16px">← Comunidade</button>
+  <span class="ey">${esc(t.topic)}</span><h1 class="h1" style="font-size:34px;margin:6px 0 4px">${esc(t.title)}</h1>
+  <div class="post" style="border-top:0"><div class="who">${esc(t.author)}${t.mentor?'<em>Mentor</em>':''} <span class="meta" style="font-weight:400">· ${ago(t.createdAt)}</span></div><p>${esc(t.body)}</p>${mine(t)?`<button class="x" data-delt="${esc(t.id)}">Apagar conversa</button>`:''}</div>
+  ${t.replies.map(r=>`<div class="post"><div class="who">${esc(r.author)}${r.mentor?'<em>Mentor</em>':''} <span class="meta" style="font-weight:400">· ${ago(r.createdAt)}</span></div><p>${esc(r.body)}</p>${mine(r)?`<button class="x" data-delr="${esc(r.id)}">Apagar</button>`:''}</div>`).join('')}
+  <form id="fReply" class="card" style="margin-top:16px;display:flex;flex-direction:column;gap:10px"><textarea class="in" name="body" placeholder="Escreva sua resposta…" required></textarea><div><button class="btn" type="submit">Responder</button></div></form>`;
+}
+async function loadForum(){ try{ FORUM = await api('forum'); if(VIEW==='comunidade') render(); }catch{} }
+
+/* ---------- interactions ---------- */
+function bind(){
+  document.querySelectorAll('[data-book]').forEach(b=>b.onclick=()=>confirmBook(b.dataset.book));
+  document.querySelectorAll('[data-resched]').forEach(b=>b.onclick=()=>{ RESCHED=b.dataset.resched; render(); window.scrollTo(0,0); });
+  document.querySelectorAll('[data-cancel]').forEach(b=>b.onclick=()=>confirmCancel(b.dataset.cancel));
+  const sr=$('#stopR'); if(sr) sr.onclick=()=>{ RESCHED=null; render(); };
+  document.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{ OPEN_T=b.dataset.t; render(); window.scrollTo(0,0); });
+  const bt=$('#backT'); if(bt) bt.onclick=()=>{ OPEN_T=null; render(); };
+  const nt=$('#newT'); if(nt) nt.onclick=newThread;
+  const fr=$('#fReply'); if(fr) fr.onsubmit=async e=>{ e.preventDefault(); const body=new FormData(fr).get('body'); try{ await api('forum',{thread:OPEN_T,body}); await loadForum(); toast('Resposta publicada'); }catch{ toast('Erro ao publicar'); } };
+  document.querySelectorAll('[data-delt]').forEach(b=>b.onclick=async()=>{ if(!confirm('Apagar esta conversa?')) return; try{ await api('forum-delete',{thread:b.dataset.delt}); OPEN_T=null; await loadForum(); }catch{ toast('Erro'); } });
+  document.querySelectorAll('[data-delr]').forEach(b=>b.onclick=async()=>{ if(!confirm('Apagar esta resposta?')) return; try{ await api('forum-delete',{thread:OPEN_T,reply:b.dataset.delr}); await loadForum(); }catch{ toast('Erro'); } });
+}
+function sheet(html){ $('#sheet').innerHTML=html; $('#sheet').hidden=false; $('#scrim').hidden=false; }
+function closeSheet(){ $('#sheet').hidden=true; $('#scrim').hidden=true; }
+$('#scrim').onclick=closeSheet;
+
+function confirmBook(start){
+  const nextWeek = RESCHED ? DATA.sessions.find(s=>s.start===RESCHED)?.week : (()=>{ const used=new Set(DATA.sessions.map(s=>s.week)); for(let w=1;w<=8;w++) if(!used.has(w)) return w; })();
+  sheet(`<span class="ey">${RESCHED?'Remarcar':'Reservar'} · Semana ${nextWeek}</span><h2 class="h1" style="font-size:34px;margin:8px 0">${cap(fDay(start))}</h2><p class="muted" style="font-size:16px">${fTime(start)} · 90 minutos · videochamada</p>
+  <p class="muted" style="font-size:14px;margin-top:14px;line-height:1.5">Você recebe a confirmação com o link da videochamada por e-mail.</p>
+  <div class="row" style="margin-top:20px"><button class="btn" id="okB">Confirmar</button><button class="btn ghost" id="noB">Voltar</button></div><p class="err" id="eB" hidden></p>`);
+  $('#noB').onclick=closeSheet;
+  $('#okB').onclick=async()=>{ $('#okB').disabled=true; $('#okB').textContent='Reservando…';
+    try{ await api('book',{start, replace:RESCHED||undefined}); RESCHED=null; closeSheet(); await load(); toast('Sessão confirmada'); }
+    catch(e){ const msg={taken:'Esse horário acabou de ser reservado. Escolha outro.',limit:'Você já tem 2 sessões marcadas.','too-late':'Faltam menos de 24h para a sessão atual.',late:'Esse horário está muito próximo.',done:'Você já reservou as 8 sessões.'}[e.code]||'Não foi possível reservar.'; $('#eB').textContent=msg; $('#eB').hidden=false; $('#okB').disabled=false; $('#okB').textContent='Confirmar'; await load(); } };
+}
+function confirmCancel(start){
+  sheet(`<span class="ey">Desmarcar</span><h2 class="h1" style="font-size:32px;margin:8px 0">${cap(fDay(start))} · ${fTime(start)}</h2><p class="muted" style="font-size:15px;line-height:1.5">O horário fica livre e você pode escolher outro depois.</p>
+  <div class="row" style="margin-top:20px"><button class="btn" id="okC">Desmarcar sessão</button><button class="btn ghost" id="noC">Voltar</button></div>`);
+  $('#noC').onclick=closeSheet;
+  $('#okC').onclick=async()=>{ try{ await api('cancel',{start}); closeSheet(); await load(); toast('Sessão desmarcada'); }catch(e){ closeSheet(); toast(e.code==='too-late'?'Menos de 24h: fale com o Luccas':'Erro'); } };
+}
+function newThread(){
+  sheet(`<span class="ey">Comunidade</span><h2 class="h1" style="font-size:32px;margin:8px 0 16px">Nova <em>conversa.</em></h2>
+  <form id="fT" style="display:flex;flex-direction:column;gap:14px">
+    <div><label class="l">Tema</label><select class="in" name="topic">${TOPICS.map(t=>`<option>${t}</option>`).join('')}</select></div>
+    <div><label class="l">Título</label><input class="in" name="title" maxlength="140" required></div>
+    <div><label class="l">Mensagem</label><textarea class="in" name="body" required></textarea></div>
+    <div class="row"><button class="btn" type="submit">Publicar</button><button class="btn ghost" type="button" id="noT">Cancelar</button></div></form>`);
+  $('#noT').onclick=closeSheet;
+  $('#fT').onsubmit=async e=>{ e.preventDefault(); const b=Object.fromEntries(new FormData(e.target)); try{ const r=await api('forum',b); closeSheet(); await loadForum(); OPEN_T=r.thread.id; render(); }catch{ toast('Erro ao publicar'); } };
+}
+$('#meBtn').onclick=()=>{
+  sheet(`<span class="ey">Minha conta</span><h2 class="h1" style="font-size:32px;margin:8px 0 4px">${esc(DATA.me.nome)}</h2><p class="muted">${esc(DATA.me.email)}${DATA.me.negocio?' · '+esc(DATA.me.negocio):''}</p>
+  <form id="fPw" style="display:flex;flex-direction:column;gap:12px;margin-top:20px"><span class="ey">Trocar senha</span>
+    <input class="in" type="password" name="current" placeholder="Senha atual" autocomplete="current-password" required>
+    <input class="in" type="password" name="password" placeholder="Nova senha (mín. 8)" minlength="8" autocomplete="new-password" required>
+    <div><button class="btn ghost sm" type="submit">Salvar nova senha</button></div></form>
+  <div class="row" style="margin-top:22px"><button class="btn" id="out">Sair</button><button class="btn ghost" id="cl">Fechar</button></div>`);
+  $('#cl').onclick=closeSheet; $('#out').onclick=()=>logout();
+  $('#fPw').onsubmit=async e=>{ e.preventDefault(); try{ await api('password',Object.fromEntries(new FormData(e.target))); toast('Senha alterada'); closeSheet(); }catch(x){ toast(x.code==='login'?'Senha atual incorreta':'Erro'); } };
+};
+
+/* ---------- auth ---------- */
+async function load(){ DATA = await api('me'); render(); }
+function showApp(){ $('#vLogin').hidden=true; $('#vInvite').hidden=true; $('#app').hidden=false; const v=location.hash.slice(1); VIEW = TABS.some(t=>t[0]===v)?v:'inicio'; }
+async function logout(silent){ if(!silent){ try{ await api('logout',{}); }catch{} } TOKEN=''; store.del('os_hub_token'); DATA=null; FORUM=null; closeSheet(); $('#app').hidden=true; $('#vLogin').hidden=false; }
+$('#fLogin').onsubmit=async e=>{ e.preventDefault(); $('#eLogin').hidden=true;
+  try{ const r = await fetch('/api/hub/login',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({email:$('#em').value,password:$('#pw').value})}); const j=await r.json(); if(!r.ok) throw 0;
+    TOKEN=j.token; store.set('os_hub_token',TOKEN); showApp(); await load(); }
+  catch{ $('#eLogin').textContent='E-mail ou senha incorretos.'; $('#eLogin').hidden=false; } };
+
+(async()=>{
+  const inv = new URLSearchParams(location.search).get('convite');
+  if(inv){
+    try{ const r=await fetch('/api/hub/invite?t='+encodeURIComponent(inv)); const j=await r.json(); if(!r.ok) throw 0;
+      $('#invName').textContent=j.nome+'.'; $('#invEmail').textContent=j.email; $('#vInvite').hidden=false;
+      $('#fInvite').onsubmit=async e=>{ e.preventDefault(); $('#eInvite').hidden=true;
+        const r2=await fetch('/api/hub/invite',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({t:inv,password:$('#npw').value})}); const j2=await r2.json().catch(()=>({}));
+        if(!r2.ok){ $('#eInvite').textContent=j2.error==='short'?'A senha precisa ter pelo menos 8 caracteres.':'Convite inválido ou já usado.'; $('#eInvite').hidden=false; return; }
+        TOKEN=j2.token; store.set('os_hub_token',TOKEN); history.replaceState(null,'','/hub/#inicio'); showApp(); await load(); };
+      return;
+    }catch{ history.replaceState(null,'','/hub/'); }
+  }
+  if(TOKEN){ try{ showApp(); await load(); return; }catch{} }
+  $('#app').hidden=true; $('#vLogin').hidden=false;
+})();
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden && DATA) load().catch(()=>{}); });
+</script>
+</body>
+</html>

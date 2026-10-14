@@ -2,9 +2,9 @@
 // Emails are rendered here and sent by the Make scenario "Operator Studio — booking emails",
 // which creates the Google Calendar event with Meet and sends from luccas.torres@me.com.
 
-const HOOK = "https://hook.eu1.make.com/jbhtec9y6oxfn884deoqt4354wcji3k0";
-const OWNER = "luccas.torres@me.com";
-const SITE = "https://operator-studio.netlify.app";
+export const HOOK = "https://hook.eu1.make.com/jbhtec9y6oxfn884deoqt4354wcji3k0";
+export const OWNER = "luccas.torres@me.com";
+export const SITE = "https://operator-studio.netlify.app";
 
 const DOW = ["domingo", "segunda-feira", "terça-feira", "quarta-feira", "quinta-feira", "sexta-feira", "sábado"];
 const MON = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
