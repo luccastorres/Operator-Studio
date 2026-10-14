@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#F3F1EC">
+<link rel="icon" href="/favicon.png">
+<title>Pré-diagnóstico · Operator Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600&family=Tinos:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#151412;--linen:#F3F1EC;--linen2:#EAE6DF;--card:#FBFAF7;--line:#D9D3C9;--taupe:#7E7669;--soft:#5F594F;--sand:#B5AEA2;--gold:#C9A36A;
+--serif:'Tinos','Times New Roman',serif;--sans:'Hanken Grotesk',-apple-system,Helvetica,Arial,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+html,body{background:var(--linen);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+body{min-height:100vh;padding:calc(24px + env(safe-area-inset-top)) 18px calc(48px + env(safe-area-inset-bottom))}
+button,input,textarea{font:inherit;color:inherit}
+.wrap{max-width:640px;margin:0 auto}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:44px}
+.logo{font-family:var(--serif);font-size:22px}.logo b{font-weight:700}.logo i{color:var(--taupe)}
+.pill{font-size:11px;letter-spacing:.16em;text-transform:uppercase;background:var(--ink);color:var(--linen);padding:8px 14px;border-radius:999px;display:inline-flex;align-items:center;gap:8px}
+.pill i{width:7px;height:7px;border-radius:50%;background:var(--gold)}
+.eyebrow{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--taupe)}
+h1{font-family:var(--serif);font-size:46px;line-height:1;letter-spacing:-.01em;margin:10px 0 16px}
+h1 em{font-weight:400;color:var(--taupe)}
+.lead{font-size:17px;line-height:1.55;color:var(--soft)}
+.meta{display:flex;gap:18px;margin:22px 0 36px;font-size:14px;color:var(--soft)}
+.meta span::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--sand);margin-right:8px;vertical-align:middle}
+form{display:flex;flex-direction:column;gap:14px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:20px 18px;display:flex;flex-direction:column;gap:12px}
+.q label.t,.q .t{font-size:17px;font-weight:500;line-height:1.35;display:flex;gap:12px}
+.q .t b{font-family:var(--serif);font-weight:400;color:var(--taupe);font-size:18px;min-width:22px}
+.q .h{font-size:13px;color:var(--soft);margin:-4px 0 0 34px}
+.in{width:100%;background:var(--linen);border:1px solid var(--line);border-radius:12px;padding:13px 14px;font-size:16px;outline:none}
+.in:focus{border-color:var(--taupe)}
+textarea.in{min-height:96px;resize:vertical;line-height:1.45}
+.ch{display:flex;flex-wrap:wrap;gap:8px}
+.ch label{position:relative}
+.ch input{position:absolute;opacity:0;pointer-events:none}
+.ch span{display:inline-block;border:1px solid var(--line);background:var(--linen);border-radius:999px;padding:9px 14px;font-size:15px;cursor:pointer;transition:.15s}
+.ch input:checked+span{background:var(--ink);color:var(--linen);border-color:var(--ink)}
+.ch input:focus-visible+span{outline:2px solid var(--taupe);outline-offset:2px}
+.sec{font-family:var(--serif);font-size:24px;margin:22px 0 2px}.sec em{color:var(--taupe);font-weight:400}
+.btn{margin-top:10px;background:var(--ink);color:var(--linen);border:0;border-radius:999px;padding:16px 22px;font-size:16px;font-weight:500;cursor:pointer}
+.btn[disabled]{opacity:.5}
+.note{font-size:13px;color:var(--soft);text-align:center;line-height:1.5}
+.err{color:#9A3B2E;font-size:14px;text-align:center}
+.done{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:32px 24px;text-align:left}
+.done h2{font-family:var(--serif);font-size:36px;line-height:1.05;margin:8px 0 12px}.done h2 em{color:var(--taupe);font-weight:400}
+.done p{font-size:16px;line-height:1.55;color:var(--soft)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><span class="logo"><b>Operator</b> <i>Studio</i></span><span class="pill"><i></i>Pré-diagnóstico</span></div>
+
+  <div id="bad" class="done" hidden>
+    <span class="eyebrow">Link inválido</span>
+    <h2>Esse link <em>não funcionou.</em></h2>
+    <p>Confira se o link veio completo ou peça um novo para o Luccas no WhatsApp.</p>
+  </div>
+
+  <div id="ok" class="done" hidden>
+    <span class="eyebrow">Recebido</span>
+    <h2>Obrigado. <em>Até a nossa conversa.</em></h2>
+    <p>Com as suas respostas eu chego na análise já sabendo onde olhar. Assim os 30 minutos vão direto ao que importa para o seu negócio.</p>
+  </div>
+
+  <div id="intro">
+    <span class="eyebrow">Antes da nossa análise</span>
+    <h1>Onde vai o <em>seu tempo?</em></h1>
+    <p class="lead">Responda pensando na sua semana real, não na ideal. Com isso eu preparo o seu diagnóstico e a nossa conversa rende muito mais.</p>
+    <div class="meta"><span>5 minutos</span><span>13 perguntas</span></div>
+    <p class="note" id="again" hidden style="text-align:left;margin:-18px 0 24px">Você já respondeu. Se enviar de novo, as novas respostas substituem as anteriores.</p>
+  </div>
+
+  <form id="f" hidden novalidate>
+    <p class="sec">Sobre <em>você</em></p>
+    <div class="q"><label class="t" for="nome"><b>1</b>Seu nome</label><input class="in" id="nome" name="nome" autocomplete="name" required></div>
+    <div class="q"><label class="t" for="negocio"><b>2</b>Nome do negócio e Instagram ou site</label><input class="in" id="negocio" name="negocio" placeholder="Ex.: Studio Bella · @studiobella"></div>
+    <div class="q"><label class="t" for="setor"><b>3</b>Em que área você atua?</label><input class="in" id="setor" name="setor" placeholder="Ex.: salão de beleza, mentoria, consultoria"></div>
+    <div class="q"><span class="t"><b>4</b>Quantas pessoas trabalham no negócio?</span>
+      <div class="ch" data-name="equipe" data-type="radio">Só eu|2 a 5|6 a 15|Mais de 15</div></div>
+
+    <p class="sec">Onde <em>dói</em></p>
+    <div class="q"><label class="t" for="desafio"><b>5</b>Qual é o maior desafio do seu negócio hoje?</label><textarea class="in" id="desafio" name="desafio" required></textarea></div>
+    <div class="q"><span class="t"><b>6</b>Onde vai a maior parte do seu tempo?</span><span class="h">Pode marcar mais de uma.</span>
+      <div class="ch" data-name="tempo" data-type="checkbox">Responder clientes|Agenda e horários|Vendas e orçamentos|Administrativo e financeiro|Marketing e conteúdo|Gestão da equipe</div></div>
+    <div class="q"><label class="t" for="repetitivas"><b>7</b>Que tarefas você repete toda semana, sempre do mesmo jeito?</label><textarea class="in" id="repetitivas" name="repetitivas"></textarea></div>
+    <div class="q"><span class="t"><b>8</b>Quantas horas por semana vão nessas tarefas?</span>
+      <div class="ch" data-name="horas" data-type="radio">Menos de 5|5 a 10|11 a 20|Mais de 20|Não sei</div></div>
+
+    <p class="sec">Hoje e <em>amanhã</em></p>
+    <div class="q"><span class="t"><b>9</b>Quais ferramentas você já usa?</span><span class="h">Pode marcar mais de uma.</span>
+      <div class="ch" data-name="ferramentas" data-type="checkbox">WhatsApp Business|Instagram|Planilhas|Agenda online|Site próprio|CRM|ChatGPT ou outra IA</div></div>
+    <div class="q"><span class="t"><b>10</b>Você já usa IA no negócio?</span>
+      <div class="ch" data-name="ia" data-type="radio">Ainda não|De vez em quando|Todo dia|Já tenho automações</div></div>
+    <div class="q"><label class="t" for="automatizar"><b>11</b>Se você pudesse tirar uma tarefa das suas mãos amanhã, qual seria?</label><textarea class="in" id="automatizar" name="automatizar"></textarea></div>
+    <div class="q"><span class="t"><b>12</b>O que você mais quer nos próximos 90 dias?</span>
+      <div class="ch" data-name="resultado" data-type="radio">Ganhar tempo|Economizar dinheiro|Vender mais|Atender melhor|Organizar a casa</div></div>
+    <div class="q"><label class="t" for="valer"><b>13</b>O que faria a nossa conversa valer a pena para você?</label><textarea class="in" id="valer" name="valer"></textarea></div>
+
+    <button class="btn" type="submit" id="send">Enviar respostas</button>
+    <p class="err" id="err" hidden></p>
+    <p class="note">Suas respostas são usadas só para preparar o seu diagnóstico.</p>
+  </form>
+</div>
+<script>
+const $ = s => document.querySelector(s);
+const T = new URLSearchParams(location.search).get('t') || '';
+document.querySelectorAll('.ch').forEach(box=>{
+  const name = box.dataset.name, type = box.dataset.type;
+  box.innerHTML = box.textContent.split('|').map(o=>`<label><input type="${type}" name="${name}" value="${o.replace(/"/g,'&quot;')}"><span>${o}</span></label>`).join('');
+});
+function show(id){ ['bad','ok','intro','f'].forEach(x=>$('#'+x).hidden = !id.includes(x)); window.scrollTo(0,0); }
+(async()=>{
+  if(!T) return show(['bad']);
+  try{
+    const r = await fetch('/api/diagnostico?t='+encodeURIComponent(T),{cache:'no-store'});
+    if(!r.ok) return show(['bad']);
+    const d = await r.json();
+    show(['intro','f']); $('#again').hidden = !d.done;
+  }catch{ show(['intro','f']); }
+})();
+$('#f').onsubmit = async e=>{
+  e.preventDefault();
+  const fd = new FormData(e.target), a = {};
+  for(const k of ['nome','negocio','setor','equipe','desafio','repetitivas','horas','ia','automatizar','resultado','valer']) a[k] = (fd.get(k)||'').toString();
+  for(const k of ['tempo','ferramentas']) a[k] = fd.getAll(k);
+  $('#err').hidden = true;
+  if(!a.nome.trim() || !a.desafio.trim()){ $('#err').textContent = 'Preencha pelo menos o seu nome e o maior desafio (pergunta 5).'; $('#err').hidden = false; return; }
+  $('#send').disabled = true; $('#send').textContent = 'Enviando…';
+  try{
+    const r = await fetch('/api/diagnostico',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({t:T,answers:a})});
+    if(!r.ok) throw 0;
+    show(['ok']);
+  }catch{
+    $('#err').textContent = 'Não foi possível enviar. Tente de novo em instantes.'; $('#err').hidden = false;
+    $('#send').disabled = false; $('#send').textContent = 'Enviar respostas';
+  }
+};
+</script>
+</body>
+</html>

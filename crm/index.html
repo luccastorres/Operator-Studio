@@ -124,6 +124,24 @@ main{padding:20px 16px 40px;max-width:1440px;margin:0 auto}
 .saved{font-size:13px;color:var(--ok);opacity:0;transition:opacity .2s}
 .saved.on{opacity:1}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.dgrow{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.dstat{font-size:14px;color:var(--soft)}
+.dstat b{color:var(--ink);font-weight:600}
+.ans{display:flex;flex-direction:column;gap:12px;border-top:1px solid var(--line);padding-top:12px}
+.ans div span{display:block;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--taupe);margin-bottom:3px}
+.ans div p{font-size:15px;line-height:1.45}
+.seg{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
+.seg button{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:9px 0;font-size:15px}
+.seg button.on{background:var(--ink);color:var(--linen);border-color:var(--ink)}
+.sc{display:flex;flex-direction:column;gap:6px}
+.sc .lb{display:flex;justify-content:space-between;font-size:14px}
+.sc .lb small{color:var(--soft);font-size:12px}
+.op{display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--line);padding-top:12px}
+.op .grid3{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:8px}
+.sum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.sum div{background:var(--linen2);border-radius:12px;padding:10px 12px}
+.sum b{display:block;font-family:var(--serif);font-size:21px;line-height:1.1;white-space:nowrap}
+.sum span{font-size:12px;color:var(--soft)}
 .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--linen);padding:10px 16px;border-radius:999px;font-size:14px;opacity:0;transition:.2s;z-index:30;pointer-events:none}
 .toast.on{opacity:1;transform:translateX(-50%)}
 </style>
@@ -170,7 +188,7 @@ const STAGE = {novo:'Novo',agendado:'Análise agendada',analise:'Análise feita'
 const ORDER = Object.keys(STAGE);
 const DOW = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const MON = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
-let KEY = '', LEADS = [], TAB = 'agendado', OPEN = null;
+let KEY = '', LEADS = [], TAB = 'agendado', OPEN = null, INDIAG = false;
 
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -192,7 +210,7 @@ async function load(){
   const d = await api('GET');
   LEADS = d.leads.sort((a,b)=> (a.slot||'9') .localeCompare(b.slot||'9') || (b.createdAt||'').localeCompare(a.createdAt||''));
   render();
-  if(OPEN){ const l = LEADS.find(x=>x.id===OPEN); if(l) openLead(l.id, true); }
+  if(OPEN && !INDIAG){ const l = LEADS.find(x=>x.id===OPEN); if(l) openLead(l.id, true); }
 }
 
 function render(){
@@ -245,13 +263,121 @@ function templates(l){
   return {
     'Confirmar análise': `Oi, ${n}! Aqui é o Luccas, da Operator Studio. Recebi a sua reserva${when?' para '+when+' (horário de Milão)':''}. Vou te mandar o link da videochamada antes do horário. Até lá!`,
     'Enviar link da call': `Oi, ${n}! Segue o link da nossa videochamada${when?' de '+when:''}: `,
-    'Pós-análise': `Oi, ${n}! Obrigado pela conversa de hoje. Como combinamos, vou te mandar a proposta com os próximos passos para o ${l.negocio||'seu negócio'}.`
+    'Pós-análise': `Oi, ${n}! Obrigado pela conversa de hoje. Como combinamos, vou te mandar a proposta com os próximos passos para o ${l.negocio||'seu negócio'}.`,
+    'Enviar diagnóstico': `Oi, ${n}! Obrigado pela conversa. Segue o seu diagnóstico Operator Studio, com a sua pontuação, os 3 processos que mais devolvem tempo no ${l.negocio||'seu negócio'} e o próximo passo que combinamos. Qualquer dúvida, me chama aqui.`
+  };
+}
+
+/* ---------- Diagnóstico Operator ---------- */
+const DIMS = [
+  ['at','Atendimento','Como você responde clientes'],
+  ['ag','Agenda e vendas','Como o cliente agenda ou compra'],
+  ['org','Organização','Clientes e dados num lugar só'],
+  ['aut','Automação','Tarefas que rodam sozinhas'],
+  ['pre','Presença e conteúdo','Site, redes e conteúdo']
+];
+const FRENTES = ['Atendimento','Agendamento','CRM','Automação','Website','Conteúdo','Propostas','Financeiro'];
+const FORMQ = [['nome','Nome'],['negocio','Negócio'],['setor','Área'],['equipe','Equipe'],['desafio','Maior desafio'],['tempo','Onde vai o tempo'],['repetitivas','Tarefas repetidas'],['horas','Horas por semana'],['ferramentas','Ferramentas'],['ia','Uso de IA'],['automatizar','Tiraria das mãos amanhã'],['resultado','Quer em 90 dias'],['valer','A conversa vale a pena se']];
+function level(t){ return t<=10?'Manual':t<=17?'Em organização':t<=22?'Estruturado':'Operado com IA'; }
+function diagCalc(d){
+  d = d||{}; const s = d.scores||{};
+  const total = DIMS.reduce((a,[k])=>a+(+s[k]||0),0);
+  const scored = DIMS.every(([k])=>+s[k]>0);
+  const hm = (d.ops||[]).reduce((a,o)=>a+(+o.horas||0)*(+o.pct||0)/100*4.33,0);
+  return {total, scored, hm, eur: hm*(+d.valorHora||0)};
+}
+const fmt = n => Math.round(n).toLocaleString('pt-BR');
+function formLink(l){ return l.formToken ? `${location.origin}/diagnostico/?t=${l.formToken}` : ''; }
+function formMsg(l){ const n = first(l.nome), when = l.slot ? ' ('+slotLabel(l.slot).replace(' · ',' às ')+')' : ''; return `Oi, ${n}! Aqui é o Luccas, da Operator Studio. Antes da nossa análise${when}, preparei 13 perguntas rápidas, leva uns 5 minutos. Assim eu chego já sabendo onde olhar no seu negócio: ${formLink(l)}`; }
+
+function diagBlock(l){
+  const wa = waNumber(l.whatsapp), c = diagCalc(l.diag);
+  const st = l.form ? `<b>Respondido</b> · ${esc(new Date(l.form.at).toLocaleString('pt-BR',{timeZone:'Europe/Rome',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}))}` : l.formToken ? 'Link criado · aguardando resposta' : 'Ainda não enviado';
+  const link = formLink(l);
+  return `<div class="blk" id="dg">
+    <span class="eyebrow">Diagnóstico Operator</span>
+    <div class="dstat">Formulário: ${st}</div>
+    <div class="dgrow">
+      ${link ? `${wa?`<a class="btn ghost sm" target="_blank" rel="noopener" href="https://wa.me/${wa}?text=${encodeURIComponent(formMsg(l))}">Enviar no WhatsApp</a>`:''}<button class="btn ghost sm" id="fcopy">Copiar link</button>` : `<button class="btn ghost sm" id="fmake">Criar link do formulário</button>`}
+      ${l.form?'<button class="btn ghost sm" id="fans">Ver respostas</button>':''}
+    </div>
+    <div class="ans" id="ans" hidden>${l.form?FORMQ.map(([k,t])=>{ const v = Array.isArray(l.form[k])?l.form[k].join(', '):l.form[k]; return v?`<div><span>${t}</span><p>${esc(v)}</p></div>`:''; }).join(''):''}</div>
+    ${l.diag ? `<div class="sum"><div><b>${c.scored?c.total+'/25':'–'}</b><span>${c.scored?level(c.total):'Sem pontuação'}</span></div><div><b>${fmt(c.hm)} h</b><span>por mês</span></div><div><b>€ ${fmt(c.eur)}</b><span>por mês</span></div></div>` : ''}
+    <div class="dgrow">
+      <button class="btn sm" id="dopen">${l.diag?'Editar ficha':'Abrir ficha da análise'}</button>
+      ${l.diag?`<a class="btn ghost sm" href="/crm/relatorio/?id=${encodeURIComponent(l.id)}" target="_blank" rel="noopener">Ver relatório</a>`:''}
+    </div>
+  </div>`;
+}
+
+function bindDiag(l){
+  const mk = $('#fmake'); if(mk) mk.onclick = async()=>{
+    mk.disabled = true; mk.textContent = 'Criando…';
+    try{ const r = await api('POST',{action:'formlink',id:l.id}); l.formToken = r.token; openLead(l.id, true); toast('Link criado'); }catch{ toast('Erro'); mk.disabled=false; mk.textContent='Criar link do formulário'; }
+  };
+  const cp = $('#fcopy'); if(cp) cp.onclick = async()=>{ try{ await navigator.clipboard.writeText(formLink(l)); toast('Link copiado'); }catch{ prompt('Copie o link:', formLink(l)); } };
+  const fa = $('#fans'); if(fa) fa.onclick = ()=>{ const a = $('#ans'); a.hidden = !a.hidden; fa.textContent = a.hidden?'Ver respostas':'Esconder respostas'; };
+  $('#dopen').onclick = ()=>openDiag(l);
+}
+
+function openDiag(l){
+  INDIAG = true;
+  const d = JSON.parse(JSON.stringify(l.diag||{}));
+  d.scores = d.scores||{}; d.ops = d.ops||[]; while(d.ops.length<3) d.ops.push({processo:'',frente:'',horas:'',pct:''});
+  const f = l.form||{};
+  $('#sheet').innerHTML = `<div class="grab"></div>
+    <div class="sh-head"><div><span class="eyebrow">Ficha da análise</span><h3>${esc(l.nome)}</h3><p>${esc(l.negocio||f.negocio||'')}</p></div>
+      <button class="iconbtn" id="back" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M15 6l-6 6 6 6"/></svg></button></div>
+    <div class="blk">
+      <span class="eyebrow">1 · A dor</span>
+      <div class="field"><label>Maior dor</label><textarea class="in" id="d_dor" placeholder="${esc(f.desafio||'O que mais trava o negócio hoje')}">${esc(d.dor)}</textarea></div>
+      <div class="field"><label>Tarefa que mais consome tempo</label><textarea class="in" id="d_tarefa" style="min-height:70px" placeholder="${esc(f.repetitivas||'')}">${esc(d.tarefa)}</textarea></div>
+      <div class="field"><label>Ferramentas que usa hoje</label><input class="in" id="d_ferr" value="${esc(d.ferramentas || (f.ferramentas||[]).join(', '))}"></div>
+    </div>
+    <div class="blk">
+      <span class="eyebrow">2 · Pontuação de maturidade (1 manual · 5 com IA)</span>
+      ${DIMS.map(([k,t,h])=>`<div class="sc"><div class="lb"><span>${t}</span><small>${h}</small></div><div class="seg" data-k="${k}">${[1,2,3,4,5].map(n=>`<button type="button" class="${+d.scores[k]===n?'on':''}" data-n="${n}">${n}</button>`).join('')}</div></div>`).join('')}
+    </div>
+    <div class="blk">
+      <span class="eyebrow">3 · Três processos prioritários</span>
+      <div class="field"><label>Quanto vale 1 hora do seu cliente (€)</label><input class="in" id="d_vh" inputmode="decimal" value="${esc(d.valorHora||'')}" placeholder="Ex.: 40"></div>
+      ${d.ops.map((o,i)=>`<div class="op" data-i="${i}">
+        <div class="field"><label>Processo ${i+1}</label><input class="in" data-f="processo" value="${esc(o.processo)}" placeholder="${['Responder dúvidas no WhatsApp','Confirmar e lembrar horários','Fazer orçamentos'][i]}"></div>
+        <div class="grid3">
+          <div class="field"><label>Frente</label><select class="in" data-f="frente"><option value=""></option>${FRENTES.map(x=>`<option ${o.frente===x?'selected':''}>${x}</option>`).join('')}</select></div>
+          <div class="field"><label>Horas/sem</label><input class="in" data-f="horas" inputmode="decimal" value="${esc(o.horas)}"></div>
+          <div class="field"><label>% automat.</label><input class="in" data-f="pct" inputmode="numeric" value="${esc(o.pct)}" placeholder="60"></div>
+        </div></div>`).join('')}
+      <div class="sum" id="dsum"></div>
+    </div>
+    <div class="blk">
+      <span class="eyebrow">4 · Próximo passo</span>
+      <div class="field"><label>Recomendação</label><textarea class="in" id="d_prox" style="min-height:80px" placeholder="Ex.: Mentoria individual de 8 semanas, começando pela agenda online">${esc(d.proximo)}</textarea></div>
+      <div class="field"><label>Notas internas (não vão no relatório)</label><textarea class="in" id="d_obs" style="min-height:70px">${esc(d.obs)}</textarea></div>
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><button class="btn" id="dsave">Salvar ficha</button><span class="saved" id="dsaved">Salvo</span>
+        <a class="btn ghost sm" id="drep" href="/crm/relatorio/?id=${encodeURIComponent(l.id)}" target="_blank" rel="noopener" ${l.diag?'':'hidden'}>Ver relatório</a></div>
+    </div>`;
+  $('#sheet').scrollTop = 0;
+  const read = ()=>{
+    d.dor = $('#d_dor').value; d.tarefa = $('#d_tarefa').value; d.ferramentas = $('#d_ferr').value;
+    d.valorHora = $('#d_vh').value; d.proximo = $('#d_prox').value; d.obs = $('#d_obs').value;
+    document.querySelectorAll('.op').forEach(r=>{ const o = d.ops[+r.dataset.i]; r.querySelectorAll('[data-f]').forEach(x=>o[x.dataset.f]=x.value); });
+  };
+  const sum = ()=>{ read(); const c = diagCalc(d); $('#dsum').innerHTML = `<div><b>${c.scored?c.total+'/25':'–'}</b><span>${c.scored?level(c.total):'Pontue as 5 áreas'}</span></div><div><b>${fmt(c.hm)} h</b><span>recuperáveis/mês</span></div><div><b>€ ${fmt(c.eur)}</b><span>por mês (estimativa)</span></div>`; };
+  document.querySelectorAll('.seg').forEach(g=>g.onclick = e=>{ const b = e.target.closest('button'); if(!b) return; d.scores[g.dataset.k] = +b.dataset.n; g.querySelectorAll('button').forEach(x=>x.classList.toggle('on', x===b)); sum(); });
+  $('#sheet').oninput = sum; sum();
+  $('#back').onclick = ()=>{ $('#sheet').oninput = null; openLead(l.id); };
+  $('#dsave').onclick = async()=>{
+    read();
+    try{ await api('POST',{action:'diag',id:l.id,diag:d}); l.diag = d; $('#dsaved').classList.add('on'); setTimeout(()=>$('#dsaved').classList.remove('on'),1600); $('#drep').hidden = false;
+      if(l.stage==='agendado'){ l.stage='analise'; api('POST',{action:'update',id:l.id,stage:'analise'}).catch(()=>{}); render(); } }
+    catch{ toast('Erro ao salvar'); }
   };
 }
 
 function openLead(id, keep){
   const l = LEADS.find(x=>x.id===id); if(!l) return;
-  OPEN = id;
+  OPEN = id; INDIAG = false; $('#sheet').oninput = null;
   const wa = waNumber(l.whatsapp), manual = l.source!=='site';
   const tpl = templates(l);
   $('#sheet').innerHTML = `<div class="grab"></div>
@@ -270,6 +396,7 @@ function openLead(id, keep){
       ${l.desafio?`<span class="eyebrow" style="margin-top:4px">O que mais toma o tempo</span><p class="quote">“${esc(l.desafio)}”</p>`:''}
     </div>
     <div class="blk"><span class="eyebrow">Etapa</span><div class="stages">${ORDER.map(s=>`<button class="st ${s===l.stage?'on':''}" data-stage="${s}">${STAGE[s]}</button>`).join('')}</div></div>
+    ${diagBlock(l)}
     ${wa?`<div class="blk"><span class="eyebrow">Mensagem rápida</span><div class="tpl">${Object.keys(tpl).map(k=>`<a class="btn ghost sm" target="_blank" rel="noopener" href="https://wa.me/${wa}?text=${encodeURIComponent(tpl[k])}">${k}</a>`).join('')}</div></div>`:''}
     <div class="blk">
       <div class="field"><label for="val">Valor do projeto (€)</label><input id="val" class="in" inputmode="decimal" value="${esc(l.value)}"></div>
@@ -280,6 +407,7 @@ function openLead(id, keep){
   if(!keep){ $('#sheet').scrollTop = 0; }
   $('#sheet').classList.add('on'); $('#scrim').classList.add('on');
   $('#close').onclick = closeSheet;
+  bindDiag(l);
   $('#sheet').querySelectorAll('[data-stage]').forEach(b=>b.onclick = async()=>{
     const s = b.dataset.stage; l.stage = s;
     $('#sheet').querySelectorAll('[data-stage]').forEach(x=>x.classList.toggle('on', x===b));
@@ -320,7 +448,7 @@ function newLead(){
   };
 }
 
-function closeSheet(){ OPEN = null; $('#sheet').classList.remove('on'); $('#scrim').classList.remove('on'); }
+function closeSheet(){ OPEN = null; INDIAG = false; $('#sheet').classList.remove('on'); $('#scrim').classList.remove('on'); }
 function toast(t){ const el = $('#toast'); el.textContent = t; el.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(()=>el.classList.remove('on'),1800); }
 
 function logout(){ store.del('os_crm_key'); KEY=''; $('#app').hidden = true; $('#login').hidden = false; }

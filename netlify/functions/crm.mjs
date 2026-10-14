@@ -1,5 +1,5 @@
 import { getStore } from "@netlify/blobs";
-import { createHash } from "node:crypto";
+import { createHash, randomBytes } from "node:crypto";
 
 // Private CRM API for Operator Studio.
 // Leads = every booking from the site (store "bookings") + leads added by hand.
@@ -75,6 +75,47 @@ export default async (req) => {
         if (b[f] !== undefined && cur.nome) next[f] = clip(b[f], f === "desafio" ? 1000 : 160);
       }
       await crm.setJSON(id, next);
+      return json({ ok: true });
+    }
+
+    // private link to the pre-diagnosis form (one random token per lead)
+    if (b.action === "formlink") {
+      const id = clip(b.id, 40);
+      if (!id) return json({ error: "invalid" }, 400);
+      const cur = (await crm.get(id, { type: "json" })) || {};
+      let token = cur.formToken;
+      if (!token) {
+        token = randomBytes(15).toString("base64url");
+        await getStore({ name: "forms", consistency: "strong" }).setJSON(token, { id });
+        await crm.setJSON(id, { ...cur, formToken: token, formSentAt: new Date().toISOString() });
+      }
+      return json({ ok: true, token });
+    }
+
+    // diagnosis sheet filled in during the 30-minute analysis
+    if (b.action === "diag") {
+      const id = clip(b.id, 40);
+      if (!id || typeof b.diag !== "object" || !b.diag) return json({ error: "invalid" }, 400);
+      const d = b.diag;
+      const num = (v, max) => Math.max(0, Math.min(max, Number(String(v ?? "").replace(",", ".")) || 0));
+      const diag = {
+        dor: clip(d.dor, 600),
+        tarefa: clip(d.tarefa, 600),
+        ferramentas: clip(d.ferramentas, 300),
+        valorHora: num(d.valorHora, 10000),
+        scores: Object.fromEntries(["at", "ag", "org", "aut", "pre"].map((k) => [k, Math.round(num(d.scores?.[k], 5))])),
+        ops: (Array.isArray(d.ops) ? d.ops : []).slice(0, 3).map((o) => ({
+          processo: clip(o?.processo, 160),
+          frente: clip(o?.frente, 40),
+          horas: num(o?.horas, 168),
+          pct: num(o?.pct, 100),
+        })),
+        proximo: clip(d.proximo, 600),
+        obs: clip(d.obs, 2000),
+        updatedAt: new Date().toISOString(),
+      };
+      const cur = (await crm.get(id, { type: "json" })) || {};
+      await crm.setJSON(id, { ...cur, diag, updatedAt: diag.updatedAt });
       return json({ ok: true });
     }
 
