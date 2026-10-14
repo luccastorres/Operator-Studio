@@ -25,14 +25,14 @@ const now = () => new Date().toISOString();
 const rid = (n = 9) => randomBytes(n).toString("base64url");
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
-const KEY_HASH = "b7ee52e1e6d2859701e020158c043a7f0341b724360e6ad2a41fdb29fa29f8d2";
+const KEY_HASH = "2acd374aa638baece5951bc661972a3a3f941b082d49683f4064da31d304af8b";
 function isAdmin(req) {
   const raw = String(req.headers.get("x-crm-key") || "").trim();
   if (!raw) return false;
   const env = process.env.CRM_KEY;
   // Once CRM_KEY is set in Netlify, only that password works (exact match).
   if (env) return raw === env.trim();
-  const given = raw.toLowerCase();
+  const given = raw;
   return createHash("sha256").update(given).digest("hex") === KEY_HASH;
 }
 
