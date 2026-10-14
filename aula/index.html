@@ -406,7 +406,17 @@ async function onLeft(){
   location.href = `/aula/relatorio/?s=${encodeURIComponent(START)}&wait=1`;
 }
 
-boot();
+function unsupported(extra){
+  message('Este navegador <em>bloqueou a sala.</em>', 'O vídeo ao vivo não funciona neste modo do navegador. No iPhone, desligue o <b>Modo de Isolamento</b> para este site (toque em <b>aA</b> na barra do Safari → Configurações do site) ou abra a aula em outro aparelho.' + (extra?`<br><span style="font-size:13px;color:var(--sand)">${esc(extra)}</span>`:''), `<button class="btn" onclick="location.reload()">Tentar de novo</button><a class="btn ghost" href="${HOME}">Voltar</a>`);
+}
+(async () => {
+  try{
+    if(typeof Daily!=='undefined' && Daily.supportedBrowser && !Daily.supportedBrowser().supported){ unsupported(); return; }
+    if(!window.RTCPeerConnection){ unsupported('WebRTC indisponível'); return; }
+    await boot();
+  }catch(e){ unsupported(String(e?.message||e)); }
+})();
+setTimeout(()=>{ if(!$('#vLoad').hidden) unsupported('A sala não respondeu.'); }, 20000);
 </script>
 </body>
 </html>
