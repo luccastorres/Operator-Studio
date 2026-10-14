@@ -236,8 +236,14 @@ $('#joinB').onclick = async () => {
   $('#joinB').disabled = true; $('#joinB').textContent = 'Entrando…';
   try{
     await call.join({ url: INFO.url, token: INFO.token, startAudioOff: !micOn, startVideoOff: !camOn });
-  }catch(e){ $('#joinB').disabled=false; $('#joinB').textContent='Entrar na aula'; toast('Não foi possível entrar. Tente de novo.'); return; }
+  }catch(e){ joinFail(e); return; }
 };
+
+function joinFail(e){
+  const m = String(e?.errorMsg || e?.message || e || '');
+  if(/payment/i.test(m)) message('Sala <em>indisponível.</em>', MENTOR ? 'A Daily bloqueou a chamada: a conta precisa de um cartão cadastrado (Billing no painel da Daily). Depois disso, recarregue esta página.' : 'A sala está em manutenção. Fale com o Luccas no WhatsApp.', `<button class="btn" onclick="location.reload()">Recarregar</button>`);
+  else message('Não foi possível <em>entrar.</em>', 'Verifique a internet e a permissão de câmera e microfone, depois tente de novo.' + (m ? `<br><span style="font-size:13px;color:var(--sand)">${esc(m)}</span>` : ''), `<button class="btn" onclick="location.reload()">Tentar de novo</button>`);
+}
 
 /* ---------- call events ---------- */
 function bindCall(){
@@ -270,8 +276,8 @@ function bindCall(){
   });
   call.on('local-screen-share-started', () => { sharing = true; paintControls(); });
   call.on('local-screen-share-stopped', () => { sharing = false; paintControls(); });
-  call.on('left-meeting', () => onLeft());
-  call.on('error', (e) => { message('A conexão <em>caiu.</em>','Recarregue a página para voltar à aula.',`<button class="btn" onclick="location.reload()">Voltar à aula</button>`); });
+  call.on('left-meeting', () => { if(joinedAt) onLeft(); });
+  call.on('error', (e) => { if(!joinedAt){ joinFail(e); return; } message('A conexão <em>caiu.</em>','Recarregue a página para voltar à aula.',`<button class="btn" onclick="location.reload()">Voltar à aula</button>`); });
 }
 function remember(){ const ps = call.participants(); for(const p of Object.values(ps)) PEOPLE[p.session_id] = { uid: p.user_id || '', name: p.user_name || '' }; }
 
