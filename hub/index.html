@@ -208,6 +208,12 @@ const cap = s => s.charAt(0).toUpperCase()+s.slice(1);
 const first = n => String(n||'').trim().split(/\s+/)[0];
 function ago(iso){ const m=Math.round((Date.now()-new Date(iso))/60000); if(m<1)return'agora'; if(m<60)return m+' min'; const h=Math.round(m/60); if(h<24)return h+' h'; const d=Math.round(h/24); return d<30?d+' d':fShort(iso); }
 const canChange = s => new Date(s.start) - Date.now() > 24*3600000;
+const liveOpen = s => { const t=new Date(s.start).getTime(); return Date.now() >= t-15*60000 && Date.now() <= t+(s.dur||90)*60000+60*60000; };
+const aulaUrl = s => '/aula/?s='+encodeURIComponent(s.start);
+function joinBtn(s, label){
+  if(DATA.live) return liveOpen(s) ? `<a class="btn sm" href="${aulaUrl(s)}">${label||'Entrar na aula'}</a>` : `<span class="chip">A sala abre 15 min antes</span>`;
+  return s.meet ? `<a class="btn sm" href="${esc(s.meet)}" target="_blank" rel="noopener">${label||'Entrar na videochamada'}</a>` : '';
+}
 function kindIcon(i){ const k=(i.kind||'').toLowerCase(), u=(i.url||'').toLowerCase(); if(k==='video'||/youtu|vimeo|loom|\.mp4/.test(u)) return I.video; if(k==='pdf'||k==='arquivo'||/\.pdf|\/api\/hub\/file\//.test(u)) return I.file; if(k==='aula'||k==='slides') return I.play; return I.link; }
 function fileUrl(u){ return u.startsWith('/api/hub/file/') ? u+'?t='+encodeURIComponent(TOKEN) : u; }
 
@@ -236,7 +242,7 @@ function render(){
 
 /* ---------- home ---------- */
 function vHome(){
-  const d = DATA, open = d.weeks.filter(w=>w.open), nextS = d.sessions.find(s=>new Date(s.start) > Date.now()-90*60000);
+  const d = DATA, open = d.weeks.filter(w=>w.open), nextS = d.sessions.find(s=>new Date(s.start).getTime() > Date.now()-((s.dur||90)+30)*60000);
   const done = open.length, nextWeek = Math.min(done+1, 8);
   const last = open[open.length-1];
   return `<div class="hello"><span class="ey">Mentoria individual · ${esc(d.me.perfil||'')}</span><h1 class="h1">Olá, <em>${esc(first(d.me.nome))}.</em></h1>
@@ -244,13 +250,14 @@ function vHome(){
   <div class="grid two">
     <div class="card next"><span class="ey">Próxima sessão</span>
       ${nextS ? `<p class="when">${cap(fDay(nextS.start))}</p><p class="muted">${fTime(nextS.start)} · Semana ${nextS.week} · ${nextS.dur||90} min</p>
-        <div class="row" style="margin-top:14px">${nextS.meet?`<a class="btn sm" href="${esc(nextS.meet)}" target="_blank" rel="noopener">Entrar na videochamada</a>`:''}<button class="btn ghost sm" data-go="agenda">Ver agenda</button></div>`
+        <div class="row" style="margin-top:14px">${joinBtn(nextS)}<button class="btn ghost sm" data-go="agenda">Ver agenda</button></div>`
       : `<p class="when">Nenhuma marcada.</p><p class="muted">Escolha um horário para a semana ${nextWeek}.</p><div class="row" style="margin-top:14px"><button class="btn sm" data-go="agenda">Reservar sessão</button></div>`}
     </div>
     <div class="card"><span class="ey">Seu progresso</span><p class="h2" style="margin-top:8px">${done}<span class="muted" style="font-size:18px">/8 semanas</span></p>
       <div class="prog">${d.weeks.map(w=>`<span class="${w.open?'on':w.week===nextWeek?'next':''}"></span>`).join('')}</div>
       <div class="row" style="margin-top:14px"><button class="btn ghost sm" data-go="materiais">Abrir materiais</button></div></div>
   </div>
+  ${(()=>{ const r=[...d.sessions].reverse().find(s=>s.report); return r?`<div class="card" style="margin-top:14px"><span class="ey">Resumo da última aula · Semana ${r.week}</span><p class="muted" style="margin:8px 0 12px;font-size:15px;line-height:1.5">Suas perguntas, o que construímos e as tarefas da semana.</p><button class="btn sm" data-rep="${esc(r.start)}">Ver resumo</button></div>`:''; })()}
   ${last ? `<div class="card" style="margin-top:14px"><span class="ey">Último material liberado · Semana ${last.week}</span><h3 class="h2" style="margin:8px 0 6px">${esc(last.title)}</h3><p class="muted" style="font-size:15px;line-height:1.5">${esc(last.summary||'')}</p><div class="row" style="margin-top:12px"><button class="btn sm" data-go="materiais">Ver materiais</button></div></div>` : ''}
   <div class="card" style="margin-top:14px"><span class="ey">Comunidade</span><p class="muted" style="margin:8px 0 12px;font-size:15px;line-height:1.5">Troque com os outros alunos: dúvidas, ferramentas e vitórias da semana.</p><button class="btn ghost sm" data-go="comunidade">Ir para a comunidade</button></div>`;
 }
@@ -271,7 +278,7 @@ function vMaterials(){
 
 /* ---------- agenda ---------- */
 function vAgenda(){
-  const d = DATA, mine = d.sessions, future = mine.filter(s=>new Date(s.start) > Date.now()), past = mine.filter(s=>new Date(s.start) <= Date.now());
+  const d = DATA, mine = d.sessions, isOn = s => new Date(s.start).getTime() > Date.now()-((s.dur||90)+30)*60000, future = mine.filter(isOn), past = mine.filter(s=>!isOn(s)).reverse();
   const groups = {};
   d.free.forEach(s=>{ const k = new Intl.DateTimeFormat('en-CA',{timeZone:TZ}).format(new Date(s.start)); (groups[k]=groups[k]||[]).push(s); });
   const canBook = RESCHED || (future.length < 2 && mine.length < 8);
@@ -279,10 +286,10 @@ function vAgenda(){
   ${RESCHED ? `<div class="banner" style="margin-bottom:14px"><span>Remarcando a sessão de ${esc(fShort(RESCHED))} às ${fTime(RESCHED)}. Escolha o novo horário.</span><button class="btn ghost sm" style="color:var(--linen);border-color:#5F594F" id="stopR">Cancelar troca</button></div>`:''}
   <div class="card"><span class="ey">Marcadas</span>
     ${future.length ? `<div class="list" style="margin-top:6px">${future.map(s=>`<div class="sess"><div><div class="w">Semana ${s.week}</div><div class="d">${cap(fDay(s.start))} · ${fTime(s.start)}</div></div>
-      <div class="row">${s.meet?`<a class="btn sm" href="${esc(s.meet)}" target="_blank" rel="noopener">Videochamada</a>`:''}${canChange(s)?`<button class="btn ghost sm" data-resched="${esc(s.start)}">Remarcar</button><button class="btn ghost sm" data-cancel="${esc(s.start)}">Desmarcar</button>`:'<span class="chip">Menos de 24h · fale com o Luccas</span>'}</div></div>`).join('')}</div>`
+      <div class="row">${joinBtn(s,'Entrar na aula')}${canChange(s)?`<button class="btn ghost sm" data-resched="${esc(s.start)}">Remarcar</button><button class="btn ghost sm" data-cancel="${esc(s.start)}">Desmarcar</button>`:(new Date(s.start)>Date.now() && !(DATA.live && liveOpen(s))?'<span class="chip">Menos de 24h · fale com o Luccas</span>':'')}</div></div>`).join('')}</div>`
     : '<p class="empty">Nenhuma sessão marcada.</p>'}
-    ${past.length?`<p class="meta" style="margin-top:10px">Concluídas: ${past.map(s=>'semana '+s.week).join(', ')}</p>`:''}
   </div>
+  ${past.length?`<div class="card" style="margin-top:14px"><span class="ey">Aulas concluídas</span><div class="list" style="margin-top:6px">${past.map(s=>`<div class="sess"><div><div class="w">Semana ${s.week}</div><div class="d">${cap(fDay(s.start))}</div></div><div class="row">${s.report?`<button class="btn sm" data-rep="${esc(s.start)}">Resumo da aula</button>`:'<span class="chip">Resumo em breve</span>'}</div></div>`).join('')}</div></div>`:''}
   <div style="margin-top:18px"><span class="ey">Horários disponíveis</span>
     ${!canBook ? '<p class="empty">Você já tem 2 sessões marcadas. Depois da próxima, novos horários aparecem aqui.</p>' :
       Object.keys(groups).length ? Object.entries(groups).map(([k,arr])=>`<div class="day"><h4>${esc(cap(fDay(arr[0].start)))}</h4><div class="slots">${arr.map(s=>`<button class="slot" data-book="${esc(s.start)}">${fTime(s.start)}</button>`).join('')}</div></div>`).join('')
@@ -313,6 +320,7 @@ function bind(){
   document.querySelectorAll('[data-book]').forEach(b=>b.onclick=()=>confirmBook(b.dataset.book));
   document.querySelectorAll('[data-resched]').forEach(b=>b.onclick=()=>{ RESCHED=b.dataset.resched; render(); window.scrollTo(0,0); });
   document.querySelectorAll('[data-cancel]').forEach(b=>b.onclick=()=>confirmCancel(b.dataset.cancel));
+  document.querySelectorAll('[data-rep]').forEach(b=>b.onclick=()=>openReport(b.dataset.rep));
   const sr=$('#stopR'); if(sr) sr.onclick=()=>{ RESCHED=null; render(); };
   document.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{ OPEN_T=b.dataset.t; render(); window.scrollTo(0,0); });
   const bt=$('#backT'); if(bt) bt.onclick=()=>{ OPEN_T=null; render(); };
@@ -325,6 +333,22 @@ function sheet(html){ $('#sheet').innerHTML=html; $('#sheet').hidden=false; $('#
 function closeSheet(){ $('#sheet').hidden=true; $('#scrim').hidden=true; }
 $('#scrim').onclick=closeSheet;
 
+async function openReport(start){
+  sheet('<p class="muted">Carregando o resumo…</p>');
+  try{
+    const r = await fetch('/api/live/report?s='+encodeURIComponent(start),{headers:{'authorization':'Bearer '+TOKEN},cache:'no-store'});
+    if(!r.ok) throw 0; const { report } = await r.json(); const x = report.report || {};
+    const li = a => (a||[]).filter(Boolean).map(t=>`<div style="display:flex;gap:10px;padding:9px 0;border-top:1px solid var(--line);font-size:15px;line-height:1.5"><span style="flex:none;width:6px;height:6px;border-radius:50%;background:var(--taupe);margin-top:9px"></span><span>${esc(t)}</span></div>`).join('') || '<p class="empty">Nada registrado.</p>';
+    sheet(`<span class="ey">Resumo da aula · Semana ${esc(report.week||'')}</span><h2 class="h1" style="font-size:32px;margin:8px 0 6px">${esc(cap(fDay(start)))}</h2>
+      <p style="font-size:16px;line-height:1.6;margin:14px 0 20px">${esc(x.resumo||'')}</p>
+      ${(x.perguntas||[]).length?`<span class="ey">Suas perguntas</span><div style="margin:8px 0 20px">${x.perguntas.map((q,i)=>`<div style="padding:12px 0;border-top:1px solid var(--line)"><p style="font-weight:600;font-size:15px;line-height:1.4">${i+1}. ${esc(q.pergunta)}</p><p class="muted" style="font-size:14.5px;line-height:1.55;margin-top:5px">${esc(q.resposta||'')}</p></div>`).join('')}</div>`:''}
+      ${(x.construido||[]).length?`<span class="ey">O que construímos</span><div style="margin:8px 0 20px">${li(x.construido)}</div>`:''}
+      ${(x.tarefas||[]).length?`<span class="ey">Tarefas até a próxima sessão</span><div style="margin:8px 0 20px">${li(x.tarefas.map(t=>t.tarefa+(t.prazo?' · '+t.prazo:'')))}</div>`:''}
+      ${x.proximo_passo?`<div class="card" style="background:var(--linen2);border-color:var(--linen2)"><span class="ey">Próximo passo</span><p style="font-family:var(--serif);font-size:21px;line-height:1.3;margin-top:8px">${esc(x.proximo_passo)}</p></div>`:''}
+      <div class="row" style="margin-top:18px"><button class="btn ghost" id="closeRep">Fechar</button></div>`);
+    $('#closeRep').onclick=closeSheet;
+  }catch{ sheet('<p class="h2">Resumo indisponível.</p><p class="muted" style="margin:8px 0 16px">Tente de novo em instantes.</p><button class="btn ghost" id="closeRep">Fechar</button>'); $('#closeRep').onclick=closeSheet; }
+}
 function confirmBook(start){
   const nextWeek = RESCHED ? DATA.sessions.find(s=>s.start===RESCHED)?.week : (()=>{ const used=new Set(DATA.sessions.map(s=>s.week)); for(let w=1;w<=8;w++) if(!used.has(w)) return w; })();
   sheet(`<span class="ey">${RESCHED?'Remarcar':'Reservar'} · Semana ${nextWeek}</span><h2 class="h1" style="font-size:34px;margin:8px 0">${cap(fDay(start))}</h2><p class="muted" style="font-size:16px">${fTime(start)} · 90 minutos · videochamada</p>

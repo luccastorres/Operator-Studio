@@ -112,7 +112,9 @@ async function notifyBooked(student, slot) {
     title: `Sessão marcada, ${esc(student.nome.split(" ")[0])}.`,
     intro: `Sua sessão individual da semana ${slot.week} está confirmada. Os materiais ficam no seu Student Hub depois da aula.`,
     whenText: esc(fmtWhen(slot.start)),
-    cta: "Entrar na videochamada", ctaUrl: "__MEET__",
+    ...(process.env.DAILY_API_KEY
+      ? { cta: "Entrar na aula", ctaUrl: `${SITE}/aula/?s=${encodeURIComponent(slot.start)}` }
+      : { cta: "Entrar na videochamada", ctaUrl: "__MEET__" }),
     closing: "Precisa remarcar? Pelo Student Hub, até 24 horas antes.",
   });
   try {
@@ -122,7 +124,7 @@ async function notifyBooked(student, slot) {
         type: "confirmation", id: "hub-" + slot.start, to: student.email, toName: student.nome, bcc: OWNER,
         subject: `Sessão confirmada · Semana ${slot.week} · ${fmtWhen(slot.start)}`, html, meet: "",
         event: { summary: `Mentoria · Semana ${slot.week} · ${student.nome}`, start: start.toISOString(), end: end.toISOString(),
-          description: `Mentoria individual Operator Studio\nAluno: ${authorName(student)}\nE-mail: ${student.email}\nHub: ${SITE}/hub/admin/` },
+          description: `Mentoria individual Operator Studio\nAluno: ${authorName(student)}\nE-mail: ${student.email}\n${process.env.DAILY_API_KEY ? `Sala da aula: ${SITE}/aula/?s=${encodeURIComponent(slot.start)}&m=1\n` : ""}Hub: ${SITE}/hub/admin/` },
       }),
     });
     const j = await res.json().catch(() => ({}));
@@ -195,10 +197,12 @@ export default async (req) => {
     const a = path.slice(6);
 
     if (a === "state" && method === "GET") {
-      const [students, slots, forum, mats] = await Promise.all([
-        listJSON(store, "students/"), listJSON(store, "slots/"), listJSON(store, "forum/"), materials(store),
+      const [students, slots, forum, mats, reps] = await Promise.all([
+        listJSON(store, "students/"), listJSON(store, "slots/"), listJSON(store, "forum/"), materials(store), listJSON(store, "reports/"),
       ]);
-      return json({ students: students.map(publicStudent), slots, forum, materials: mats, weeks: WEEKS });
+      const reports = reps.map((r) => ({ start: r.start, status: r.status, shared: !!r.shared, studentId: r.studentId, studentName: r.studentName || "", week: r.week,
+        minutes: r.minutes, questions: r.report?.perguntas?.length || 0, updatedAt: r.updatedAt }));
+      return json({ students: students.map(publicStudent), slots, forum, materials: mats, weeks: WEEKS, reports, live: !!process.env.DAILY_API_KEY });
     }
     if (a === "student" && method === "POST") {
       const id = clip(body.id, 40);
@@ -329,7 +333,9 @@ export default async (req) => {
     const t = Date.now();
     const mine = slots.filter((s) => s.studentId === me.id).sort((a, b) => a.start.localeCompare(b.start));
     const free = slots.filter((s) => !s.studentId && new Date(s.start).getTime() > t + 2 * 3600000).sort((a, b) => a.start.localeCompare(b.start)).map((s) => ({ start: s.start, dur: s.dur }));
-    return json({ me: publicStudent(me), weeks, sessions: mine, free, rules: { cancelHours: 24, weeks: WEEKS } });
+    const reps = await Promise.all(mine.map((s) => store.get(`reports/${s.start}`, { type: "json" })));
+    const sessions = mine.map((s, i) => ({ ...s, report: !!(reps[i]?.shared && reps[i]?.status === "done" && reps[i]?.studentId === me.id) }));
+    return json({ me: publicStudent(me), weeks, sessions, free, live: !!process.env.DAILY_API_KEY, rules: { cancelHours: 24, weeks: WEEKS } });
   }
 
   if (path === "book" && method === "POST") {

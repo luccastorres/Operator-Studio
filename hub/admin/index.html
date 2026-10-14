@@ -87,7 +87,7 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt
 const store = {get(k){try{return localStorage.getItem(k)}catch{return null}},set(k,v){try{localStorage.setItem(k,v)}catch{}},del(k){try{localStorage.removeItem(k)}catch{}}};
 const TZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
 let KEY = store.get('os_crm_key')||'', S = null, TAB = location.hash.slice(1)||'alunos', OPEN = {}, INVITES = {};
-const TABS = [['alunos','Alunos'],['materiais','Materiais'],['agenda','Agenda'],['comunidade','Comunidade']];
+const TABS = [['alunos','Alunos'],['aulas','Aulas'],['materiais','Materiais'],['agenda','Agenda'],['comunidade','Comunidade']];
 const KINDS = ['Aula','PDF','Vídeo','Template','Link'];
 
 function toast(t){ const el=$('#toast'); el.textContent=t; el.classList.add('on'); clearTimeout(toast.t); toast.t=setTimeout(()=>el.classList.remove('on'),2000); }
@@ -110,7 +110,7 @@ async function load(){ S = await api('state'); render(); }
 function render(){
   $('#tabs').innerHTML = TABS.map(([k,t])=>`<button class="tab ${k===TAB?'on':''}" data-tab="${k}">${t}</button>`).join('');
   const m=$('#main');
-  m.innerHTML = TAB==='materiais'?vMat():TAB==='agenda'?vAgenda():TAB==='comunidade'?vForum():vStudents();
+  m.innerHTML = TAB==='aulas'?vAulas():TAB==='materiais'?vMat():TAB==='agenda'?vAgenda():TAB==='comunidade'?vForum():vStudents();
   bind();
 }
 document.addEventListener('click',e=>{ const t=e.target.closest('[data-tab]'); if(t){ TAB=t.dataset.tab; history.replaceState(null,'','#'+TAB); render(); } });
@@ -148,6 +148,29 @@ function extraEditor(s){
     <div><button class="btn sm" data-exsave="${esc(s.id)}">Salvar links</button></div></div>`;
 }
 
+/* ---------- live classes ---------- */
+function vAulas(){
+  const name = id => (S.students.find(x=>x.id===id)||{}).nome || '';
+  const now = Date.now(), end = s => new Date(s.start).getTime() + ((s.dur||90)+180)*60000;
+  const upcoming = S.slots.filter(s=>s.studentId && end(s) > now).sort((a,b)=>a.start.localeCompare(b.start));
+  const reps = Object.fromEntries((S.reports||[]).map(r=>[r.start,r]));
+  const pastKeys = new Set([...S.slots.filter(s=>s.studentId && end(s) <= now).map(s=>s.start), ...(S.reports||[]).map(r=>r.start)]);
+  upcoming.forEach(s=>pastKeys.delete(s.start));
+  const past = [...pastKeys].sort().reverse().map(k=>{ const sl=S.slots.find(x=>x.start===k)||{}; const r=reps[k]||{}; return { start:k, week:sl.week||r.week, nome:name(sl.studentId||r.studentId)||r.studentName||'Aluno', r:reps[k] }; });
+  const status = r => !r ? '<span class="chip">Sem relatório</span>' : r.status==='done' ? `<span class="chip ok">Relatório · ${r.questions} perguntas</span>${r.shared?'<span class="chip ok">Publicado</span>':'<span class="chip">Só você vê</span>'}` : r.status==='pending' ? '<span class="chip wait">Gerando…</span>' : r.status==='empty' ? '<span class="chip">Sem transcrição</span>' : '<span class="chip wait">Erro · tente de novo</span>';
+  const openAt = s => new Date(s.start).getTime() - 60*60000;
+  return `<div><span class="ey">Aulas ao vivo</span><h1 class="h1">Sala e <em>relatórios.</em></h1><p class="muted" style="margin-top:6px">Cada sessão marcada tem a própria sala no Student Hub. A aula é transcrita e, ao encerrar, o relatório é gerado sozinho. Você revisa e publica para o aluno.</p></div>
+  ${S.live?'':`<div class="card" style="background:#F1E7D6;border-color:#E6D7BC"><span class="ey" style="color:#8A6A3A">Falta ativar</span><p style="font-size:14.5px;line-height:1.55">A sala ao vivo ainda não está ligada. No Netlify, em Site configuration → Environment variables, adicione <b>DAILY_API_KEY</b> (sua chave da Daily) e <b>ANTHROPIC_API_KEY</b> (sua chave da API do Claude). Depois faça um novo deploy. Até lá, as sessões continuam com o link do Google Meet.</p></div>`}
+  <div class="card"><span class="ey">Próximas aulas</span>
+    ${upcoming.length?`<div class="list">${upcoming.map(s=>`<div class="row" style="justify-content:space-between"><div><p class="h3">${esc(name(s.studentId)||'Aluno')}</p><p class="muted" style="font-size:14px">${esc(fDT(s.start))} · Semana ${s.week||''}</p></div>
+      <div class="row">${S.live ? (now >= openAt(s) ? `<a class="btn sm" href="/aula/?s=${encodeURIComponent(s.start)}&m=1" target="_blank" rel="noopener">Entrar na aula</a>` : '<span class="chip">Sala abre 1h antes</span>') : (s.meet?`<a class="btn ghost sm" href="${esc(s.meet)}" target="_blank" rel="noopener">Meet</a>`:'')}${reps[s.start]?`<a class="btn ghost sm" href="/aula/relatorio/?s=${encodeURIComponent(s.start)}">Relatório</a>`:''}</div></div>`).join('')}</div>`:'<p class="muted">Nenhuma aula marcada.</p>'}
+  </div>
+  <div class="card"><span class="ey">Aulas dadas</span>
+    ${past.length?`<div class="list">${past.map(p=>`<div class="row" style="justify-content:space-between"><div><p class="h3">${esc(p.nome)}</p><p class="muted" style="font-size:14px">${esc(fDT(p.start))} · Semana ${p.week||''}</p><div class="row" style="margin-top:6px">${status(p.r)}</div></div>
+      <a class="btn ${p.r?.status==='done'?'':'ghost '}sm" href="/aula/relatorio/?s=${encodeURIComponent(p.start)}">${p.r?.status==='done'?'Abrir relatório':'Ver aula'}</a></div>`).join('')}</div>`:'<p class="muted">Os relatórios das aulas aparecem aqui.</p>'}
+  </div>`;
+}
+
 /* ---------- materials ---------- */
 function vMat(){
   return `<div><span class="ey">Materiais</span><h1 class="h1">Conteúdo das <em>8 semanas.</em></h1><p class="muted" style="margin-top:6px">O mesmo material para todos. Cada aluno só vê a semana depois que você liberar na aba Alunos.</p></div>
@@ -175,7 +198,7 @@ function vAgenda(){
     <div class="g2"><div><label class="l">Dias da semana</label><div class="wk" id="dows">${['D','S','T','Q','Q','S','S'].map((d,i)=>`<button type="button" data-dow="${i}" class="${[1,2,3,4,5].includes(i)?'on':''}">${d}</button>`).join('')}</div></div><div><label class="l">Por quantas semanas</label><select class="in" name="weeks">${[1,2,3,4,6,8].map(n=>`<option ${n===2?'selected':''}>${n}</option>`).join('')}</select></div></div>
     <div><button class="btn" type="submit">Abrir horários</button></div></form>
   <div class="card"><span class="ey">Próximos horários</span>
-    ${Object.keys(groups).length?Object.entries(groups).map(([k,arr])=>`<div class="day"><h4>${esc(fDay(arr[0].start))}</h4>${arr.map(s=>s.studentId?`<span class="sl b">${fT(s.start)} · ${esc(first(name(s.studentId)))} · S${s.week}${s.meet?` · <a href="${esc(s.meet)}" target="_blank" rel="noopener" style="color:inherit">Meet</a>`:''} <button data-acancel="${esc(s.start)}">desmarcar</button></span>`:`<span class="sl">${fT(s.start)} <button data-rm="${esc(s.start)}">remover</button></span>`).join('')}</div>`).join(''):'<p class="muted">Nenhum horário aberto.</p>'}
+    ${Object.keys(groups).length?Object.entries(groups).map(([k,arr])=>`<div class="day"><h4>${esc(fDay(arr[0].start))}</h4>${arr.map(s=>s.studentId?`<span class="sl b">${fT(s.start)} · ${esc(first(name(s.studentId)))} · S${s.week}${S.live?` · <a href="/aula/?s=${encodeURIComponent(s.start)}&m=1" target="_blank" rel="noopener" style="color:inherit">Sala</a>`:s.meet?` · <a href="${esc(s.meet)}" target="_blank" rel="noopener" style="color:inherit">Meet</a>`:''} <button data-acancel="${esc(s.start)}">desmarcar</button></span>`:`<span class="sl">${fT(s.start)} <button data-rm="${esc(s.start)}">remover</button></span>`).join('')}</div>`).join(''):'<p class="muted">Nenhum horário aberto.</p>'}
   </div>`;
 }
 

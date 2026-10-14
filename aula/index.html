@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#F3F1EC">
+<link rel="icon" href="/favicon.png">
+<title>Aula ao vivo · Operator Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600&family=Tinos:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@daily-co/daily-js@0.92.2/dist/daily.js"></script>
+<style>
+:root{--ink:#151412;--linen:#F3F1EC;--linen2:#EAE6DF;--card:#FBFAF7;--line:#D9D3C9;--taupe:#7E7669;--soft:#5F594F;--sand:#B5AEA2;--gold:#C9A36A;--red:#9A3B2E;
+--serif:'Tinos','Times New Roman',serif;--sans:'Hanken Grotesk',-apple-system,Helvetica,Arial,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+html,body{height:100%;background:var(--linen);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+a{color:inherit}
+.logo{font-family:var(--serif);font-size:20px;white-space:nowrap}.logo b{font-weight:700}.logo i{color:var(--taupe)}
+.ey{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--taupe)}
+.h1{font-family:var(--serif);font-size:40px;line-height:1.02;letter-spacing:-.01em}.h1 em{font-weight:400;color:var(--taupe)}
+.muted{color:var(--soft)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--ink);color:var(--linen);border-radius:999px;padding:14px 22px;font-size:15px;font-weight:500;text-decoration:none;white-space:nowrap}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn[disabled]{opacity:.45;pointer-events:none}
+
+/* center screens */
+.center{min-height:100%;display:flex;align-items:center;justify-content:center;padding:28px 18px}
+.pre{width:100%;max-width:980px;display:grid;gap:28px;align-items:center}
+@media(min-width:860px){.pre{grid-template-columns:1.25fr 1fr;gap:44px}}
+.prev{position:relative;aspect-ratio:4/3;background:var(--linen2);border:1px solid var(--line);border-radius:26px;overflow:hidden}
+.prev video{width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
+.prev .off{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:64px;color:var(--sand)}
+.prev .bar{position:absolute;left:0;right:0;bottom:16px;display:flex;justify-content:center;gap:10px}
+.info{display:flex;flex-direction:column;gap:18px}
+.when{font-family:var(--serif);font-size:22px}
+.note{display:flex;gap:12px;align-items:flex-start;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;font-size:14px;line-height:1.5;color:var(--soft)}
+.note svg{flex:none;width:20px;height:20px;color:var(--taupe);margin-top:1px}
+.msg{width:100%;max-width:460px;display:flex;flex-direction:column;gap:16px}
+
+/* control buttons */
+.cb{width:52px;height:52px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:var(--card);border:1px solid var(--line);color:var(--ink);transition:.15s}
+.cb svg{width:22px;height:22px}
+.cb.offst{background:var(--ink);color:var(--linen);border-color:var(--ink)}
+.cb.on{background:var(--gold);border-color:var(--gold);color:var(--ink)}
+.cb.leave{width:auto;padding:0 20px;border-radius:999px;background:var(--red);border-color:var(--red);color:#fff;gap:8px;font-size:14px;font-weight:500}
+.cb.leave svg{width:20px;height:20px}
+
+/* room */
+#room{height:100%;display:grid;grid-template-rows:auto 1fr auto}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:calc(10px + env(safe-area-inset-top)) 18px 10px}
+.top .mid{display:flex;align-items:center;gap:14px;font-size:14px;color:var(--soft)}
+.clock{font-variant-numeric:tabular-nums;font-size:14px;color:var(--soft);white-space:nowrap}
+.clock.late{color:#8A6A3A}
+.rec{display:inline-flex;align-items:center;gap:7px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--taupe);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:6px 11px}
+.rec i{width:7px;height:7px;border-radius:50%;background:var(--sand)}
+.rec.live i{background:var(--gold);box-shadow:0 0 0 4px rgba(201,163,106,.22)}
+.body{display:grid;gap:14px;padding:0 18px;min-height:0}
+@media(min-width:1000px){.body.panel{grid-template-columns:1fr 360px}}
+.stage{position:relative;min-height:0;background:var(--linen2);border:1px solid var(--line);border-radius:26px;overflow:hidden}
+.stage video.main{width:100%;height:100%;object-fit:cover;background:var(--linen2)}
+.stage video.main.screen{object-fit:contain;background:#E4DFD6}
+.wait{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;padding:24px}
+.wait .av{width:96px;height:96px;border-radius:50%;background:var(--card);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:40px;color:var(--taupe)}
+.wait p{font-family:var(--serif);font-size:24px}
+.tag{position:absolute;left:16px;bottom:16px;display:flex;align-items:center;gap:8px;background:rgba(251,250,247,.92);border:1px solid var(--line);border-radius:999px;padding:7px 12px;font-size:13px}
+.tag svg{width:15px;height:15px;color:var(--red)}
+.pip{position:absolute;right:14px;bottom:14px;width:min(30%,220px);aspect-ratio:4/3;border-radius:16px;overflow:hidden;background:var(--card);border:2px solid var(--card);box-shadow:0 8px 24px rgba(21,20,18,.12)}
+.pip video{width:100%;height:100%;object-fit:cover}
+.pip video.me{transform:scaleX(-1)}
+.pip .off{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:30px;color:var(--sand);background:var(--card)}
+.pip2{right:auto;left:14px;top:14px;bottom:auto;width:min(22%,160px)}
+.side{display:none;flex-direction:column;min-height:0;background:var(--card);border:1px solid var(--line);border-radius:22px;overflow:hidden}
+.body.panel .side{display:flex}
+@media(max-width:999px){.body.panel .side{position:fixed;left:0;right:0;bottom:0;height:62vh;z-index:10;border-radius:22px 22px 0 0;box-shadow:0 -10px 40px rgba(21,20,18,.15)}}
+.stabs{display:flex;gap:4px;padding:10px;border-bottom:1px solid var(--line)}
+.stabs button{flex:1;padding:9px;border-radius:999px;font-size:13px;color:var(--soft)}
+.stabs button.on{background:var(--ink);color:var(--linen)}
+.spane{flex:1;overflow-y:auto;padding:16px}
+.item{display:flex;align-items:center;gap:12px;padding:11px 12px;border:1px solid var(--line);border-radius:12px;background:var(--linen);text-decoration:none;font-size:14.5px;margin-bottom:8px}
+.item svg{width:18px;height:18px;flex:none;color:var(--taupe)}
+.ln{padding:9px 0;border-top:1px solid var(--line);font-size:14px;line-height:1.5}
+.ln:first-child{border-top:0}
+.ln b{font-weight:600;font-size:12px;letter-spacing:.04em}
+.ln b.m{color:var(--taupe)}
+.ln small{color:var(--sand);font-size:11px;margin-left:6px}
+.controls{display:flex;justify-content:center;align-items:center;gap:10px;padding:14px 18px calc(14px + env(safe-area-inset-bottom));flex-wrap:wrap}
+.spacer{width:10px}
+.toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:var(--linen);padding:10px 16px;border-radius:999px;font-size:14px;opacity:0;transition:.2s;z-index:30;pointer-events:none;max-width:90vw;text-align:center}
+.toast.on{opacity:1}
+@media(max-width:640px){.top .hide-s{display:none}.top .logo i{display:none}.rec{padding:6px 9px;font-size:11px}.h1{font-size:34px}.cb{width:48px;height:48px}}
+</style>
+</head>
+<body>
+
+<section class="center" id="vLoad"><p class="muted">Preparando a sala…</p></section>
+
+<section class="center" id="vMsg" hidden><div class="msg">
+  <span class="logo"><b>Operator</b> <i>Studio</i></span>
+  <h1 class="h1" id="mT"></h1>
+  <p class="muted" id="mP" style="font-size:16px;line-height:1.55"></p>
+  <div id="mA" style="display:flex;gap:10px;flex-wrap:wrap"></div>
+</div></section>
+
+<section class="center" id="vPre" hidden><div class="pre">
+  <div class="prev"><video id="pv" autoplay playsinline muted></video><div class="off" id="pvOff" hidden></div>
+    <div class="bar"><button class="cb" id="pMic" aria-label="Microfone"></button><button class="cb" id="pCam" aria-label="Câmera"></button></div></div>
+  <div class="info">
+    <span class="logo"><b>Operator</b> <i>Studio</i></span>
+    <span class="ey" id="preEy"></span>
+    <h1 class="h1" id="preT"></h1>
+    <p class="when" id="preW"></p>
+    <div class="note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 6h16M4 12h10M4 18h7"/><circle cx="18" cy="17" r="3"/></svg>
+      <span>Esta aula é <b>transcrita automaticamente</b> para gerar o resumo da sessão: suas perguntas, o que construímos e as tarefas da semana. O vídeo não é gravado.</span></div>
+    <div><button class="btn" id="joinB">Entrar na aula</button></div>
+    <p class="muted" style="font-size:13px" id="preHelp">Use fone de ouvido para um som mais limpo.</p>
+  </div>
+</div></section>
+
+<div id="room" hidden>
+  <header class="top">
+    <span class="logo"><b>Operator</b> <i>Studio</i></span>
+    <div class="mid"><span class="hide-s" id="rTitle"></span><span class="clock" id="clock">00:00</span><span class="rec" id="rec"><i></i><span id="recT">Transcrição</span></span></div>
+  </header>
+  <div class="body" id="body">
+    <div class="stage" id="stage">
+      <video class="main" id="vMain" autoplay playsinline hidden></video>
+      <div class="wait" id="wait"><div class="av" id="waitAv"></div><p id="waitT"></p><span class="muted" id="waitS" style="font-size:14px"></span></div>
+      <div class="tag" id="tag" hidden></div>
+      <div class="pip pip2" id="pipCam" hidden><video id="vCam2" autoplay playsinline muted></video></div>
+      <div class="pip" id="pip"><video class="me" id="vMe" autoplay playsinline muted></video><div class="off" id="meOff" hidden></div></div>
+    </div>
+    <aside class="side" id="side">
+      <div class="stabs" id="stabs"></div>
+      <div class="spane" id="spane"></div>
+    </aside>
+  </div>
+  <div class="controls">
+    <button class="cb" id="cMic" aria-label="Microfone"></button>
+    <button class="cb" id="cCam" aria-label="Câmera"></button>
+    <button class="cb" id="cShare" aria-label="Compartilhar tela"></button>
+    <button class="cb" id="cPanel" aria-label="Materiais e transcrição"></button>
+    <button class="cb" id="cTr" aria-label="Pausar transcrição" hidden></button>
+    <span class="spacer"></span>
+    <button class="cb leave" id="cLeave"></button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<div id="audios" hidden></div>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ls = {get(k){try{return localStorage.getItem(k)}catch{return null}}};
+const TZ = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+const Q = new URLSearchParams(location.search);
+const START = Q.get('s') || '';
+const MENTOR = Q.get('m') === '1';
+const KEY = ls.get('os_crm_key') || '', TOKEN = ls.get('os_hub_token') || '';
+const HOME = MENTOR ? '/hub/admin/#aulas' : '/hub/#agenda';
+
+const I = {
+  mic:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>',
+  micOff:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M9 9v2a3 3 0 0 0 5 2.2M15 10V6a3 3 0 0 0-5.7-1.3M5 11a7 7 0 0 0 11 5.7M19 11a7 7 0 0 1-.6 2.8M12 18v3M3 3l18 18"/></svg>',
+  cam:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10l5-3v10l-5-3z"/></svg>',
+  camOff:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M16 16v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h2M10 6h5a1 1 0 0 1 1 1v3l5-3v10M3 3l18 18"/></svg>',
+  share:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 13V8M9.5 10.5L12 8l2.5 2.5"/></svg>',
+  panel:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M15 4v16"/></svg>',
+  tr:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 6h16M4 12h10M4 18h7"/><circle cx="18" cy="17" r="3"/></svg>',
+  trOff:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 6h16M4 12h7M4 18h7M15 14v6M20 14v6"/></svg>',
+  leave:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 17l-5-5 5-5M5 12h11M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4"/></svg>',
+  file:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/></svg>',
+};
+
+let INFO = null, call = null, micOn = true, camOn = true, sharing = false, trOn = false, trTry = 0, trWanted = true;
+let PEOPLE = {}, BUF = [], LOG = [], TAB = 'mat', joinedAt = 0, ended = false, flushT = null, clockT = null;
+
+function toast(t){ const el=$('#toast'); el.textContent=t; el.classList.add('on'); clearTimeout(toast.t); toast.t=setTimeout(()=>el.classList.remove('on'),2600); }
+function show(id){ ['vLoad','vMsg','vPre','room'].forEach(x=>$('#'+x).hidden = x!==id); }
+function message(title, text, actions){ $('#mT').innerHTML=title; $('#mP').innerHTML=text; $('#mA').innerHTML=actions||''; show('vMsg'); }
+const fDay = iso => new Intl.DateTimeFormat('pt-BR',{timeZone:TZ,weekday:'long',day:'numeric',month:'long'}).format(new Date(iso));
+const fTime = iso => new Intl.DateTimeFormat('pt-BR',{timeZone:TZ,hour:'2-digit',minute:'2-digit'}).format(new Date(iso));
+const cap = s => s.charAt(0).toUpperCase()+s.slice(1);
+const first = n => String(n||'').trim().split(/\s+/)[0];
+const authBody = () => MENTOR ? {k:KEY} : {t:TOKEN};
+const headers = () => MENTOR ? {'x-crm-key':KEY,'content-type':'application/json'} : {'authorization':'Bearer '+TOKEN,'content-type':'application/json'};
+async function api(path, body){
+  const r = await fetch('/api/live/'+path,{method:body?'POST':'GET',headers:headers(),body:body?JSON.stringify(body):undefined,cache:'no-store'});
+  const j = await r.json().catch(()=>({})); if(!r.ok){ const e=new Error(j.error||'api'); e.code=j.error; e.data=j; e.status=r.status; throw e; } return j;
+}
+
+/* ---------- start ---------- */
+async function boot(){
+  if(!START){ message('Sala não <em>encontrada.</em>','Abra a aula pelo seu Student Hub.',`<a class="btn" href="${HOME}">Voltar</a>`); return; }
+  if(MENTOR ? !KEY : !TOKEN){ message('Faça <em>login.</em>', MENTOR?'Entre no painel do mentor e abra a aula pela aba Aulas.':'Entre no seu Student Hub e abra a aula pela agenda.', `<a class="btn" href="${MENTOR?'/hub/admin/':'/hub/'}">Fazer login</a>`); return; }
+  if(typeof Daily==='undefined'){ message('Sem <em>conexão.</em>','Não foi possível carregar a sala. Verifique sua internet e recarregue a página.',`<button class="btn" onclick="location.reload()">Recarregar</button>`); return; }
+  try{ INFO = await api('join',{start:START}); }
+  catch(e){
+    if(e.code==='early') message('A sala abre <em>em breve.</em>', `Sua aula começa ${esc(fDay(START))} às ${fTime(START)}. A sala abre às ${fTime(e.data.opensAt)}. Deixe esta página aberta e recarregue no horário.`, `<button class="btn" onclick="location.reload()">Recarregar</button><a class="btn ghost" href="${HOME}">Voltar</a>`);
+    else if(e.code==='over') message('Esta aula <em>já terminou.</em>', MENTOR?'Veja o relatório da aula.':'O resumo da aula aparece no seu Student Hub assim que for publicado.', MENTOR?`<a class="btn" href="/aula/relatorio/?s=${encodeURIComponent(START)}">Ver relatório</a>`:`<a class="btn" href="${HOME}">Voltar ao Student Hub</a>`);
+    else if(e.code==='setup') message('Sala ainda <em>não ativada.</em>', e.data.meet?'Hoje a aula acontece pelo link da videochamada.':'A sala ao vivo ainda não foi configurada. Fale com o Luccas no WhatsApp.', e.data.meet?`<a class="btn" href="${esc(e.data.meet)}">Entrar na videochamada</a>`:`<a class="btn ghost" href="${HOME}">Voltar</a>`);
+    else if(e.status===401) message('Sessão <em>expirada.</em>','Faça login de novo.',`<a class="btn" href="${MENTOR?'/hub/admin/':'/hub/'}">Fazer login</a>`);
+    else message('Algo deu <em>errado.</em>','Não foi possível abrir a sala agora. Tente de novo em alguns segundos.',`<button class="btn" onclick="location.reload()">Tentar de novo</button>`);
+    return;
+  }
+  const other = MENTOR ? first(INFO.student.nome) : 'Luccas';
+  $('#preEy').textContent = `Mentoria · Semana ${INFO.week||''}`;
+  $('#preT').innerHTML = `Aula com <em>${esc(other)}.</em>`;
+  $('#preW').textContent = `${cap(fDay(INFO.start))} · ${fTime(INFO.start)} · ${INFO.dur} min`;
+  $('#rTitle').textContent = `Semana ${INFO.week||''} · ${MENTOR?INFO.student.nome:'Luccas Torres'}`;
+  if(MENTOR) $('#preHelp').textContent = 'A transcrição começa quando você entra. Ao encerrar a aula, o relatório é gerado automaticamente.';
+  call = Daily.createCallObject({ subscribeToTracksAutomatically:true });
+  bindCall();
+  show('vPre'); paintPre();
+  try{ await call.startCamera({ url: INFO.url, token: INFO.token }); renderPreview(); }
+  catch{ $('#preHelp').textContent = 'Permita o acesso à câmera e ao microfone no navegador para participar.'; }
+}
+
+function renderPreview(){
+  const p = call.participants().local; const t = p?.tracks?.video;
+  const v = $('#pv');
+  if(camOn && t?.persistentTrack){ if(v.srcObject?.getVideoTracks?.()[0]?.id !== t.persistentTrack.id) v.srcObject = new MediaStream([t.persistentTrack]); v.hidden=false; $('#pvOff').hidden=true; }
+  else { v.hidden=true; $('#pvOff').hidden=false; $('#pvOff').textContent = MENTOR?'L':first(INFO.student.nome).charAt(0); }
+}
+function paintPre(){
+  $('#pMic').innerHTML = micOn?I.mic:I.micOff; $('#pMic').classList.toggle('offst',!micOn);
+  $('#pCam').innerHTML = camOn?I.cam:I.camOff; $('#pCam').classList.toggle('offst',!camOn);
+}
+$('#pMic').onclick=()=>{ micOn=!micOn; call?.setLocalAudio(micOn); paintPre(); };
+$('#pCam').onclick=()=>{ camOn=!camOn; call?.setLocalVideo(camOn); paintPre(); setTimeout(renderPreview,200); };
+
+$('#joinB').onclick = async () => {
+  $('#joinB').disabled = true; $('#joinB').textContent = 'Entrando…';
+  try{
+    await call.join({ url: INFO.url, token: INFO.token, startAudioOff: !micOn, startVideoOff: !camOn });
+  }catch(e){ $('#joinB').disabled=false; $('#joinB').textContent='Entrar na aula'; toast('Não foi possível entrar. Tente de novo.'); return; }
+};
+
+/* ---------- call events ---------- */
+function bindCall(){
+  call.on('joined-meeting', () => {
+    joinedAt = Date.now(); show('room'); paintControls(); renderSide(); updateTiles(); tick(); clockT=setInterval(tick,1000);
+    flushT = setInterval(flush, 15000);
+    if(MENTOR) startTr();
+  });
+  ['participant-joined','participant-updated','participant-left','track-started','track-stopped'].forEach(ev => call.on(ev, (e) => {
+    if(ev==='participant-joined' && e?.participant && !e.participant.local) toast(`${first(e.participant.user_name)} entrou na aula`);
+    if(ev==='participant-left' && e?.participant) toast(`${first(e.participant.user_name)} saiu da aula`);
+    remember(); updateTiles(); if(!$('#vPre').hidden) renderPreview();
+  }));
+  call.on('transcription-started', () => { trOn = true; trTry = 0; paintRec(); });
+  call.on('transcription-stopped', () => { trOn = false; paintRec(); });
+  call.on('transcription-error', (e) => {
+    trOn = false; paintRec();
+    if(!MENTOR || !trWanted) return;
+    trTry++;
+    if(trTry===1) setTimeout(()=>startTr({language:'pt'}), 1500);
+    else if(trTry===2) setTimeout(()=>startTr({language:'multi', model:'nova-3'}), 1500);
+    else toast('A transcrição não iniciou. A aula continua normalmente.');
+  });
+  call.on('transcription-message', (e) => {
+    if(!e?.text) return;
+    const who = PEOPLE[e.participantId] || {};
+    const line = { ts: new Date(e.timestamp).getTime() || Date.now(), pid: e.participantId, uid: who.uid || '', name: who.name || '', text: String(e.text) };
+    BUF.push(line); LOG.push(line); if(LOG.length>400) LOG.shift();
+    appendLine(line);
+  });
+  call.on('local-screen-share-started', () => { sharing = true; paintControls(); });
+  call.on('local-screen-share-stopped', () => { sharing = false; paintControls(); });
+  call.on('left-meeting', () => onLeft());
+  call.on('error', (e) => { message('A conexão <em>caiu.</em>','Recarregue a página para voltar à aula.',`<button class="btn" onclick="location.reload()">Voltar à aula</button>`); });
+}
+function remember(){ const ps = call.participants(); for(const p of Object.values(ps)) PEOPLE[p.session_id] = { uid: p.user_id || '', name: p.user_name || '' }; }
+
+async function startTr(opts){
+  if(!call) return;
+  trWanted = true;
+  try{ await call.startTranscription({ ...INFO.stt, punctuate:true, ...(opts||{}) }); }catch(e){ /* already running or not allowed */ }
+}
+async function stopTr(){ trWanted = false; try{ await call.stopTranscription(); }catch{} }
+
+/* ---------- tiles ---------- */
+function setVideo(el, track){ if(!track){ el.srcObject=null; return; } if(el.srcObject?.getVideoTracks?.()[0]?.id !== track.id) el.srcObject = new MediaStream([track]); }
+function updateTiles(){
+  if(!call) return;
+  const ps = call.participants(); const me = ps.local; const others = Object.values(ps).filter(p=>!p.local);
+  const r = others[0];
+  // my small tile
+  const myV = me?.tracks?.video;
+  if(myV?.state==='playable' && camOn){ setVideo($('#vMe'), myV.persistentTrack); $('#vMe').hidden=false; $('#meOff').hidden=true; }
+  else { $('#vMe').hidden=true; $('#meOff').hidden=false; $('#meOff').textContent = MENTOR?'L':first(INFO.student.nome).charAt(0); }
+  // main stage
+  const main = $('#vMain'), cam2 = $('#pipCam');
+  if(r){
+    const scr = r.tracks?.screenVideo, cam = r.tracks?.video, aud = r.tracks?.audio;
+    if(scr?.state==='playable'){ setVideo(main, scr.persistentTrack); main.classList.add('screen'); main.hidden=false; $('#wait').hidden=true;
+      if(cam?.state==='playable'){ setVideo($('#vCam2'), cam.persistentTrack); cam2.hidden=false; } else cam2.hidden=true; }
+    else if(cam?.state==='playable'){ setVideo(main, cam.persistentTrack); main.classList.remove('screen'); main.hidden=false; $('#wait').hidden=true; cam2.hidden=true; }
+    else { main.hidden=true; cam2.hidden=true; waiting(first(r.user_name), first(r.user_name), 'Câmera desligada'); }
+    const tag = $('#tag'); tag.hidden=false; tag.innerHTML = `${aud?.state==='playable'?'':I.micOff}${esc(r.user_name||'')}`;
+  } else {
+    main.hidden=true; cam2.hidden=true; $('#tag').hidden=true;
+    waiting(MENTOR?first(INFO.student.nome):'Luccas', MENTOR?`Aguardando ${first(INFO.student.nome)}.`:'O Luccas entra em instantes.', 'A sala está aberta.');
+  }
+  // remote audio (call objects do not play audio on their own)
+  const box = $('#audios'); const keep = new Set();
+  for(const p of others){ for(const kind of ['audio','screenAudio']){ const t=p.tracks?.[kind]; if(t?.state==='playable' && t.persistentTrack){ const id=p.session_id+kind; keep.add(id);
+    let a = box.querySelector(`[data-id="${CSS.escape(id)}"]`); if(!a){ a=document.createElement('audio'); a.autoplay=true; a.dataset.id=id; box.appendChild(a); }
+    if(a.srcObject?.getAudioTracks?.()[0]?.id !== t.persistentTrack.id){ a.srcObject = new MediaStream([t.persistentTrack]); a.play().catch(()=>{}); } } } }
+  box.querySelectorAll('audio').forEach(a=>{ if(!keep.has(a.dataset.id)) a.remove(); });
+}
+function waiting(name, title, sub){ $('#wait').hidden=false; $('#waitAv').textContent=String(name||'').charAt(0).toUpperCase(); $('#waitT').textContent=title; $('#waitS').textContent=sub; }
+
+/* ---------- controls ---------- */
+function paintControls(){
+  $('#cMic').innerHTML = micOn?I.mic:I.micOff; $('#cMic').classList.toggle('offst',!micOn);
+  $('#cCam').innerHTML = camOn?I.cam:I.camOff; $('#cCam').classList.toggle('offst',!camOn);
+  $('#cShare').innerHTML = I.share; $('#cShare').classList.toggle('on',sharing); $('#cShare').hidden = !navigator.mediaDevices?.getDisplayMedia;
+  $('#cPanel').innerHTML = I.panel; $('#cPanel').classList.toggle('on',$('#body').classList.contains('panel'));
+  $('#cTr').hidden = !MENTOR; $('#cTr').innerHTML = trWanted?I.tr:I.trOff; $('#cTr').classList.toggle('offst',!trWanted);
+  $('#cLeave').innerHTML = I.leave + (MENTOR?'Encerrar aula':'Sair');
+  paintRec();
+}
+function paintRec(){ $('#rec').classList.toggle('live',trOn); $('#recT').textContent = trOn?'Transcrevendo':'Transcrição pausada'; if(!MENTOR && !trOn) $('#recT').textContent='Transcrição'; }
+$('#cMic').onclick=()=>{ micOn=!micOn; call.setLocalAudio(micOn); paintControls(); };
+$('#cCam').onclick=()=>{ camOn=!camOn; call.setLocalVideo(camOn); paintControls(); setTimeout(updateTiles,300); };
+$('#cShare').onclick=()=>{ if(sharing) call.stopScreenShare(); else call.startScreenShare(); };
+$('#cPanel').onclick=()=>{ $('#body').classList.toggle('panel'); paintControls(); renderSide(); };
+$('#cTr').onclick=async()=>{ if(trWanted){ await stopTr(); toast('Transcrição pausada'); } else { trTry=0; await startTr(); toast('Transcrição retomada'); } paintControls(); };
+$('#cLeave').onclick=async()=>{
+  if(MENTOR && !confirm('Encerrar a aula e gerar o relatório?')) return;
+  ended = true;
+  if(MENTOR) await stopTr();
+  await flush();
+  try{ await call.leave(); }catch{ onLeft(); }
+};
+
+function tick(){
+  const st = new Date(INFO.start).getTime(), from = Date.now() >= st ? st : (joinedAt||Date.now());
+  const s = Math.max(0, Math.floor((Date.now()-from)/1000));
+  $('#clock').textContent = `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')} / ${INFO.dur}:00`;
+  $('#clock').classList.toggle('late', s/60 > INFO.dur - 5);
+}
+
+/* ---------- side panel ---------- */
+function renderSide(){
+  const tabs = [['mat','Materiais']].concat(MENTOR?[['tr','Transcrição']]:[]);
+  $('#stabs').innerHTML = tabs.map(([k,t])=>`<button class="${k===TAB?'on':''}" data-st="${k}">${t}</button>`).join('') + `<button data-st="close" aria-label="Fechar" style="flex:none;width:40px">×</button>`;
+  document.querySelectorAll('[data-st]').forEach(b=>b.onclick=()=>{ if(b.dataset.st==='close'){ $('#body').classList.remove('panel'); paintControls(); return; } TAB=b.dataset.st; renderSide(); });
+  const p = $('#spane');
+  if(TAB==='tr'){
+    p.innerHTML = LOG.length ? '' : '<p class="muted" style="font-size:14px">As falas aparecem aqui conforme a transcrição acontece.</p>';
+    LOG.forEach(appendLine);
+  } else {
+    const m = INFO.material;
+    p.innerHTML = m ? `<span class="ey">Semana ${INFO.week}</span><p style="font-family:var(--serif);font-size:20px;margin:6px 0 14px">${esc(m.title)}</p>${(m.items||[]).map(i=>`<a class="item" href="${esc(fileUrl(i.url))}" target="_blank" rel="noopener">${I.file}<span>${esc(i.label)}</span></a>`).join('') || '<p class="muted" style="font-size:14px">Os materiais desta semana ficam no Student Hub depois da aula.</p>'}` : '<p class="muted" style="font-size:14px">Os materiais desta semana ficam no Student Hub.</p>';
+  }
+}
+function fileUrl(u){ return u.startsWith('/api/hub/file/') && TOKEN && !MENTOR ? u+'?t='+encodeURIComponent(TOKEN) : u; }
+function appendLine(l){
+  const p = $('#spane'); if(TAB!=='tr' || !p) return;
+  if(p.firstElementChild?.classList.contains('muted')) p.innerHTML='';
+  const m = l.uid==='mentor';
+  p.insertAdjacentHTML('beforeend', `<div class="ln"><b class="${m?'m':''}">${esc(m?'Luccas':first(l.name)||'Aluno')}</b><small>${fTime(new Date(l.ts).toISOString())}</small><br>${esc(l.text)}</div>`);
+  p.scrollTop = p.scrollHeight;
+}
+
+/* ---------- transcript upload ---------- */
+async function flush(){
+  if(!BUF.length) return;
+  const lines = BUF.splice(0, BUF.length);
+  try{ await api('lines', { start: START, lines }); }catch{ BUF.unshift(...lines); }
+}
+function beacon(){
+  if(!BUF.length) return;
+  const blob = new Blob([JSON.stringify({ start: START, lines: BUF.splice(0,BUF.length), ...authBody() })], { type:'text/plain' });
+  navigator.sendBeacon('/api/live/lines', blob);
+}
+window.addEventListener('pagehide', beacon);
+document.addEventListener('visibilitychange', () => { if(document.visibilityState==='hidden') beacon(); });
+
+/* ---------- after the class ---------- */
+async function onLeft(){
+  clearInterval(flushT); clearInterval(clockT);
+  await flush();
+  try{ call?.destroy(); }catch{}
+  if(!MENTOR){
+    message('Aula <em>encerrada.</em>', 'Obrigado pela aula. O resumo com as suas perguntas e as tarefas da semana aparece no seu Student Hub assim que o Luccas publicar.', `<a class="btn" href="/hub/#agenda">Voltar ao Student Hub</a>${ended?'':`<button class="btn ghost" onclick="location.reload()">Voltar para a aula</button>`}`);
+    return;
+  }
+  if(!ended){ message('Você saiu <em>da aula.</em>', 'A aula continua aberta. Volte para continuar ou encerre pelo botão Encerrar aula.', `<button class="btn" onclick="location.reload()">Voltar à aula</button>`); return; }
+  message('Gerando o <em>relatório.</em>', 'Estamos lendo a transcrição e montando o relatório da aula. Leva cerca de um minuto.', `<a class="btn ghost" href="/aula/relatorio/?s=${encodeURIComponent(START)}">Abrir relatório</a>`);
+  try{
+    await api('end', { start: START });
+    await fetch('/api/live-report', { method:'POST', headers: headers(), body: JSON.stringify({ start: START }) });
+  }catch{}
+  location.href = `/aula/relatorio/?s=${encodeURIComponent(START)}&wait=1`;
+}
+
+boot();
+</script>
+</body>
+</html>
