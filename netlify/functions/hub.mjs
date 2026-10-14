@@ -286,6 +286,18 @@ export default async (req) => {
       }
       return json({ ok: true, added });
     }
+    // Test class: books a session for a student 5 minutes from now (no 2-hour rule, no e-mails).
+    if (a === "test-class" && method === "POST") {
+      const s = await store.get(`students/${clip(body.id, 40)}`, { type: "json" });
+      if (!s) return json({ error: "nf" }, 404);
+      const d = new Date(Date.now() + 5 * 60000); d.setSeconds(0, 0);
+      const k = d.toISOString();
+      const mine = (await listJSON(store, "slots/")).filter((x) => x.studentId === s.id);
+      const used = new Set(mine.map((x) => x.week));
+      let week = 1; for (let w = 1; w <= WEEKS; w++) if (!used.has(w)) { week = w; break; }
+      await store.setJSON(`slots/${k}`, { start: k, dur: DUR, studentId: s.id, week, test: true, bookedAt: now() });
+      return json({ ok: true, start: k, week });
+    }
     if (a === "slot-cancel" && method === "POST") {
       const sl = await store.get(`slots/${clip(body.start, 40)}`, { type: "json" });
       if (!sl?.studentId) return json({ error: "nf" }, 404);
