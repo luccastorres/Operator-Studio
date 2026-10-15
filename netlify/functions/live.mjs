@@ -71,11 +71,18 @@ export default async (req) => {
     if (!tok.ok || !tok.j.token) return json({ error: "daily", detail: tok.j?.info || tok.status }, 502);
 
     const mat = slot.week ? await store.get(`materials/${slot.week}`, { type: "json" }) : null;
+    // Mentor: PDFs from every week, to present inside the room.
+    const decks = [];
+    if (admin) for (let w = 1; w <= 8; w++) {
+      const m = await store.get(`materials/${w}`, { type: "json" });
+      for (const i of m?.items || []) if (/^\/api\/hub\/file\//.test(i.url) || /\.pdf($|\?)/i.test(i.url)) decks.push({ label: i.label, url: i.url, week: w });
+    }
     return json({
       ok: true, url: room.j.url, token: tok.j.token, role: admin ? "mentor" : "student",
       start: slot.start, dur: slot.dur || DUR, week: slot.week,
       student: { id: student?.id, nome: student?.nome || "", negocio: student?.negocio || "" },
       material: mat ? { title: mat.title, items: (mat.items || []).slice(0, 30) } : null,
+      decks,
       stt: { language: process.env.STT_LANG || "pt-BR", model: process.env.STT_MODEL || "nova-2" },
     });
   }

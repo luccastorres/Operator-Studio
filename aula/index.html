@@ -87,6 +87,18 @@ a{color:inherit}
 .ln b{font-weight:600;font-size:12px;letter-spacing:.04em}
 .ln b.m{color:var(--taupe)}
 .ln small{color:var(--sand);font-size:11px;margin-left:6px}
+.deck{position:absolute;inset:0;z-index:1;background:#E4DFD6;display:flex;align-items:center;justify-content:center;padding:14px}
+.deck canvas{display:block;border-radius:10px;box-shadow:0 10px 30px rgba(21,20,18,.12);background:#fff}
+.dnav{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);display:flex;align-items:center;gap:6px;background:rgba(251,250,247,.96);border:1px solid var(--line);border-radius:999px;padding:5px;z-index:3;font-size:14px}
+.dnav button{width:38px;height:38px;border-radius:50%;font-size:22px;line-height:1}
+.dnav button:hover{background:var(--linen2)}
+.dnav .stop{width:auto;padding:0 14px;font-size:13px;border-radius:999px;background:var(--ink);color:var(--linen)}
+.dnav span{min-width:64px;text-align:center;font-variant-numeric:tabular-nums;color:var(--soft)}
+.pip,.tag{z-index:2}
+.pick{position:fixed;inset:0;z-index:40;background:rgba(21,20,18,.28);display:flex;align-items:flex-end;justify-content:center}
+.pick>div{width:100%;max-width:520px;max-height:80vh;overflow-y:auto;background:var(--linen);border-radius:24px 24px 0 0;padding:22px 18px calc(24px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:10px}
+@media(min-width:700px){.pick{align-items:center}.pick>div{border-radius:24px}}
+.pick .item{cursor:pointer;width:100%;text-align:left}
 .controls{display:flex;justify-content:center;align-items:center;gap:10px;padding:14px 18px calc(14px + env(safe-area-inset-bottom));flex-wrap:wrap}
 .spacer{width:10px}
 .toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:var(--linen);padding:10px 16px;border-radius:999px;font-size:14px;opacity:0;transition:.2s;z-index:30;pointer-events:none;max-width:90vw;text-align:center}
@@ -129,6 +141,8 @@ a{color:inherit}
     <div class="stage" id="stage">
       <video class="main" id="vMain" autoplay playsinline hidden></video>
       <div class="wait" id="wait"><div class="av" id="waitAv"></div><p id="waitT"></p><span class="muted" id="waitS" style="font-size:14px"></span></div>
+      <div class="deck" id="deck" hidden><canvas id="deckC"></canvas>
+        <div class="dnav"><button id="dPrev" aria-label="Anterior">‹</button><span id="dNum"></span><button id="dNext" aria-label="Próxima">›</button><button class="stop" id="dStop">Parar</button></div></div>
       <div class="tag" id="tag" hidden></div>
       <div class="pip pip2" id="pipCam" hidden><video id="vCam2" autoplay playsinline muted></video></div>
       <div class="pip" id="pip"><video class="me" id="vMe" autoplay playsinline muted></video><div class="off" id="meOff" hidden></div></div>
@@ -142,6 +156,7 @@ a{color:inherit}
     <button class="cb" id="cMic" aria-label="Microfone"></button>
     <button class="cb" id="cCam" aria-label="Câmera"></button>
     <button class="cb" id="cShare" aria-label="Compartilhar tela"></button>
+    <button class="cb" id="cPres" aria-label="Apresentar PDF" hidden></button>
     <button class="cb" id="cPanel" aria-label="Materiais e transcrição"></button>
     <button class="cb" id="cTr" aria-label="Pausar transcrição" hidden></button>
     <span class="spacer"></span>
@@ -149,6 +164,7 @@ a{color:inherit}
   </div>
 </div>
 <div class="toast" id="toast"></div>
+<div class="pick" id="pick" hidden><div id="pickIn"></div></div>
 <div id="audios" hidden></div>
 
 <script>
@@ -172,10 +188,12 @@ const I = {
   tr:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 6h16M4 12h10M4 18h7"/><circle cx="18" cy="17" r="3"/></svg>',
   trOff:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 6h16M4 12h7M4 18h7M15 14v6M20 14v6"/></svg>',
   leave:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 17l-5-5 5-5M5 12h11M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4"/></svg>',
+  pres:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M12 16v4M8 20h8M8 9h8M8 12h5"/></svg>',
   file:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/></svg>',
 };
 
 let INFO = null, call = null, micOn = true, camOn = true, sharing = false, trOn = false, trTry = 0, trWanted = true;
+let PRES = null, PDF = null, PDFURL = '', renderTask = null;
 let PEOPLE = {}, BUF = [], LOG = [], TAB = 'mat', joinedAt = 0, ended = false, flushT = null, clockT = null;
 
 function toast(t){ const el=$('#toast'); el.textContent=t; el.classList.add('on'); clearTimeout(toast.t); toast.t=setTimeout(()=>el.classList.remove('on'),2600); }
@@ -257,6 +275,8 @@ function bindCall(){
     if(ev==='participant-left' && e?.participant) toast(`${first(e.participant.user_name)} saiu da aula`);
     remember(); updateTiles(); if(!$('#vPre').hidden) renderPreview();
   }));
+  call.on('app-message', (e) => { const d = e?.data; if(!d || d.os!=='present' || MENTOR) return; PRES = d.url ? { url:d.url, page:d.page||1, pages:PRES?.pages } : null; showDeck(); });
+  if(MENTOR) call.on('participant-joined', (e) => { if(PRES && e?.participant) setTimeout(()=>broadcast(e.participant.session_id), 1200); });
   call.on('transcription-started', () => { trOn = true; trTry = 0; paintRec(); });
   call.on('transcription-stopped', () => { trOn = false; paintRec(); });
   call.on('transcription-error', (e) => {
@@ -306,6 +326,7 @@ function updateTiles(){
       if(cam?.state==='playable'){ setVideo($('#vCam2'), cam.persistentTrack); cam2.hidden=false; } else cam2.hidden=true; }
     else if(cam?.state==='playable'){ setVideo(main, cam.persistentTrack); main.classList.remove('screen'); main.hidden=false; $('#wait').hidden=true; cam2.hidden=true; }
     else { main.hidden=true; cam2.hidden=true; waiting(first(r.user_name), first(r.user_name), 'Câmera desligada'); }
+    if(PRES && cam?.state==='playable' && scr?.state!=='playable'){ setVideo($('#vCam2'), cam.persistentTrack); cam2.hidden=false; }
     const tag = $('#tag'); tag.hidden=false; tag.innerHTML = `${aud?.state==='playable'?'':I.micOff}${esc(r.user_name||'')}`;
   } else {
     main.hidden=true; cam2.hidden=true; $('#tag').hidden=true;
@@ -325,6 +346,7 @@ function paintControls(){
   $('#cMic').innerHTML = micOn?I.mic:I.micOff; $('#cMic').classList.toggle('offst',!micOn);
   $('#cCam').innerHTML = camOn?I.cam:I.camOff; $('#cCam').classList.toggle('offst',!camOn);
   $('#cShare').innerHTML = I.share; $('#cShare').classList.toggle('on',sharing); $('#cShare').hidden = !navigator.mediaDevices?.getDisplayMedia;
+  $('#cPres').hidden = !MENTOR; $('#cPres').innerHTML = I.pres; $('#cPres').classList.toggle('on',!!PRES);
   $('#cPanel').innerHTML = I.panel; $('#cPanel').classList.toggle('on',$('#body').classList.contains('panel'));
   $('#cTr').hidden = !MENTOR; $('#cTr').innerHTML = trWanted?I.tr:I.trOff; $('#cTr').classList.toggle('offst',!trWanted);
   $('#cLeave').innerHTML = I.leave + (MENTOR?'Encerrar aula':'Sair');
@@ -334,6 +356,7 @@ function paintRec(){ $('#rec').classList.toggle('live',trOn); $('#recT').textCon
 $('#cMic').onclick=()=>{ micOn=!micOn; call.setLocalAudio(micOn); paintControls(); };
 $('#cCam').onclick=()=>{ camOn=!camOn; call.setLocalVideo(camOn); paintControls(); setTimeout(updateTiles,300); };
 $('#cShare').onclick=()=>{ if(sharing) call.stopScreenShare(); else call.startScreenShare(); };
+$('#cPres').onclick=()=>{ if(PRES){ stopPres(); } else openPicker(); };
 $('#cPanel').onclick=()=>{ $('#body').classList.toggle('panel'); paintControls(); renderSide(); };
 $('#cTr').onclick=async()=>{ if(trWanted){ await stopTr(); toast('Transcrição pausada'); } else { trTry=0; await startTr(); toast('Transcrição retomada'); } paintControls(); };
 $('#cLeave').onclick=async()=>{
@@ -350,6 +373,67 @@ function tick(){
   $('#clock').textContent = `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')} / ${INFO.dur}:00`;
   $('#clock').classList.toggle('late', s/60 > INFO.dur - 5);
 }
+
+/* ---------- presentation (PDF shown to both, mentor controls) ---------- */
+async function loadPdfLib(){
+  if(window.pdfjsLib) return;
+  await new Promise((res,rej)=>{ const sc=document.createElement('script'); sc.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js'; sc.onload=res; sc.onerror=rej; document.head.appendChild(sc); });
+  pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+}
+async function openPdf(url){
+  if(PDF && PDFURL===url) return PDF;
+  await loadPdfLib();
+  const own = url.startsWith('/api/hub/file/');
+  const r = await fetch(own && !MENTOR ? url+'?t='+encodeURIComponent(TOKEN) : url, { headers: own && MENTOR ? {'x-crm-key':KEY} : {} });
+  if(!r.ok) throw new Error('pdf '+r.status);
+  PDF = await pdfjsLib.getDocument({ data: await r.arrayBuffer() }).promise; PDFURL = url; return PDF;
+}
+async function showDeck(){
+  const d = $('#deck');
+  if(!PRES){ d.hidden = true; updateTiles(); paintControls(); return; }
+  d.hidden = false; $('#dPrev').hidden = $('#dNext').hidden = $('#dStop').hidden = !MENTOR;
+  try{
+    const pdf = await openPdf(PRES.url); PRES.pages = pdf.numPages; PRES.page = Math.min(PRES.page, pdf.numPages);
+    const page = await pdf.getPage(PRES.page);
+    const box = d.getBoundingClientRect(), v1 = page.getViewport({scale:1}), dpr = window.devicePixelRatio||1;
+    const fit = Math.min((box.width-28)/v1.width, (box.height-80)/v1.height);
+    const vp = page.getViewport({ scale: fit*dpr }), c = $('#deckC');
+    c.width = vp.width; c.height = vp.height; c.style.width = (vp.width/dpr)+'px'; c.style.height = (vp.height/dpr)+'px';
+    if(renderTask) renderTask.cancel();
+    renderTask = page.render({ canvasContext: c.getContext('2d'), viewport: vp });
+    await renderTask.promise.catch(()=>{});
+    $('#dNum').textContent = `${PRES.page} / ${PRES.pages}`;
+  }catch(e){ toast('Não foi possível abrir o PDF.'); }
+  updateTiles(); paintControls();
+}
+function broadcast(to){ try{ call.sendAppMessage({ os:'present', url: PRES?.url||null, page: PRES?.page||1 }, to||'*'); }catch{} }
+function setPage(n){ if(!PRES) return; PRES.page = Math.max(1, Math.min(PRES.pages||1, n)); broadcast(); showDeck(); }
+function startPres(url){ closePicker(); PRES = { url, page:1 }; PDF=null; PDFURL=''; broadcast(); showDeck(); }
+function stopPres(){ PRES = null; broadcast(); showDeck(); }
+$('#dPrev').onclick=()=>setPage(PRES.page-1);
+$('#dNext').onclick=()=>setPage(PRES.page+1);
+$('#dStop').onclick=stopPres;
+document.addEventListener('keydown', e=>{ if(!MENTOR || !PRES) return; if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' '){ e.preventDefault(); setPage(PRES.page+1); } if(e.key==='ArrowLeft'||e.key==='PageUp'){ e.preventDefault(); setPage(PRES.page-1); } });
+window.addEventListener('resize', ()=>{ if(PRES) showDeck(); });
+function openPicker(){
+  const list = (INFO.decks||[]);
+  $('#pickIn').innerHTML = `<span class="ey">Apresentar para o aluno</span><p style="font-family:var(--serif);font-size:24px">Escolha o PDF.</p>
+    <p class="muted" style="font-size:14px;line-height:1.5">O aluno vê a mesma página que você, também no celular. Você passa os slides pelas setas.</p>
+    ${list.map((d,i)=>`<button class="item" data-deck="${i}">${I.file}<span>${esc(d.label)}</span><small>S${d.week}</small></button>`).join('') || '<p class="muted" style="font-size:14px">Nenhum PDF nos materiais ainda.</p>'}
+    <label class="btn ghost" style="cursor:pointer">Enviar PDF do computador (até 5 MB)<input type="file" accept="application/pdf" id="pickUp" hidden></label>
+    <button class="btn ghost" id="pickClose">Cancelar</button>`;
+  $('#pick').hidden = false;
+  document.querySelectorAll('[data-deck]').forEach(b=>b.onclick=()=>startPres(list[+b.dataset.deck].url));
+  $('#pickClose').onclick = closePicker;
+  $('#pickUp').onchange = async (e) => { const f = e.target.files[0]; if(!f) return;
+    if(f.size > 5.5*1024*1024){ toast('PDF maior que 5 MB: comprima ou divida o arquivo.'); return; }
+    toast('Enviando o PDF…');
+    const r = await fetch('/api/hub/admin/upload?name='+encodeURIComponent(f.name), { method:'POST', headers:{'x-crm-key':KEY,'content-type':'application/pdf'}, body:f });
+    const j = await r.json().catch(()=>({})); if(!r.ok){ toast('Erro no envio.'); return; }
+    INFO.decks = [...(INFO.decks||[]), { label: f.name.replace(/\.pdf$/i,''), url: j.url, week: INFO.week }]; startPres(j.url); };
+}
+function closePicker(){ $('#pick').hidden = true; }
+$('#pick').onclick = (e) => { if(e.target.id==='pick') closePicker(); };
 
 /* ---------- side panel ---------- */
 function renderSide(){
