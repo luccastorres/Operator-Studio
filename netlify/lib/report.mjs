@@ -78,7 +78,7 @@ Aluno: ${student?.nome || "Aluno"}${student?.negocio ? ` · negócio: ${student.
 Semana ${week || "?"} da mentoria${material ? `: ${material.title}. ${material.summary || ""}` : ""}
 Duração aproximada: ${minutes} minutos
 
-Gere o relatório da aula em português do Brasil, em tom natural e direto (sem frases de IA, sem exageros). Liste TODAS as perguntas e dúvidas do aluno, mesmo as pequenas. Nas tarefas, inclua só o que foi realmente combinado. Use a ferramenta relatorio_aula.
+Gere o relatório da aula em português do Brasil, em tom natural e direto (sem frases de IA, sem exageros). Liste TODAS as perguntas e dúvidas do aluno, mesmo as pequenas. Nas tarefas, inclua só o que foi realmente combinado. Responda chamando a ferramenta relatorio_aula (obrigatório). Se não conseguir usar a ferramenta, responda só com um objeto JSON com os mesmos campos.
 
 <transcricao>
 ${transcript}
@@ -93,15 +93,19 @@ export async function callClaude(input) {
     headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" },
     body: JSON.stringify({
       model: MODEL(), max_tokens: 6000,
-      tools: [TOOL], tool_choice: { type: "tool", name: TOOL.name },
+      tools: [TOOL], tool_choice: { type: "auto" },
       messages: [{ role: "user", content: prompt(input) }],
     }),
   });
   const j = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(`Claude ${res.status}: ${j?.error?.message || "erro"}`);
-  const use = (j.content || []).find((c) => c.type === "tool_use");
-  if (!use) throw new Error("Claude não devolveu o relatório");
-  return { report: use.input, usage: j.usage, model: j.model };
+  const use = (j.content || []).find((c) => c.type === "tool_use" && c.name === TOOL.name);
+  if (use) return { report: use.input, usage: j.usage, model: j.model };
+  // Fallback: the model answered in text. Take the JSON object from it.
+  const txt = (j.content || []).filter((c) => c.type === "text").map((c) => c.text).join("\n");
+  const m = txt.match(/\{[\s\S]*\}/);
+  if (m) { try { return { report: JSON.parse(m[0]), usage: j.usage, model: j.model }; } catch {} }
+  throw new Error("Claude não devolveu o relatório");
 }
 
 export async function buildReport(store, start) {
