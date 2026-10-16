@@ -21,36 +21,34 @@ const offer = (prazo) => `<table role="presentation" width="100%" cellpadding="0
 <p style="margin:0;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#7E7669;">Oferta Brasileiros Inspiradores</p>
 <p style="margin:10px 0 0;font-size:15px;color:#7E7669;text-decoration:line-through;">€1.500</p>
 <p style="margin:2px 0 0;font-family:Georgia,'Times New Roman',serif;font-size:34px;font-weight:700;">€1.000 <span style="font-size:18px;font-weight:400;color:#5F594F;">em 2× de €500</span></p>
-<p style="margin:12px 0 0;font-size:14px;line-height:1.5;color:#5F594F;">Mentoria individual de 8 semanas · turma começa em <b style="color:#151412;">26 de outubro</b>${prazo ? ` · condição válida até <b style="color:#151412;">${esc(prazo)}</b>` : ""}</p>
+<p style="margin:12px 0 0;font-size:14px;line-height:1.5;color:#5F594F;">Mentoria individual de 8 semanas · começa na <b style="color:#151412;">semana do dia 26 de outubro</b>${prazo ? ` · condição válida até <b style="color:#151412;">${esc(prazo)}</b>` : ""}</p>
 </td></tr></table>`;
 
 export function followupEmail(lead, kind, prazo) {
   const n = esc(first(lead.nome)) || "tudo bem";
   if (kind === "faltou") {
     return {
-      subject: `${first(lead.nome) || "Olá"}, a apresentação da sua análise`,
-      html: shell(`<p style="margin:0 0 10px;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#7E7669;">Sua análise</p>
-<h1 style="margin:0 0 20px;font-family:Georgia,'Times New Roman',serif;font-size:30px;line-height:1.15;">Oi, ${n}.</h1>
-${P("Hoje não conseguimos nos falar, mas quero agradecer por ter reservado o seu horário. Imprevistos acontecem.")}
-${P("Preparei a apresentação da análise para você ver com calma: o mapa do que dá para criar no seu negócio, os casos reais e o caminho da mentoria.")}
+      subject: `${first(lead.nome) || "Oi"}, ficou faltando a nossa conversa`,
+      html: shell(`<h1 style="margin:0 0 20px;font-family:Georgia,'Times New Roman',serif;font-size:28px;line-height:1.2;">Oi, ${n}! Tudo bem?</h1>
+${P("Hoje acabou não dando certo da gente se falar, mas sem problema nenhum, acontece com todo mundo. Obrigado por ter reservado o seu horário.")}
+${P("Mesmo assim, quis te mandar a apresentação que eu mostrei nas análises. Dá uma olhada quando tiver um tempinho:")}
 ${button("Ver a apresentação")}
-${P("A próxima turma da Mentoria Operator começa no dia 26 de outubro. São 8 semanas, 1 a 1, e como as sessões são individuais, as vagas são poucas.")}
+${P("Uma coisa importante: a turma da mentoria começa na semana do dia 26 de outubro, e como é tudo individual, 1 a 1 comigo, as vagas são poucas.")}
 ${offer(prazo)}
-${P("Se fizer sentido, a gente remarca a sua análise de 30 minutos ainda antes do início da turma. É só responder este e-mail com um dia e horário que funcionam para você.")}`),
+${P("Se quiser, a gente ainda consegue fazer a sua análise antes disso. Me responde aqui com um dia e horário bons pra você que eu encaixo.")}`),
     };
   }
   return {
-    subject: "Nossa análise de hoje + a turma que começa dia 26",
-    html: shell(`<p style="margin:0 0 10px;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#7E7669;">Obrigado pela conversa</p>
-<h1 style="margin:0 0 20px;font-family:Georgia,'Times New Roman',serif;font-size:30px;line-height:1.15;">Obrigado pelo seu tempo, ${n}.</h1>
-${P("Sei como a agenda de quem empreende é corrida, e foi muito bom conhecer de perto o seu negócio.")}
-${P("Como combinamos, aqui está a apresentação da nossa análise: o mapa do que dá para criar, os casos reais e o caminho da mentoria.")}
+    subject: `${first(lead.nome) || "Oi"}, obrigado pela conversa de hoje`,
+    html: shell(`<h1 style="margin:0 0 20px;font-family:Georgia,'Times New Roman',serif;font-size:28px;line-height:1.2;">Oi, ${n}! Obrigado pelo papo de hoje.</h1>
+${P("Sério, obrigado pelo seu tempo. Sei que a rotina de quem empreende é corrida, e eu curti muito conhecer melhor o seu negócio.")}
+${P("Como prometido, aqui está a apresentação que a gente viu juntos, pra você rever com calma:")}
 ${button("Ver a apresentação")}
-<p style="margin:0 0 16px;font-family:Georgia,'Times New Roman',serif;font-size:22px;line-height:1.3;">A decisão agora é sua.</p>
-${P("A próxima turma da Mentoria Operator começa no dia 26 de outubro. São 8 semanas, 1 a 1, com uma entrega funcionando no seu negócio a cada semana. Como as sessões são individuais, eu abro poucas vagas por turma.")}
+${P("Agora a decisão é sua, e sem pressão. Só queria te deixar por dentro:")}
+${P("A próxima turma da mentoria começa na semana do dia 26 de outubro. São 8 semanas, 1 a 1 comigo, e toda semana sai alguma coisa nova funcionando no seu negócio. Como é tudo individual, eu abro poucas vagas.")}
 ${offer(prazo)}
-${P("Se você quer começar dia 26, é só responder este e-mail. Eu te mando os próximos passos e você já recebe o acesso ao Student Hub.")}
-${P("Daqui a 8 semanas o seu negócio pode estar do mesmo jeito, ou com os sistemas funcionando e mais tempo livre para você. Eu adoraria construir isso junto com você.")}`),
+${P(`Se fizer sentido pra você, é só responder este e-mail que eu te mando os próximos passos e já libero o seu acesso ao Student Hub.`)}
+${P("E se ficou alguma dúvida, me chama. Vou adorar construir isso junto com você.")}`),
   };
 }
 
