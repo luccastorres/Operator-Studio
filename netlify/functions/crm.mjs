@@ -1,5 +1,6 @@
 import { getStore } from "@netlify/blobs";
 import { createHash, randomBytes } from "node:crypto";
+import { followupEmail, sendFollowup } from "../lib/followup.mjs";
 
 // Private CRM API for Operator Studio.
 // Leads = every booking from the site (store "bookings") + leads added by hand.
@@ -139,6 +140,37 @@ export default async (req) => {
         createdAt: new Date().toISOString(),
       });
       return json({ ok: true, id });
+    }
+
+    // Follow-up after the analysis: e-mail with the presentation, the offer and the start date.
+    if (b.action === "followup") {
+      const ids = (Array.isArray(b.ids) ? b.ids : []).slice(0, 60).map((x) => clip(x, 60));
+      const kinds = b.kinds && typeof b.kinds === "object" ? b.kinds : {};
+      const prazo = clip(b.prazo, 40);
+      const getLead = async (id) => {
+        const r = (await bookings.get(id, { type: "json" })) || {};
+        const m = (await crm.get(id, { type: "json" })) || {};
+        const l = { id, ...r, ...m };
+        return l.nome ? l : null;
+      };
+      if (b.preview) {
+        const l = (await getLead(ids[0])) || { id: "x", nome: "Maria" };
+        return json({ ok: true, ...followupEmail(l, kinds[ids[0]] === "faltou" ? "faltou" : "veio", prazo) });
+      }
+      const results = {};
+      for (const id of ids) {
+        const l = await getLead(id);
+        if (!l || !l.email) { results[id] = "no-email"; continue; }
+        const kind = kinds[id] === "faltou" ? "faltou" : "veio";
+        try {
+          results[id] = await sendFollowup(l, kind, prazo);
+          if (results[id] === "sent") {
+            const m = (await crm.get(id, { type: "json" })) || {};
+            await crm.setJSON(id, { ...m, followup: { kind, at: new Date().toISOString() } });
+          }
+        } catch (e) { results[id] = "error"; }
+      }
+      return json({ ok: true, results });
     }
 
     if (b.action === "delete") {

@@ -163,6 +163,7 @@ main{padding:20px 16px 40px;max-width:1440px;margin:0 auto}
     <span class="logo"><b>Operator</b> <i>Studio</i></span>
     <div class="r">
       <button class="iconbtn" id="refresh" aria-label="Atualizar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5"/></svg></button>
+      <button class="btn ghost sm" id="fuBtn">Follow-up</button>
       <button class="btn sm" id="newBtn">+ Lead</button>
     </div>
   </header>
@@ -448,6 +449,61 @@ function newLead(){
   };
 }
 
+/* ---------- follow-up e-mail after the analyses ---------- */
+let FU = { date: '', kinds: {}, sel: {}, prazo: '23 de outubro' };
+function romeToday(){ return new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Rome'}).format(new Date()); }
+function openFollowup(){
+  if(!FU.date) FU.date = romeToday();
+  const list = LEADS.filter(l => (l.slot||'').slice(0,10) === FU.date && l.stage !== 'perdido');
+  list.forEach(l => { if(!(l.id in FU.kinds)) FU.kinds[l.id] = 'veio'; if(!(l.id in FU.sel)) FU.sel[l.id] = !!l.email && !l.followup; });
+  const n = list.filter(l => FU.sel[l.id] && l.email).length;
+  $('#sheet').innerHTML = `<div class="sh">
+    <div style="display:flex;justify-content:space-between;align-items:center"><div><span class="eyebrow">Follow-up</span><h2 style="font-family:var(--serif,Tinos,serif);font-size:30px;margin-top:4px">E-mail com a <em style="color:#7E7669">apresentação.</em></h2></div>
+      <button class="iconbtn" id="close" aria-label="Fechar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <p style="font-size:14px;line-height:1.5;color:#5F594F;margin:10px 0 16px">Cada pessoa recebe o e-mail com o próprio nome, o link da apresentação em PDF, a oferta de €1.000 em 2× de €500 e o início da turma em 26 de outubro. Marque quem não entrou na call: essa pessoa recebe a versão que convida a remarcar.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+      <div class="field" style="flex:1;min-width:150px"><label>Dia das análises</label><input class="in" type="date" id="fuDate" value="${esc(FU.date)}"></div>
+      <div class="field" style="flex:1;min-width:150px"><label>Oferta válida até</label><input class="in" id="fuPrazo" value="${esc(FU.prazo)}"></div>
+    </div>
+    <div class="blk" style="padding:0">${list.length ? list.map(l => `<div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-top:1px solid #D9D3C9">
+        <input type="checkbox" data-fusel="${esc(l.id)}" ${FU.sel[l.id]?'checked':''} ${l.email?'':'disabled'} style="width:20px;height:20px;accent-color:#151412">
+        <div style="flex:1;min-width:0"><b style="font-size:15px">${esc(l.nome)}</b><div style="font-size:13px;color:#7E7669;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(slotLabel(l.slot))} · ${l.email?esc(l.email):'sem e-mail'}${l.followup?` · <span style="color:#4E6B4F">enviado</span>`:''}</div></div>
+        <div style="display:flex;border:1px solid #D9D3C9;border-radius:999px;overflow:hidden;flex:none">${['veio','faltou'].map(k=>`<button data-fuk="${esc(l.id)}" data-k="${k}" style="padding:7px 12px;font-size:13px;${FU.kinds[l.id]===k?'background:#151412;color:#F3F1EC':''}">${k==='veio'?'Veio':'Faltou'}</button>`).join('')}</div>
+      </div>`).join('') : '<p style="padding:16px;color:#7E7669;font-size:14px">Nenhuma análise neste dia.</p>'}</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">
+      <button class="btn" id="fuSend" ${n?'':'disabled'}>Enviar ${n} e-mail${n===1?'':'s'}</button>
+      <button class="btn ghost sm" data-fuprev="veio">Ver e-mail · veio</button>
+      <button class="btn ghost sm" data-fuprev="faltou">Ver e-mail · faltou</button>
+      <a class="btn ghost sm" href="/analise/apresentacao.pdf" target="_blank" rel="noopener">Abrir o PDF</a>
+    </div>
+    <div id="fuPrev" style="margin-top:16px"></div>
+  </div>`;
+  $('#sheet').classList.add('on'); $('#scrim').classList.add('on'); OPEN = null;
+  $('#close').onclick = closeSheet;
+  $('#fuDate').onchange = e => { FU.date = e.target.value; openFollowup(); };
+  $('#fuPrazo').oninput = e => { FU.prazo = e.target.value; };
+  document.querySelectorAll('[data-fusel]').forEach(c => c.onchange = () => { FU.sel[c.dataset.fusel] = c.checked; openFollowup(); });
+  document.querySelectorAll('[data-fuk]').forEach(b => b.onclick = () => { FU.kinds[b.dataset.fuk] = b.dataset.k; openFollowup(); });
+  document.querySelectorAll('[data-fuprev]').forEach(b => b.onclick = async () => {
+    const k = b.dataset.fuprev; const l = list.find(x => FU.kinds[x.id] === k) || list[0];
+    try{ const r = await api('POST', { action:'followup', preview:true, ids:[l?l.id:''], kinds:{[l?l.id:'']:k}, prazo:FU.prazo });
+      $('#fuPrev').innerHTML = `<p style="font-size:13px;color:#7E7669;margin-bottom:6px">Assunto: <b style="color:#151412">${esc(r.subject)}</b></p><iframe style="width:100%;height:640px;border:1px solid #D9D3C9;border-radius:14px;background:#F3F1EC"></iframe>`;
+      $('#fuPrev iframe').srcdoc = r.html; }catch{ toast('Erro na prévia'); }
+  });
+  const sb = $('#fuSend'); if(sb) sb.onclick = async () => {
+    const ids = list.filter(l => FU.sel[l.id] && l.email).map(l => l.id);
+    if(!ids.length) return;
+    if(!confirm(`Enviar o follow-up para ${ids.length} pessoa${ids.length===1?'':'s'}?`)) return;
+    sb.disabled = true; sb.textContent = 'Enviando…';
+    try{ const r = await api('POST', { action:'followup', ids, kinds:FU.kinds, prazo:FU.prazo });
+      const v = Object.values(r.results); const ok = v.filter(x=>x==='sent').length;
+      ids.forEach(id => FU.sel[id] = false);
+      toast(`${ok} e-mail${ok===1?'':'s'} enviado${ok===1?'':'s'}${v.length-ok?` · ${v.length-ok} com problema`:''}`);
+      await load(); openFollowup();
+    }catch{ toast('Erro ao enviar'); sb.disabled = false; }
+  };
+}
+
 function closeSheet(){ OPEN = null; INDIAG = false; $('#sheet').classList.remove('on'); $('#scrim').classList.remove('on'); }
 function toast(t){ const el = $('#toast'); el.textContent = t; el.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(()=>el.classList.remove('on'),1800); }
 
@@ -464,6 +520,7 @@ document.addEventListener('click', e=>{
 $('#scrim').onclick = closeSheet;
 document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeSheet(); });
 $('#refresh').onclick = async()=>{ try{ await load(); toast('Atualizado'); }catch{} };
+$('#fuBtn').onclick = openFollowup;
 $('#newBtn').onclick = newLead;
 document.addEventListener('visibilitychange', ()=>{ if(!document.hidden && KEY) load().catch(()=>{}); });
 
