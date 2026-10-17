@@ -14,6 +14,14 @@ const json = (data, status = 200) =>
 // SHA-256 of the CRM password (the password itself is not stored in the repo).
 // To change it, set CRM_KEY in Netlify env vars, or replace this hash.
 const KEY_HASH = "2acd374aa638baece5951bc661972a3a3f941b082d49683f4064da31d304af8b";
+// Minutes Italy is ahead of UTC on that local date/time.
+function romeOffsetMin(slot) {
+  const guess = new Date(`${slot}:00Z`);
+  const parts = new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Rome", hour12: false, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" }).formatToParts(guess);
+  const g = (t) => +parts.find((x) => x.type === t).value;
+  const asUtc = Date.UTC(g("year"), g("month") - 1, g("day"), g("hour") % 24, g("minute"));
+  return Math.round((asUtc - guess.getTime()) / 60000);
+}
 const sha = (v) => createHash("sha256").update(v).digest("hex");
 
 function authorized(req) {
@@ -140,6 +148,24 @@ export default async (req) => {
         createdAt: new Date().toISOString(),
       });
       return json({ ok: true, id });
+    }
+
+    // Change the analysis time (Italy time, "YYYY-MM-DDTHH:MM").
+    if (b.action === "reslot") {
+      const id = clip(b.id, 60), slot = clip(b.slot, 16);
+      if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(slot)) return json({ error: "slot" }, 400);
+      const rec = await bookings.get(id, { type: "json" });
+      if (rec) {
+        const start = new Date(new Date(`${slot}:00Z`).getTime() - romeOffsetMin(slot) * 60000);
+        // no "tomorrow" reminder when the new time is less than a day away
+        const remindedAt = start - Date.now() < 26 * 3600000 ? "skipped" : null;
+        await bookings.setJSON(id, { ...rec, slot, originalSlot: rec.originalSlot || rec.slot, remindedAt, rescheduledAt: new Date().toISOString() });
+      } else {
+        const m = await crm.get(id, { type: "json" });
+        if (!m) return json({ error: "nf" }, 404);
+        await crm.setJSON(id, { ...m, slot, updatedAt: new Date().toISOString() });
+      }
+      return json({ ok: true, slot });
     }
 
     // Follow-up after the analysis: e-mail with the presentation, the offer and the start date.
