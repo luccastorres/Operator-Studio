@@ -501,6 +501,39 @@ function openImport(l){
   };
 }
 
+/* ---------- Arquivos do cliente ---------- */
+function filesBlock(l){
+  const fs = l.files||[];
+  const kb = n => n>1048576 ? (n/1048576).toFixed(1)+' MB' : Math.max(1,Math.round(n/1024))+' KB';
+  return `<div class="blk" id="fl"><span class="eyebrow">Arquivos</span>
+    ${fs.length?fs.map(f=>`<div class="kv" style="align-items:center"><button class="fopen" data-f="${esc(f.fid)}" data-n="${esc(f.name)}" style="text-align:left;text-decoration:underline;text-underline-offset:3px;font-size:15px">${esc(f.name)}</button><span style="display:flex;gap:10px;align-items:center;white-space:nowrap"><small style="color:#7E7669">${kb(f.size)}</small><button class="fdel" data-f="${esc(f.fid)}" aria-label="Remover" style="color:#7E7669;font-size:18px;line-height:1">×</button></span></div>`).join(''):'<p class="dstat">Relatórios, propostas, contratos. PDF ou imagem, até 5 MB.</p>'}
+    <div class="dgrow"><label class="btn ghost sm" style="cursor:pointer">Adicionar arquivo<input type="file" id="flIn" hidden></label><span class="dstat" id="flInfo"></span></div></div>`;
+}
+function bindFiles(l){
+  const inp = $('#flIn'); if(!inp) return;
+  inp.onchange = async e=>{
+    const f = e.target.files[0]; if(!f) return;
+    if(f.size > 5.5*1024*1024){ toast('Arquivo maior que 5 MB'); return; }
+    $('#flInfo').textContent = 'Enviando…';
+    try{
+      const r = await fetch(`/api/crm-files?id=${encodeURIComponent(l.id)}&name=${encodeURIComponent(f.name)}`, {method:'POST', headers:{'x-crm-key':KEY,'content-type':f.type||'application/octet-stream'}, body:f});
+      if(!r.ok) throw 0; const j = await r.json();
+      l.files = [j.file, ...(l.files||[])]; openLead(l.id, true); toast('Arquivo salvo');
+    }catch{ $('#flInfo').textContent = ''; toast('Erro ao enviar'); }
+  };
+  document.querySelectorAll('#fl .fopen').forEach(b=>b.onclick = async()=>{
+    const w = window.open('', '_blank');
+    try{ const r = await fetch('/api/crm-files/'+b.dataset.f, {headers:{'x-crm-key':KEY}}); if(!r.ok) throw 0;
+      const u = URL.createObjectURL(await r.blob()); if(w) w.location = u; else location.href = u; }
+    catch{ if(w) w.close(); toast('Não consegui abrir'); }
+  });
+  document.querySelectorAll('#fl .fdel').forEach(b=>b.onclick = async()=>{
+    if(b.dataset.arm!=='1'){ b.dataset.arm='1'; b.textContent='remover?'; b.style.fontSize='13px'; setTimeout(()=>{ b.dataset.arm=''; b.textContent='×'; b.style.fontSize='18px'; },2500); return; }
+    try{ await fetch(`/api/crm-files?id=${encodeURIComponent(l.id)}&del=${encodeURIComponent(b.dataset.f)}`, {method:'POST', headers:{'x-crm-key':KEY}});
+      l.files = (l.files||[]).filter(x=>x.fid!==b.dataset.f); openLead(l.id, true); toast('Removido'); }catch{ toast('Erro'); }
+  });
+}
+
 function openLead(id, keep){
   const l = LEADS.find(x=>x.id===id); if(!l) return;
   OPEN = id; INDIAG = false; $('#sheet').oninput = null;
@@ -529,6 +562,7 @@ function openLead(id, keep){
     </div>
     <div class="blk"><span class="eyebrow">Etapa</span><div class="stages">${ORDER.map(s=>`<button class="st ${s===l.stage?'on':''}" data-stage="${s}">${STAGE[s]}</button>`).join('')}</div></div>
     ${callBlock(l)}
+    ${filesBlock(l)}
     ${diagBlock(l)}
     ${wa?`<div class="blk"><span class="eyebrow">Mensagem rápida</span><div class="tpl">${Object.keys(tpl).map(k=>`<a class="btn ghost sm" target="_blank" rel="noopener" href="https://wa.me/${wa}?text=${encodeURIComponent(tpl[k])}">${k}</a>`).join('')}</div></div>`:''}
     <div class="blk">
@@ -540,7 +574,7 @@ function openLead(id, keep){
   if(!keep){ $('#sheet').scrollTop = 0; }
   $('#sheet').classList.add('on'); $('#scrim').classList.add('on');
   $('#close').onclick = closeSheet;
-  bindDiag(l); bindCall(l);
+  bindDiag(l); bindCall(l); bindFiles(l);
   $('#sheet').querySelectorAll('[data-stage]').forEach(b=>b.onclick = async()=>{
     const s = b.dataset.stage; l.stage = s;
     $('#sheet').querySelectorAll('[data-stage]').forEach(x=>x.classList.toggle('on', x===b));
