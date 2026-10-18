@@ -46,6 +46,36 @@ const TOOL = {
   },
 };
 
+// General meeting report (client already in mentoring, project meetings): topics, decisions and actions.
+const MEET = {
+  name: "relatorio_reuniao",
+  description: "Registra o relatório de uma reunião de trabalho com um cliente ou mentorado.",
+  input_schema: {
+    type: "object",
+    properties: {
+      resumo: { type: "string", description: "3 a 5 frases: o que a reunião tratou e o que ficou combinado." },
+      topicos: { type: "array", description: "Os principais assuntos de trabalho, na ordem em que apareceram. Ignore conversa pessoal.",
+        items: { type: "object", properties: { titulo: { type: "string" }, pontos: { type: "array", items: { type: "string" } } }, required: ["titulo", "pontos"] } },
+      decisoes: { type: "array", items: { type: "string" }, description: "O que foi decidido." },
+      acoes_luccas: { type: "array", items: { type: "string" }, description: "Tarefas do Luccas, com prazo se foi dito." },
+      acoes_cliente: { type: "array", items: { type: "string" }, description: "Tarefas do cliente (o que precisa mandar, decidir, fazer)." },
+      ideias: { type: "array", items: { type: "string" }, description: "Ideias e oportunidades que surgiram." },
+      em_aberto: { type: "array", items: { type: "string" }, description: "Pontos que ficaram sem definição." },
+      mensagem_whatsapp: { type: "string", description: "Mensagem curta e leve para o cliente, em nome do Luccas, resumindo os próximos passos." },
+    },
+    required: ["resumo", "topicos", "decisoes", "acoes_luccas", "acoes_cliente", "em_aberto", "mensagem_whatsapp"],
+  },
+};
+const meetPrompt = (lead, text) => `Você é o assistente do Luccas Torres, da Operator Studio (cria sistemas, sites, CRMs, marca e conteúdo com IA e dá mentoria a empresários).
+
+Abaixo está a transcrição automática (Google Meet / Tactiq) de uma reunião de trabalho com ${lead.nome || "um cliente"}${lead.negocio ? ` (${lead.negocio})` : ""}. Pode ter erros de reconhecimento de voz: interprete pelo contexto e não invente nada. O Luccas é o anfitrião.
+
+Gere o relatório da reunião em português do Brasil, tom natural e direto, focado no que foi tratado de trabalho, nas decisões e nas próximas ações de cada lado. Deixe de fora conversa pessoal, fofoca, assuntos de terceiros e qualquer informação sensível ou privada sobre outras pessoas. Responda chamando a ferramenta relatorio_reuniao (obrigatório). Se não conseguir usar a ferramenta, responda só com um objeto JSON com os mesmos campos.
+
+<transcricao>
+${text}
+</transcricao>`;
+
 const prompt = (lead, text) => `Você é o assistente do Luccas Torres, da Operator Studio. A Operator Studio oferece uma mentoria individual de 8 semanas (€1.500, oferta de €1.000 em 2× de €500 para o Brasileiros Inspiradores) que ensina empresários a usar IA, automações, sistemas, website e conteúdo no próprio negócio.
 
 Abaixo está a transcrição automática (Google Meet / Tactiq) de uma análise gratuita de 30 minutos com um potencial cliente. Pode ter erros de reconhecimento de voz: interprete pelo contexto e não invente nada que não esteja na conversa. O Luccas é o anfitrião; a outra pessoa é o cliente.
@@ -81,11 +111,14 @@ export async function buildCallReport(crm, calls, bookings, id) {
     const t = await calls.get(id, { type: "json" });
     if (!t?.text) throw new Error("Transcrição vazia");
     const lead = { ...((await bookings.get(id, { type: "json" })) || {}), ...meta };
-    const out = await callTool(TOOL, prompt(lead, t.text), 6000);
+    const kind = t.kind === "reuniao" ? "reuniao" : "venda";
+    const out = kind === "reuniao" ? await callTool(MEET, meetPrompt(lead, t.text), 8000) : await callTool(TOOL, prompt(lead, t.text), 6000);
     const cur = (await crm.get(id, { type: "json" })) || {};
-    const next = { ...cur, call: { status: "done", report: out.report, at: t.at, updatedAt: new Date().toISOString() } };
-    next.diag = mergeDiag(cur.diag, out.report.ficha || {});
-    if (!cur.stage || cur.stage === "agendado" || cur.stage === "novo") next.stage = "analise";
+    const next = { ...cur, call: { status: "done", kind, report: out.report, at: t.at, updatedAt: new Date().toISOString() } };
+    if (kind === "venda") {
+      next.diag = mergeDiag(cur.diag, out.report.ficha || {});
+      if (!cur.stage || cur.stage === "agendado" || cur.stage === "novo") next.stage = "analise";
+    }
     await crm.setJSON(id, next);
     return "done";
   } catch (e) {

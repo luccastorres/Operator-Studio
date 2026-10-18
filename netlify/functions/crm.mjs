@@ -172,10 +172,10 @@ export default async (req) => {
     if (b.action === "transcript") {
       const id = clip(b.id, 60), text = String(b.text ?? "").trim().slice(0, 150000);
       if (!id || text.length < 200) return json({ error: "short" }, 400);
-      const at = new Date().toISOString();
-      await getStore({ name: "calls", consistency: "strong" }).setJSON(id, { text, at });
+      const at = new Date().toISOString(), kind = b.kind === "reuniao" ? "reuniao" : "venda";
+      await getStore({ name: "calls", consistency: "strong" }).setJSON(id, { text, at, kind });
       const cur = (await crm.get(id, { type: "json" })) || {};
-      await crm.setJSON(id, { ...cur, call: { status: "pending", at, chars: text.length } });
+      await crm.setJSON(id, { ...cur, call: { status: "pending", kind, at, chars: text.length } });
       return json({ ok: true });
     }
     if (b.action === "transcript-get") {

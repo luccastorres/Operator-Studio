@@ -387,6 +387,13 @@ function openDiag(l){
 let CALLPOLL = null;
 function callText(l){
   const r = l.call?.report||{}; const L = [];
+  if(l.call?.kind==='reuniao'){
+    const sec=(t,a)=>{ if(a?.length){ L.push('', t+':'); a.forEach(x=>L.push('• '+x)); } };
+    L.push(`Reunião · ${l.nome}`, '', r.resumo||'');
+    (r.topicos||[]).forEach(tp=>{ L.push('', tp.titulo+':'); (tp.pontos||[]).forEach(x=>L.push('• '+x)); });
+    sec('Decisões', r.decisoes); sec('Próximas ações · Luccas', r.acoes_luccas); sec(`Próximas ações · ${first(l.nome)}`, r.acoes_cliente); sec('Ideias', r.ideias); sec('Em aberto', r.em_aberto);
+    return L.join('\n');
+  }
   L.push(`Análise · ${l.nome}${l.negocio?' ('+l.negocio+')':''}`, '', r.resumo||'');
   if(r.interesse) L.push('', `Interesse: ${r.interesse}${r.interesse_nota?' · '+r.interesse_nota:''}`);
   if(r.perguntas?.length){ L.push('', 'Perguntas:'); r.perguntas.forEach((q,i)=>L.push(`${i+1}. ${q.pergunta}`, `   → ${q.resposta}`)); }
@@ -398,11 +405,20 @@ function callText(l){
 function callBlock(l){
   const c = l.call, wa = waNumber(l.whatsapp);
   const head = `<span class="eyebrow">Relatório da call · Google Meet</span>`;
-  if(!c) return `<div class="blk" id="cr">${head}<p class="dstat">Depois da análise, cole aqui a transcrição do Tactiq e eu monto o relatório, as perguntas e a ficha.</p><div class="dgrow"><button class="btn sm" id="crImp">Importar transcrição</button></div></div>`;
+  if(!c) return `<div class="blk" id="cr">${head}<p class="dstat">Depois da call, cole aqui a transcrição do Tactiq (texto ou PDF). Serve para análise de venda ou para reunião com cliente e mentorado.</p><div class="dgrow"><button class="btn sm" id="crImp">Importar transcrição</button></div></div>`;
   if(c.status==='pending') return `<div class="blk" id="cr">${head}<p class="dstat"><b>Gerando o relatório…</b> leva cerca de 1 minuto. Pode fechar, ele aparece aqui sozinho.</p></div>`;
   if(c.status==='error') return `<div class="blk" id="cr">${head}<p class="dstat">Não deu certo: ${esc(c.error||'erro')}</p><div class="dgrow"><button class="btn sm" id="crRetry">Tentar de novo</button><button class="btn ghost sm" id="crImp">Colar outra transcrição</button></div></div>`;
   const r = c.report||{};
   const list = (t,a)=> a?.length ? `<h4>${t}</h4><ul>${a.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>` : '';
+  const btns = `<div class="dgrow">
+      ${wa&&r.mensagem_whatsapp?`<a class="btn sm" target="_blank" rel="noopener" href="https://wa.me/${wa}?text=${encodeURIComponent(r.mensagem_whatsapp)}">${c.kind==='reuniao'?'Enviar no WhatsApp':'Follow-up no WhatsApp'}</a>`:''}
+      <button class="btn ghost sm" id="crCopy">Copiar relatório</button>
+      <button class="btn ghost sm" id="crImp">Nova transcrição</button></div>`;
+  if(c.kind==='reuniao') return `<div class="blk cr" id="cr"><span class="eyebrow">Relatório da reunião · Google Meet</span>
+    <p>${esc(r.resumo)}</p>
+    ${(r.topicos||[]).map(tp=>list(esc(tp.titulo), tp.pontos)).join('')}
+    ${list('Decisões', r.decisoes)}${list('Próximas ações · Luccas', r.acoes_luccas)}${list('Próximas ações · '+esc(first(l.nome)), r.acoes_cliente)}${list('Ideias', r.ideias)}${list('Em aberto', r.em_aberto)}
+    ${btns}</div>`;
   return `<div class="blk cr" id="cr">${head}
     ${r.interesse?`<div><span class="chip ${esc(r.interesse)}">Interesse ${esc(r.interesse)}</span></div>${r.interesse_nota?`<p class="dstat">${esc(r.interesse_nota)}</p>`:''}`:''}
     <p>${esc(r.resumo)}</p>
@@ -454,6 +470,9 @@ function openImport(l){
       <button class="iconbtn" id="back" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M15 6l-6 6 6 6"/></svg></button></div>
     <div class="blk">
       <p class="dstat">No Tactiq, abra a reunião e toque em <b>Copy</b> (ou baixe o .txt ou o PDF). Cole aqui embaixo ou escolha o arquivo.</p>
+      <div class="field"><label>Tipo de conversa</label><div class="stages" id="txKind">
+        <button type="button" class="st ${l.stage==='cliente'?'':'on'}" data-k="venda">Análise de venda</button>
+        <button type="button" class="st ${l.stage==='cliente'?'on':''}" data-k="reuniao">Reunião / mentoria</button></div></div>
       <textarea class="in tx" id="txIn" placeholder="Cole a transcrição aqui…"></textarea>
       <div class="dgrow"><label class="btn ghost sm" style="cursor:pointer">Escolher arquivo<input type="file" id="txFile" accept=".txt,.vtt,.srt,.md,.pdf,text/plain,application/pdf" hidden></label><span class="dstat" id="txInfo"></span></div>
       <div class="dgrow"><button class="btn" id="txGo">Gerar relatório</button></div>
@@ -461,6 +480,7 @@ function openImport(l){
   $('#sheet').scrollTop = 0;
   const info = ()=>{ const n = $('#txIn').value.trim().length; $('#txInfo').textContent = n ? `${n.toLocaleString('pt-BR')} caracteres` : ''; };
   $('#txIn').oninput = info;
+  $('#txKind').onclick = e=>{ const b = e.target.closest('[data-k]'); if(!b) return; $('#txKind').querySelectorAll('[data-k]').forEach(x=>x.classList.toggle('on', x===b)); };
   $('#txFile').onchange = async e=>{ const f = e.target.files[0]; if(!f) return;
     if(/\.pdf$/i.test(f.name) || f.type==='application/pdf'){
       $('#txInfo').textContent = 'Lendo o PDF…';
@@ -473,8 +493,9 @@ function openImport(l){
     if(text.length < 200){ toast('A transcrição está muito curta'); return; }
     const b = $('#txGo'); b.disabled = true; b.textContent = 'Enviando…';
     try{
-      await api('POST',{action:'transcript', id:l.id, text});
-      l.call = {status:'pending'}; openLead(l.id);
+      const kind = ($('#txKind .on')||{}).dataset?.k || 'venda';
+      await api('POST',{action:'transcript', id:l.id, text, kind});
+      l.call = {status:'pending', kind}; openLead(l.id);
       await startCallReport(l.id);
     }catch{ toast('Erro ao enviar'); b.disabled = false; b.textContent = 'Gerar relatório'; }
   };
