@@ -168,6 +168,21 @@ export default async (req) => {
       return json({ ok: true, slot });
     }
 
+    // Transcript of the analysis call (pasted from Tactiq / Google Meet). The report is built by /api/crm-call.
+    if (b.action === "transcript") {
+      const id = clip(b.id, 60), text = String(b.text ?? "").trim().slice(0, 150000);
+      if (!id || text.length < 200) return json({ error: "short" }, 400);
+      const at = new Date().toISOString();
+      await getStore({ name: "calls", consistency: "strong" }).setJSON(id, { text, at });
+      const cur = (await crm.get(id, { type: "json" })) || {};
+      await crm.setJSON(id, { ...cur, call: { status: "pending", at, chars: text.length } });
+      return json({ ok: true });
+    }
+    if (b.action === "transcript-get") {
+      const t = await getStore({ name: "calls", consistency: "strong" }).get(clip(b.id, 60), { type: "json" });
+      return json({ ok: true, text: t?.text || "" });
+    }
+
     // Follow-up after the analysis: e-mail with the presentation, the offer and the start date.
     if (b.action === "followup") {
       const ids = (Array.isArray(b.ids) ? b.ids : []).slice(0, 60).map((x) => clip(x, 60));

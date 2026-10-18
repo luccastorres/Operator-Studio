@@ -130,6 +130,13 @@ main{padding:20px 16px 40px;max-width:1440px;margin:0 auto}
 .ans{display:flex;flex-direction:column;gap:12px;border-top:1px solid var(--line);padding-top:12px}
 .ans div span{display:block;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--taupe);margin-bottom:3px}
 .ans div p{font-size:15px;line-height:1.45}
+.cr h4{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--taupe);font-weight:500;margin:4px 0 4px}
+.cr p,.cr li{font-size:15px;line-height:1.5}
+.cr ol,.cr ul{padding-left:18px;display:flex;flex-direction:column;gap:8px}
+.cr li small{display:block;color:var(--soft);font-size:14px;margin-top:2px}
+.chip{display:inline-block;font-size:12px;padding:4px 10px;border-radius:999px;background:#F3F1EC;border:1px solid var(--line)}
+.chip.alto{background:#E4EDE2;border-color:#C4D6C0}.chip.baixo{background:#F3E5E1;border-color:#E2C9C1}
+.tx{width:100%;min-height:260px;font-size:14px;line-height:1.45}
 .seg{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
 .seg button{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:9px 0;font-size:15px}
 .seg button.on{background:var(--ink);color:var(--linen);border-color:var(--ink)}
@@ -376,6 +383,85 @@ function openDiag(l){
   };
 }
 
+/* ---------- Relatório da call (transcrição do Google Meet / Tactiq) ---------- */
+let CALLPOLL = null;
+function callText(l){
+  const r = l.call?.report||{}; const L = [];
+  L.push(`Análise · ${l.nome}${l.negocio?' ('+l.negocio+')':''}`, '', r.resumo||'');
+  if(r.interesse) L.push('', `Interesse: ${r.interesse}${r.interesse_nota?' · '+r.interesse_nota:''}`);
+  if(r.perguntas?.length){ L.push('', 'Perguntas:'); r.perguntas.forEach((q,i)=>L.push(`${i+1}. ${q.pergunta}`, `   → ${q.resposta}`)); }
+  if(r.dores?.length){ L.push('', 'Dores:'); r.dores.forEach(x=>L.push('• '+x)); }
+  if(r.objecoes?.length){ L.push('', 'Objeções:'); r.objecoes.forEach(x=>L.push('• '+x)); }
+  if(r.proximo_passo) L.push('', 'Próximo passo: '+r.proximo_passo);
+  return L.join('\n');
+}
+function callBlock(l){
+  const c = l.call, wa = waNumber(l.whatsapp);
+  const head = `<span class="eyebrow">Relatório da call · Google Meet</span>`;
+  if(!c) return `<div class="blk" id="cr">${head}<p class="dstat">Depois da análise, cole aqui a transcrição do Tactiq e eu monto o relatório, as perguntas e a ficha.</p><div class="dgrow"><button class="btn sm" id="crImp">Importar transcrição</button></div></div>`;
+  if(c.status==='pending') return `<div class="blk" id="cr">${head}<p class="dstat"><b>Gerando o relatório…</b> leva cerca de 1 minuto. Pode fechar, ele aparece aqui sozinho.</p></div>`;
+  if(c.status==='error') return `<div class="blk" id="cr">${head}<p class="dstat">Não deu certo: ${esc(c.error||'erro')}</p><div class="dgrow"><button class="btn sm" id="crRetry">Tentar de novo</button><button class="btn ghost sm" id="crImp">Colar outra transcrição</button></div></div>`;
+  const r = c.report||{};
+  const list = (t,a)=> a?.length ? `<h4>${t}</h4><ul>${a.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>` : '';
+  return `<div class="blk cr" id="cr">${head}
+    ${r.interesse?`<div><span class="chip ${esc(r.interesse)}">Interesse ${esc(r.interesse)}</span></div>${r.interesse_nota?`<p class="dstat">${esc(r.interesse_nota)}</p>`:''}`:''}
+    <p>${esc(r.resumo)}</p>
+    ${r.perguntas?.length?`<h4>Perguntas (${r.perguntas.length})</h4><ol>${r.perguntas.map(q=>`<li>${esc(q.pergunta)}<small>${esc(q.resposta)}</small></li>`).join('')}</ol>`:''}
+    ${list('Dores', r.dores)}${list('Objeções', r.objecoes)}
+    ${r.proximo_passo?`<h4>Próximo passo</h4><p>${esc(r.proximo_passo)}</p>`:''}
+    <p class="dstat">A ficha da análise foi preenchida com o que apareceu na conversa (só os campos vazios).</p>
+    <div class="dgrow">
+      ${wa&&r.mensagem_whatsapp?`<a class="btn sm" target="_blank" rel="noopener" href="https://wa.me/${wa}?text=${encodeURIComponent(r.mensagem_whatsapp)}">Follow-up no WhatsApp</a>`:''}
+      <button class="btn ghost sm" id="crCopy">Copiar relatório</button>
+      <button class="btn ghost sm" id="crImp">Nova transcrição</button>
+    </div></div>`;
+}
+async function startCallReport(id){
+  await fetch('/api/crm-call', {method:'POST', headers:{'x-crm-key':KEY,'content-type':'application/json'}, body: JSON.stringify({id})});
+  pollCall(id);
+}
+function pollCall(id){
+  clearInterval(CALLPOLL); let n = 0;
+  CALLPOLL = setInterval(async()=>{
+    n++; try{ await load(); }catch{}
+    const l = LEADS.find(x=>x.id===id);
+    if(!l || l.call?.status!=='pending' || n>40){ clearInterval(CALLPOLL); CALLPOLL = null; if(l?.call?.status==='done') toast('Relatório pronto'); }
+  }, 6000);
+}
+function bindCall(l){
+  const imp = $('#crImp'); if(imp) imp.onclick = ()=>openImport(l);
+  const rt = $('#crRetry'); if(rt) rt.onclick = async()=>{ l.call = {status:'pending'}; openLead(l.id, true); try{ await startCallReport(l.id); }catch{ toast('Erro'); } };
+  const cp = $('#crCopy'); if(cp) cp.onclick = async()=>{ try{ await navigator.clipboard.writeText(callText(l)); toast('Relatório copiado'); }catch{ prompt('Copie:', callText(l)); } };
+  if(l.call?.status==='pending' && !CALLPOLL) pollCall(l.id);
+}
+function openImport(l){
+  INDIAG = true;
+  $('#sheet').innerHTML = `<div class="grab"></div>
+    <div class="sh-head"><div><span class="eyebrow">Importar transcrição</span><h3>${esc(l.nome)}</h3><p>Google Meet · Tactiq</p></div>
+      <button class="iconbtn" id="back" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M15 6l-6 6 6 6"/></svg></button></div>
+    <div class="blk">
+      <p class="dstat">No Tactiq, abra a reunião e toque em <b>Copy</b> (ou baixe o .txt). Cole aqui embaixo ou escolha o arquivo.</p>
+      <textarea class="in tx" id="txIn" placeholder="Cole a transcrição aqui…"></textarea>
+      <div class="dgrow"><label class="btn ghost sm" style="cursor:pointer">Escolher arquivo<input type="file" id="txFile" accept=".txt,.vtt,.srt,.md,text/plain" hidden></label><span class="dstat" id="txInfo"></span></div>
+      <div class="dgrow"><button class="btn" id="txGo">Gerar relatório</button></div>
+    </div>`;
+  $('#sheet').scrollTop = 0;
+  const info = ()=>{ const n = $('#txIn').value.trim().length; $('#txInfo').textContent = n ? `${n.toLocaleString('pt-BR')} caracteres` : ''; };
+  $('#txIn').oninput = info;
+  $('#txFile').onchange = async e=>{ const f = e.target.files[0]; if(!f) return; $('#txIn').value = await f.text(); info(); };
+  $('#back').onclick = ()=>openLead(l.id);
+  $('#txGo').onclick = async()=>{
+    const text = $('#txIn').value.trim();
+    if(text.length < 200){ toast('A transcrição está muito curta'); return; }
+    const b = $('#txGo'); b.disabled = true; b.textContent = 'Enviando…';
+    try{
+      await api('POST',{action:'transcript', id:l.id, text});
+      l.call = {status:'pending'}; openLead(l.id);
+      await startCallReport(l.id);
+    }catch{ toast('Erro ao enviar'); b.disabled = false; b.textContent = 'Gerar relatório'; }
+  };
+}
+
 function openLead(id, keep){
   const l = LEADS.find(x=>x.id===id); if(!l) return;
   OPEN = id; INDIAG = false; $('#sheet').oninput = null;
@@ -403,6 +489,7 @@ function openLead(id, keep){
       ${l.desafio?`<span class="eyebrow" style="margin-top:4px">O que mais toma o tempo</span><p class="quote">“${esc(l.desafio)}”</p>`:''}
     </div>
     <div class="blk"><span class="eyebrow">Etapa</span><div class="stages">${ORDER.map(s=>`<button class="st ${s===l.stage?'on':''}" data-stage="${s}">${STAGE[s]}</button>`).join('')}</div></div>
+    ${callBlock(l)}
     ${diagBlock(l)}
     ${wa?`<div class="blk"><span class="eyebrow">Mensagem rápida</span><div class="tpl">${Object.keys(tpl).map(k=>`<a class="btn ghost sm" target="_blank" rel="noopener" href="https://wa.me/${wa}?text=${encodeURIComponent(tpl[k])}">${k}</a>`).join('')}</div></div>`:''}
     <div class="blk">
@@ -414,7 +501,7 @@ function openLead(id, keep){
   if(!keep){ $('#sheet').scrollTop = 0; }
   $('#sheet').classList.add('on'); $('#scrim').classList.add('on');
   $('#close').onclick = closeSheet;
-  bindDiag(l);
+  bindDiag(l); bindCall(l);
   $('#sheet').querySelectorAll('[data-stage]').forEach(b=>b.onclick = async()=>{
     const s = b.dataset.stage; l.stage = s;
     $('#sheet').querySelectorAll('[data-stage]').forEach(x=>x.classList.toggle('on', x===b));

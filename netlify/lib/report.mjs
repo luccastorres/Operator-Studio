@@ -85,28 +85,30 @@ ${transcript}
 </transcricao>`;
 }
 
-export async function callClaude(input) {
+// Calls Claude with one tool; returns the tool input (or a JSON object from the text as fallback).
+export async function callTool(tool, content, maxTokens = 6000) {
   const key = process.env.ANTHROPIC_API_KEY;
   if (!key) throw new Error("ANTHROPIC_API_KEY ausente");
   const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" },
     body: JSON.stringify({
-      model: MODEL(), max_tokens: 6000,
-      tools: [TOOL], tool_choice: { type: "auto" },
-      messages: [{ role: "user", content: prompt(input) }],
+      model: MODEL(), max_tokens: maxTokens,
+      tools: [tool], tool_choice: { type: "auto" },
+      messages: [{ role: "user", content }],
     }),
   });
   const j = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(`Claude ${res.status}: ${j?.error?.message || "erro"}`);
-  const use = (j.content || []).find((c) => c.type === "tool_use" && c.name === TOOL.name);
+  const use = (j.content || []).find((c) => c.type === "tool_use" && c.name === tool.name);
   if (use) return { report: use.input, usage: j.usage, model: j.model };
-  // Fallback: the model answered in text. Take the JSON object from it.
   const txt = (j.content || []).filter((c) => c.type === "text").map((c) => c.text).join("\n");
   const m = txt.match(/\{[\s\S]*\}/);
   if (m) { try { return { report: JSON.parse(m[0]), usage: j.usage, model: j.model }; } catch {} }
   throw new Error("Claude não devolveu o relatório");
 }
+
+export const callClaude = (input) => callTool(TOOL, prompt(input));
 
 export async function buildReport(store, start) {
   const prev = (await store.get(`reports/${start}`, { type: "json" })) || {};
