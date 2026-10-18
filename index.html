@@ -860,12 +860,15 @@ function renderDiag(){
 
 
 /* ---------- booking ---------- */
-const BDAYS=[{d:'2026-10-16',pt:['Sex','16 out'],en:['Fri','16 Oct']},{d:'2026-10-17',pt:['Sáb','17 out'],en:['Sat','17 Oct']},{d:'2026-10-18',pt:['Dom','18 out'],en:['Sun','18 Oct']}];
-const BTIMES=['10:00','10:30','11:00','11:30','12:00','12:30','13:00','13:30'];
+let BDAYS=[],SLOTS=[];
 let booked=new Set(),bDay=0,bSlot=null,full=false,waitDone=false;
 const daysEl=document.getElementById('days'),slotsEl=document.getElementById('slots');
 const form=document.getElementById('lead'),fst=document.getElementById('f-status'),fsend=document.getElementById('f-send');
-const slotDate=k=>new Date(k+':00+02:00');
+function romeOff(k){const g=new Date(k+':00Z');const p=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Rome',hourCycle:'h23',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).formatToParts(g);const v=t=>+p.find(x=>x.type===t).value;return (Date.UTC(v('year'),v('month')-1,v('day'),v('hour'),v('minute'))-g.getTime())/60000}
+const slotDate=k=>new Date(Date.parse(k+':00Z')-romeOff(k)*60000);
+function buildDays(){const by={};SLOTS.forEach(k=>{(by[k.slice(0,10)]=by[k.slice(0,10)]||[]).push(k.slice(11))});
+  const DW={pt:['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'],en:['Sun','Mon','Tue','Wed','Thu','Fri','Sat']},MO={pt:['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'],en:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']};
+  BDAYS=Object.keys(by).sort().map(d=>{const dt=new Date(d+'T12:00:00Z'),dw=dt.getUTCDay(),dd=+d.slice(8,10),mm=+d.slice(5,7)-1;return {d,times:by[d].sort(),pt:[DW.pt[dw],dd+' '+MO.pt[mm]],en:[DW.en[dw],dd+' '+MO.en[mm]]}})}
 const isOpen=k=>!full&&!booked.has(k)&&slotDate(k)>new Date();
 function renderBooking(){
   if(full){
@@ -874,22 +877,23 @@ function renderBooking(){
     const sideP=document.querySelector('[data-i="ctP"]'),h2a=document.querySelector('[data-i="ctH2a"]'),h2b=document.querySelector('[data-i="ctH2b"]');
     let tag=document.getElementById('full-tag');
     if(!tag){tag=document.createElement('span');tag.id='full-tag';tag.style.cssText='display:inline-flex;width:fit-content;align-self:flex-start;align-items:center;gap:10px;margin-top:18px;background:#151412;color:#F3F1EC;padding:9px 18px;border-radius:999px;font-size:13px;letter-spacing:.16em;text-transform:uppercase';h2a.parentElement.before(tag)}
-    tag.innerHTML='<i style="width:9px;height:9px;border-radius:50%;background:#C9A36A;box-shadow:0 0 0 5px rgba(201,163,106,.25)"></i>'+T('10 de 10 vagas reservadas','10 of 10 spots booked');
+    tag.innerHTML='<i style="width:9px;height:9px;border-radius:50%;background:#C9A36A;box-shadow:0 0 0 5px rgba(201,163,106,.25)"></i>'+T('Agenda completa','Fully booked');
     h2a.textContent=T('Agenda completa.','Fully booked.');h2b.textContent=T('Entre na nossa lista de espera.','Join our waiting list.');
-    sideP.textContent=T('As 10 análises gratuitas foram reservadas. Deixe seu contato e eu te chamo assim que abrir uma nova agenda.','All 10 free analyses are booked. Leave your details and I will reach out as soon as a new round opens.');
+    sideP.textContent=T('Todos os horários desta rodada foram reservados. Deixe seu contato e eu te chamo assim que abrir uma nova agenda.','All times in this round are booked. Leave your details and I will reach out as soon as a new round opens.');
     fsend.textContent=T('Entrar na lista de espera','Join the waitlist');
     return}
   daysEl.innerHTML='';
-  BDAYS.forEach((d,i)=>{const free=BTIMES.filter(t=>isOpen(d.d+'T'+t)).length;const b=document.createElement('button');b.type='button';b.className='day';b.setAttribute('aria-pressed',i===bDay);
-    const l=lang==='pt'?d.pt:d.en;b.innerHTML='<small>'+l[0]+'</small><b>'+l[1]+'</b><small>'+free+T(' livres',' open')+'</small>';
+  if(bDay>=BDAYS.length)bDay=0;
+  BDAYS.forEach((d,i)=>{const free=d.times.filter(t=>isOpen(d.d+'T'+t)).length;const b=document.createElement('button');b.type='button';b.className='day';b.setAttribute('aria-pressed',i===bDay);
+    const l=lang==='pt'?d.pt:d.en;b.innerHTML='<small>'+l[0]+'</small><b>'+l[1]+'</b><small>'+free+(free===1?T(' livre',' open'):T(' livres',' open'))+'</small>';
     b.onclick=()=>{bDay=i;bSlot=null;renderBooking()};daysEl.appendChild(b)});
   slotsEl.innerHTML='';
-  BTIMES.forEach(t=>{const k=BDAYS[bDay].d+'T'+t;const b=document.createElement('button');b.type='button';b.className='slot-b';b.textContent=t;b.disabled=!isOpen(k);b.setAttribute('aria-pressed',bSlot===k);
+  (BDAYS[bDay]?BDAYS[bDay].times:[]).forEach(t=>{const k=BDAYS[bDay].d+'T'+t;const b=document.createElement('button');b.type='button';b.className='slot-b';b.textContent=t;b.disabled=!isOpen(k);b.setAttribute('aria-pressed',bSlot===k);
     b.onclick=()=>{bSlot=k;renderBooking()};slotsEl.appendChild(b)});
 }
-function loadBooked(){return fetch('/api/booking',{cache:'no-store'}).then(r=>r.ok?r.json():{booked:[]}).then(j=>{booked=new Set(j.booked||[]);full=!!j.full;if(bSlot&&!isOpen(bSlot))bSlot=null;renderBooking()}).catch(()=>{})}
+function loadBooked(){return fetch('/api/booking',{cache:'no-store'}).then(r=>r.ok?r.json():{booked:[]}).then(j=>{booked=new Set(j.booked||[]);SLOTS=j.slots||[];buildDays();full=!!j.full;if(bSlot&&!isOpen(bSlot))bSlot=null;renderBooking()}).catch(()=>{})}
 loadBooked();
-function slotLabel(k){const d=BDAYS.find(x=>k.startsWith(x.d));const l=lang==='pt'?d.pt:d.en;return l[0]+' '+l[1]+' · '+k.slice(11)}
+function slotLabel(k){const d=BDAYS.find(x=>k.startsWith(x.d))||{pt:['',k.slice(0,10)],en:['',k.slice(0,10)]};const l=lang==='pt'?d.pt:d.en;return l[0]+' '+l[1]+' · '+k.slice(11)}
 function gcal(k){const st=slotDate(k),en=new Date(st.getTime()+30*60000);const f=x=>x.toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,'');
   return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent('Operator Studio · Análise gratuita')+'&dates='+f(st)+'/'+f(en)+'&details='+encodeURIComponent('Análise de 30 minutos com Luccas Torres. O link da videochamada chega pelo WhatsApp.')}
 form.addEventListener('submit',e=>{

@@ -1,19 +1,21 @@
 import { getStore } from "@netlify/blobs";
-import { processBooking } from "../lib/notify.mjs";
+import { processBooking, romeToUtc } from "../lib/notify.mjs";
 
-const DAYS = ["2026-10-16", "2026-10-17", "2026-10-18"];
-const TIMES = ["10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30"];
-const VALID = new Set(DAYS.flatMap((d) => TIMES.map((t) => `${d}T${t}`)));
-const CAP = 10; // total analyses offered; booking closes when reached
+// Open analysis times (Italy time, "YYYY-MM-DDTHH:MM") are set in the CRM (Agenda) and kept in store "booking-config", key "cfg".
+// The agenda is "full" (waitlist form) when no future open time is left.
 const clip = (v, n) => String(v ?? "").trim().slice(0, n);
 
 export default async (req, context) => {
   const store = getStore({ name: "bookings", consistency: "strong" });
 
+  const cfg = (await getStore({ name: "booking-config", consistency: "strong" }).get("cfg", { type: "json" })) || { slots: [] };
+  const future = (cfg.slots || []).filter((k) => romeToUtc(k) > new Date()).sort();
+
   if (req.method === "GET") {
     const { blobs } = await store.list();
+    const booked = new Set(blobs.map((b) => b.key));
     return Response.json(
-      { booked: blobs.map((b) => b.key), full: blobs.length >= CAP },
+      { slots: future, booked: [...booked], full: !future.some((k) => !booked.has(k)) },
       { headers: { "cache-control": "no-store" } }
     );
   }
@@ -42,13 +44,10 @@ export default async (req, context) => {
     const slot = clip(body.slot, 20);
     const nome = clip(body.nome, 120);
     const whatsapp = clip(body.whatsapp, 40);
-    if (!VALID.has(slot) || !nome || !whatsapp) {
+    if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(slot) || !nome || !whatsapp) {
       return Response.json({ error: "invalid" }, { status: 400 });
     }
-    // Milan is UTC+2 on these dates (summer time until 25 Oct 2026)
-    if (new Date(`${slot}:00+02:00`) < new Date()) {
-      return Response.json({ error: "past" }, { status: 400 });
-    }
+    if (!future.includes(slot)) return Response.json({ error: "past" }, { status: 400 });
     const record = {
       slot,
       nome,
@@ -59,8 +58,6 @@ export default async (req, context) => {
       desafio: clip(body.desafio, 1000),
       createdAt: new Date().toISOString(),
     };
-    const { blobs: existing } = await store.list();
-    if (existing.length >= CAP) return Response.json({ error: "full" }, { status: 409 });
     const { modified } = await store.setJSON(slot, record, { onlyIfNew: true });
     if (!modified) return Response.json({ error: "taken" }, { status: 409 });
     // confirmation email + Google Meet, sent in the background

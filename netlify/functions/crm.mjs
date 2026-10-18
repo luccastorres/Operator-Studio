@@ -169,6 +169,25 @@ export default async (req) => {
       return json({ ok: true, slot });
     }
 
+    // Agenda of the free 30-minute analyses (Italy time). Read by /api/booking and the site.
+    if (b.action && b.action.startsWith("agenda")) {
+      const cs = getStore({ name: "booking-config", consistency: "strong" });
+      const cfg = (await cs.get("cfg", { type: "json" })) || { slots: [] };
+      const ok = (k) => /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(k);
+      let slots = new Set(cfg.slots || []);
+      if (b.action === "agenda-add") (Array.isArray(b.slots) ? b.slots : []).slice(0, 300).filter(ok).forEach((k) => slots.add(k));
+      if (b.action === "agenda-remove") (Array.isArray(b.slots) ? b.slots : []).forEach((k) => slots.delete(k));
+      if (b.action !== "agenda-get") {
+        const keep = [...slots].filter((k) => romeOffsetMin(k) !== null && new Date(new Date(`${k}:00Z`).getTime() - romeOffsetMin(k) * 60000) > Date.now() - 86400000).sort();
+        await cs.setJSON("cfg", { slots: keep, updatedAt: new Date().toISOString() });
+        slots = new Set(keep);
+      }
+      const { blobs } = await bookings.list();
+      const booked = {};
+      await Promise.all(blobs.map(async (x) => { const r = await bookings.get(x.key, { type: "json" }); booked[x.key] = r?.nome || "Reservado"; }));
+      return json({ ok: true, slots: [...slots].sort(), booked });
+    }
+
     // Transcript of the analysis call (pasted from Tactiq / Google Meet). The report is built by /api/crm-call.
     if (b.action === "transcript") {
       const id = clip(b.id, 60), text = String(b.text ?? "").trim().slice(0, 150000);

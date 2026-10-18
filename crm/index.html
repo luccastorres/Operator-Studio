@@ -170,6 +170,7 @@ main{padding:20px 16px 40px;max-width:1440px;margin:0 auto}
     <span class="logo"><b>Operator</b> <i>Studio</i></span>
     <div class="r">
       <button class="iconbtn" id="refresh" aria-label="Atualizar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5"/></svg></button>
+      <button class="btn ghost sm" id="agBtn">Agenda</button>
       <button class="btn ghost sm" id="fuBtn">Follow-up</button>
       <button class="btn sm" id="newBtn">+ Lead</button>
     </div>
@@ -202,7 +203,8 @@ const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const store = {get(k){try{return localStorage.getItem(k)}catch{return null}},set(k,v){try{localStorage.setItem(k,v)}catch{}},del(k){try{localStorage.removeItem(k)}catch{}}};
 
-function slotDate(s){ if(!s) return null; const d = new Date(s.slice(0,16)+':00+02:00'); return isNaN(d) ? null : d; }
+function romeOff(k){ const g = new Date(k+':00Z'); const p = new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Rome',hourCycle:'h23',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).formatToParts(g); const v = t => +p.find(x=>x.type===t).value; return (Date.UTC(v('year'),v('month')-1,v('day'),v('hour'),v('minute'))-g.getTime())/60000; }
+function slotDate(s){ if(!s) return null; const k = s.slice(0,16); const t = Date.parse(k+':00Z'); if(isNaN(t)) return null; return new Date(t - romeOff(k)*60000); }
 function slotLabel(s){ const d = slotDate(s); if(!d) return ''; const p = new Intl.DateTimeFormat('pt-BR',{timeZone:'Europe/Rome',weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}).formatToParts(d); const g = t => (p.find(x=>x.type===t)||{}).value||''; return `${DOW[new Date(s.slice(0,10)+'T12:00:00Z').getUTCDay()]} ${g('day')} ${MON[+s.slice(5,7)-1]} · ${g('hour')}:${g('minute')}`; }
 function waNumber(raw){ let d = String(raw||'').replace(/[^\d+]/g,''); if(d.startsWith('+')) return d.slice(1); if(d.startsWith('00')) return d.slice(2); if(/^3\d{8,9}$/.test(d)) return '39'+d; return d; }
 function first(n){ return String(n||'').trim().split(/\s+/)[0]; }
@@ -634,6 +636,58 @@ function newLead(){
 /* ---------- follow-up e-mail after the analyses ---------- */
 let FU = { date: '', kinds: {}, sel: {}, prazo: '23 de outubro' };
 function romeToday(){ return new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Rome'}).format(new Date()); }
+/* ---------- Agenda das análises (horário da Itália) ---------- */
+let AG = { slots: [], booked: {}, dows: [1,2,3,4,5] };
+const AGT = ['10:00','10:30','11:00','11:30','12:00','12:30','13:00','13:30'];
+async function openAgenda(load=true){
+  INDIAG = true; OPEN = null;
+  if(load){ try{ const r = await api('POST',{action:'agenda-get'}); AG.slots = r.slots; AG.booked = r.booked; }catch{ toast('Erro ao carregar'); } }
+  const now = Date.now();
+  const fut = AG.slots.filter(k => slotDate(k) > now);
+  const by = {}; fut.forEach(k => (by[k.slice(0,10)] = by[k.slice(0,10)] || []).push(k));
+  const free = fut.filter(k => !AG.booked[k]).length;
+  const wait = LEADS.filter(l => l.source === 'waitlist' && l.stage !== 'perdido');
+  const site = location.origin + '/#contato';
+  const wmsg = l => `Oi, ${first(l.nome)}! Aqui é o Luccas, da Operator Studio. Você entrou na lista de espera da análise gratuita de 30 minutos: abri novos horários! É só escolher o seu aqui: ${site}`;
+  $('#sheet').innerHTML = `<div class="sh">
+    <div style="display:flex;justify-content:space-between;align-items:center"><div><span class="eyebrow">Agenda · horário da Itália</span><h2 style="font-family:var(--serif,Tinos,serif);font-size:30px;margin-top:4px">Análises de <em style="color:#7E7669">30 minutos.</em></h2></div>
+      <button class="iconbtn" id="close" aria-label="Fechar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <p style="font-size:14px;line-height:1.5;color:#5F594F;margin:10px 0 16px">Os horários que você abrir aqui aparecem no site para reservar. Hoje: <b>${free} ${free===1?'horário livre':'horários livres'}</b>${free?'':' (o site mostra a lista de espera)'}.</p>
+    <div class="blk"><span class="eyebrow">Abrir horários</span>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <div class="field" style="flex:1;min-width:140px"><label>De</label><input class="in" type="date" id="agFrom" value="${esc(romeToday())}"></div>
+        <div class="field" style="flex:1;min-width:140px"><label>Até</label><input class="in" type="date" id="agTo" value="${esc(romeToday())}"></div>
+      </div>
+      <div class="field"><label>Dias da semana</label><div class="stages" id="agDow">${['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'].map((d,i)=>`<button type="button" class="st ${AG.dows.includes(i)?'on':''}" data-dow="${i}">${d}</button>`).join('')}</div></div>
+      <div class="field"><label>Horários</label><input class="in" id="agTimes" value="${AGT.join(', ')}"></div>
+      <div class="dgrow"><button class="btn" id="agAdd">Abrir horários</button><span class="dstat" id="agInfo"></span></div>
+    </div>
+    <div class="blk"><span class="eyebrow">Próximos horários</span>
+      ${Object.keys(by).length ? Object.keys(by).sort().map(d => `<div style="padding:8px 0;border-top:1px solid #D9D3C9"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><b style="font-size:15px">${esc(slotLabel(d+'T00:00').split(' · ')[0])}</b><button class="dstat" data-agday="${d}" style="text-decoration:underline">fechar o dia</button></div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">${by[d].sort().map(k => AG.booked[k] ? `<span class="chip" style="background:#151412;color:#F3F1EC;border-color:#151412">${k.slice(11)} · ${esc(first(AG.booked[k]))}</span>` : `<button class="chip" data-agrm="${k}">${k.slice(11)} ×</button>`).join('')}</div></div>`).join('') : '<p class="dstat">Nenhum horário aberto. O site está mostrando a lista de espera.</p>'}
+    </div>
+    ${wait.length ? `<div class="blk"><span class="eyebrow">Lista de espera · ${wait.length}</span><p class="dstat">Avise que abriu agenda nova:</p>
+      ${wait.map(l => `<div class="kv" style="align-items:center"><span>${esc(l.nome)}</span>${waNumber(l.whatsapp)?`<a class="btn ghost sm" target="_blank" rel="noopener" href="https://wa.me/${waNumber(l.whatsapp)}?text=${encodeURIComponent(wmsg(l))}">WhatsApp</a>`:''}</div>`).join('')}</div>` : ''}
+  </div>`;
+  $('#sheet').scrollTop = 0; $('#sheet').classList.add('on'); $('#scrim').classList.add('on');
+  $('#close').onclick = closeSheet;
+  $('#agDow').onclick = e => { const b = e.target.closest('[data-dow]'); if(!b) return; const i = +b.dataset.dow; AG.dows = AG.dows.includes(i) ? AG.dows.filter(x=>x!==i) : [...AG.dows, i]; b.classList.toggle('on'); };
+  $('#agAdd').onclick = async () => {
+    const from = $('#agFrom').value, to = $('#agTo').value || from;
+    const times = $('#agTimes').value.split(/[,\s]+/).map(t => t.trim()).filter(t => /^\d{1,2}:\d{2}$/.test(t)).map(t => t.padStart(5,'0'));
+    if(!from || !times.length){ toast('Escolha o dia e os horários'); return; }
+    const add = []; let d = new Date(from+'T12:00:00Z'); const end = new Date(to+'T12:00:00Z');
+    for(let i=0; d<=end && i<120; i++, d = new Date(d.getTime()+86400000)){
+      if(!AG.dows.includes(d.getUTCDay())) continue;
+      const ds = d.toISOString().slice(0,10); times.forEach(t => { const k = ds+'T'+t; if(slotDate(k) > Date.now()) add.push(k); });
+    }
+    if(!add.length){ toast('Nenhum horário futuro nesse período'); return; }
+    try{ const r = await api('POST',{action:'agenda-add', slots:add}); AG.slots = r.slots; AG.booked = r.booked; toast(`${add.length} horários abertos`); openAgenda(false); }catch{ toast('Erro ao salvar'); }
+  };
+  document.querySelectorAll('[data-agrm]').forEach(b => b.onclick = async () => { try{ const r = await api('POST',{action:'agenda-remove', slots:[b.dataset.agrm]}); AG.slots = r.slots; AG.booked = r.booked; openAgenda(false); }catch{ toast('Erro'); } });
+  document.querySelectorAll('[data-agday]').forEach(b => b.onclick = async () => { const rm = (by[b.dataset.agday]||[]).filter(k => !AG.booked[k]); try{ const r = await api('POST',{action:'agenda-remove', slots:rm}); AG.slots = r.slots; AG.booked = r.booked; openAgenda(false); toast('Dia fechado'); }catch{ toast('Erro'); } });
+}
+
 function openFollowup(){
   if(!FU.date) FU.date = romeToday();
   const list = LEADS.filter(l => (l.slot||'').slice(0,10) === FU.date && l.stage !== 'perdido');
@@ -703,6 +757,7 @@ $('#scrim').onclick = closeSheet;
 document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeSheet(); });
 $('#refresh').onclick = async()=>{ try{ await load(); toast('Atualizado'); }catch{} };
 $('#fuBtn').onclick = openFollowup;
+$('#agBtn').onclick = () => openAgenda();
 $('#newBtn').onclick = newLead;
 document.addEventListener('visibilitychange', ()=>{ if(!document.hidden && KEY) load().catch(()=>{}); });
 
