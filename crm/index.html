@@ -434,21 +434,39 @@ function bindCall(l){
   const cp = $('#crCopy'); if(cp) cp.onclick = async()=>{ try{ await navigator.clipboard.writeText(callText(l)); toast('Relatório copiado'); }catch{ prompt('Copie:', callText(l)); } };
   if(l.call?.status==='pending' && !CALLPOLL) pollCall(l.id);
 }
+async function pdfText(file){
+  if(!window.pdfjsLib){
+    await new Promise((ok,no)=>{ const sc=document.createElement('script'); sc.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js'; sc.onload=ok; sc.onerror=no; document.head.appendChild(sc); });
+    pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  }
+  const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise; const out = [];
+  for(let i=1;i<=pdf.numPages;i++){
+    const c = await (await pdf.getPage(i)).getTextContent(); let line='', lastY=null;
+    for(const it of c.items){ const y = it.transform[5]; if(lastY!==null && Math.abs(y-lastY)>2){ out.push(line); line=''; } line += it.str; lastY = y; if(it.hasEOL){ out.push(line); line=''; lastY=null; } }
+    if(line) out.push(line);
+  }
+  return out.map(x=>x.trim()).filter(Boolean).join('\n');
+}
 function openImport(l){
   INDIAG = true;
   $('#sheet').innerHTML = `<div class="grab"></div>
     <div class="sh-head"><div><span class="eyebrow">Importar transcrição</span><h3>${esc(l.nome)}</h3><p>Google Meet · Tactiq</p></div>
       <button class="iconbtn" id="back" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M15 6l-6 6 6 6"/></svg></button></div>
     <div class="blk">
-      <p class="dstat">No Tactiq, abra a reunião e toque em <b>Copy</b> (ou baixe o .txt). Cole aqui embaixo ou escolha o arquivo.</p>
+      <p class="dstat">No Tactiq, abra a reunião e toque em <b>Copy</b> (ou baixe o .txt ou o PDF). Cole aqui embaixo ou escolha o arquivo.</p>
       <textarea class="in tx" id="txIn" placeholder="Cole a transcrição aqui…"></textarea>
-      <div class="dgrow"><label class="btn ghost sm" style="cursor:pointer">Escolher arquivo<input type="file" id="txFile" accept=".txt,.vtt,.srt,.md,text/plain" hidden></label><span class="dstat" id="txInfo"></span></div>
+      <div class="dgrow"><label class="btn ghost sm" style="cursor:pointer">Escolher arquivo<input type="file" id="txFile" accept=".txt,.vtt,.srt,.md,.pdf,text/plain,application/pdf" hidden></label><span class="dstat" id="txInfo"></span></div>
       <div class="dgrow"><button class="btn" id="txGo">Gerar relatório</button></div>
     </div>`;
   $('#sheet').scrollTop = 0;
   const info = ()=>{ const n = $('#txIn').value.trim().length; $('#txInfo').textContent = n ? `${n.toLocaleString('pt-BR')} caracteres` : ''; };
   $('#txIn').oninput = info;
-  $('#txFile').onchange = async e=>{ const f = e.target.files[0]; if(!f) return; $('#txIn').value = await f.text(); info(); };
+  $('#txFile').onchange = async e=>{ const f = e.target.files[0]; if(!f) return;
+    if(/\.pdf$/i.test(f.name) || f.type==='application/pdf'){
+      $('#txInfo').textContent = 'Lendo o PDF…';
+      try{ $('#txIn').value = await pdfText(f); }catch{ toast('Não consegui ler esse PDF'); }
+    } else $('#txIn').value = await f.text();
+    info(); };
   $('#back').onclick = ()=>openLead(l.id);
   $('#txGo').onclick = async()=>{
     const text = $('#txIn').value.trim();
