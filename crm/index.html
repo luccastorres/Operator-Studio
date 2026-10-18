@@ -476,11 +476,11 @@ function openLead(id, keep){
       <a class="act ${l.slot?'':'off'}" href="${esc(gcal(l))}" target="_blank" rel="noopener">${ICON.cal}Agenda</a>
     </div>
     <div class="blk">
-      ${l.slot?`<div class="kv"><span>Análise</span><span>${esc(slotLabel(l.slot))} · Itália <button id="rsOpen" style="font-size:13px;text-decoration:underline;color:#7E7669;margin-left:6px">alterar</button></span></div>`:''}
+      <div class="kv"><span>Análise</span><span>${l.slot?esc(slotLabel(l.slot))+' · Itália':'Sem data'} <button id="rsOpen" style="font-size:13px;text-decoration:underline;color:#7E7669;margin-left:6px">${l.slot?'alterar':'definir data'}</button></span></div>
       <div id="rsBox" hidden style="background:#F3F1EC;border-radius:14px;padding:14px;margin:6px 0;display:flex;flex-direction:column;gap:10px">
-        <span class="eyebrow">Novo horário · horário da Itália</span>
+        <span class="eyebrow">${l.slot?'Novo horário':'Data da análise'} · horário da Itália</span>
         <div style="display:flex;gap:8px"><input class="in" type="date" id="rsDate" value="${esc((l.slot||'').slice(0,10))}" style="flex:1"><input class="in" type="time" id="rsTime" value="${esc((l.slot||'').slice(11,16))}" step="300" style="flex:1"></div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm" id="rsSave">Salvar novo horário</button></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm" id="rsSave">${l.slot?'Salvar novo horário':'Salvar data'}</button></div>
         <div id="rsDone"></div>
       </div>
       ${l.whatsapp?`<div class="kv"><span>WhatsApp</span><span>${esc(l.whatsapp)}</span></div>`:''}
@@ -512,7 +512,9 @@ function openLead(id, keep){
   const rsv = $('#rsSave'); if(rsv) rsv.onclick = async () => {
     const slot = $('#rsDate').value + 'T' + $('#rsTime').value;
     if(!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(slot)){ toast('Escolha dia e horário'); return; }
+    const had = !!l.slot;
     try{ await api('POST',{action:'reslot',id:l.id,slot}); l.slot = slot; render();
+      if(!had){ toast('Data salva'); openLead(l.id, true); return; }
       const when = slotLabel(slot).replace(' · ',' às ');
       const msg = `Oi, ${first(l.nome)}! Tudo certo, nossa análise ficou remarcada para ${when} (horário da Itália). O link da videochamada continua o mesmo. Até lá!`;
       $('#rsDone').innerHTML = `<p style="font-size:14px;color:#4E6B4F;margin-bottom:8px">Salvo: ${esc(when)} (Itália).</p>
