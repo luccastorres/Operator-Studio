@@ -414,11 +414,12 @@ function callBlock(l){
       ${wa&&r.mensagem_whatsapp?`<a class="btn sm" target="_blank" rel="noopener" href="https://wa.me/${wa}?text=${encodeURIComponent(r.mensagem_whatsapp)}">${c.kind==='reuniao'?'Enviar no WhatsApp':'Follow-up no WhatsApp'}</a>`:''}
       <button class="btn ghost sm" id="crCopy">Copiar relatório</button>
       <button class="btn ghost sm" id="crImp">Nova transcrição</button></div>`;
+  const open = `<div class="dgrow"><a class="btn sm" href="/crm/reuniao/?id=${encodeURIComponent(l.id)}" target="_blank" rel="noopener">Abrir relatório · PDF e e-mail</a>${c.sentAt?`<span class="dstat">Enviado para ${esc(c.sentTo||'')}</span>`:''}</div>`;
   if(c.kind==='reuniao') return `<div class="blk cr" id="cr"><span class="eyebrow">Relatório da reunião · Google Meet</span>
     <p>${esc(r.resumo)}</p>
     ${(r.topicos||[]).map(tp=>list(esc(tp.titulo), tp.pontos)).join('')}
     ${list('Decisões', r.decisoes)}${list('Próximas ações · Luccas', r.acoes_luccas)}${list('Próximas ações · '+esc(first(l.nome)), r.acoes_cliente)}${list('Ideias', r.ideias)}${list('Em aberto', r.em_aberto)}
-    ${btns}</div>`;
+    ${open}${btns}</div>`;
   return `<div class="blk cr" id="cr">${head}
     ${r.interesse?`<div><span class="chip ${esc(r.interesse)}">Interesse ${esc(r.interesse)}</span></div>${r.interesse_nota?`<p class="dstat">${esc(r.interesse_nota)}</p>`:''}`:''}
     <p>${esc(r.resumo)}</p>

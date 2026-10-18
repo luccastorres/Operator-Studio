@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Relatório da reunião · Operator Studio</title>
+<link rel="icon" href="/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600&family=Tinos:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#151412;--linen:#F3F1EC;--card:#FBFAF7;--line:#D9D3C9;--taupe:#7E7669;--soft:#5F594F;
+--serif:'Tinos','Times New Roman',serif;--sans:'Hanken Grotesk',-apple-system,Helvetica,Arial,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+html,body{background:#E4E0D8;color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.bar{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;padding:12px 16px;background:rgba(243,241,236,.95);border-bottom:1px solid var(--line);backdrop-filter:blur(8px)}
+.bar .acts{display:flex;flex-wrap:wrap;gap:8px}
+.back{font-size:14px;color:var(--soft);text-decoration:none}
+.btn{background:var(--ink);color:var(--linen);border:0;border-radius:999px;padding:10px 16px;font:500 14px var(--sans);cursor:pointer;text-decoration:none;display:inline-block}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.msg{max-width:420px;margin:80px auto;padding:0 20px;font-size:17px;line-height:1.5;color:var(--soft)}
+.paper{max-width:210mm;margin:24px auto 60px;background:#fff;padding:18mm 18mm 16mm;box-shadow:0 30px 60px -30px rgba(21,20,18,.35)}
+.ph{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid #DCD8D2;padding-bottom:10px;margin-bottom:30px;font-size:8.5pt;letter-spacing:.18em;text-transform:uppercase;color:var(--taupe)}
+.logo{font-family:var(--serif);font-size:15pt;letter-spacing:0;text-transform:none;color:var(--ink)}.logo i{color:var(--taupe)}
+.eyebrow{font-size:8.5pt;letter-spacing:.2em;text-transform:uppercase;color:var(--taupe);margin-bottom:8px}
+h1{font-family:var(--serif);font-size:30pt;line-height:1.08;margin:0 0 6px}h1 i{font-weight:400;color:var(--taupe)}
+.meta{color:var(--taupe);margin:0 0 22px;font-size:10.5pt}
+.paper h2{font-family:var(--serif);font-size:16pt;margin:24px 0 8px;padding-top:12px;border-top:1px solid #DCD8D2;break-after:avoid}
+.paper h3{font-size:8.8pt;letter-spacing:.14em;text-transform:uppercase;color:var(--taupe);margin:16px 0 6px;font-weight:600;break-after:avoid}
+.paper p,.paper li{font-size:10.5pt;line-height:1.55;color:#2F2F2F}
+.paper ul{padding-left:16px;margin:0 0 6px}.paper li{margin:0 0 5px;break-inside:avoid}.paper li::marker{color:var(--taupe)}
+.lead{font-size:11.5pt!important}
+@media (max-width:820px){.paper{margin:0;padding:24px 18px 40px;box-shadow:none}h1{font-size:26pt}}
+/* send sheet */
+.scrim{position:fixed;inset:0;background:rgba(21,20,18,.35);z-index:8}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:9;background:var(--linen);border-radius:22px 22px 0 0;max-height:92vh;overflow:auto;padding:18px 16px 28px;max-width:640px;margin:0 auto}
+.sheet h3{font-family:var(--serif);font-size:24px;margin:2px 0 14px}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.field label{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--taupe)}
+.in{width:100%;border:1px solid var(--line);background:var(--card);border-radius:12px;padding:11px 12px;font:16px var(--sans);color:var(--ink)}
+textarea.in{min-height:80px;resize:vertical}
+iframe{width:100%;height:420px;border:1px solid var(--line);border-radius:12px;background:#fff}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px}
+.ok{color:#4E6B4F;font-size:14px}
+@media print{
+  @page{size:A4;margin:16mm 16mm 16mm}
+  html,body{background:#fff}.bar,.sheet,.scrim{display:none!important}
+  .paper{margin:0;padding:0;box-shadow:none;max-width:none}
+}
+</style>
+</head>
+<body>
+<div class="bar"><a class="back" href="/crm/">← CRM</a>
+  <div class="acts" id="acts" hidden>
+    <button class="btn" id="mail">Enviar por e-mail</button>
+    <button class="btn ghost" id="pdf">Salvar PDF</button>
+    <button class="btn ghost" id="wa">Copiar para WhatsApp</button>
+  </div></div>
+<div class="msg" id="msg">Carregando…</div>
+<article class="paper" id="paper" hidden></article>
+<div class="scrim" id="scrim" hidden></div>
+<div class="sheet" id="sheet" hidden></div>
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const first = n => String(n||'').trim().split(/\s+/)[0];
+let KEY = ''; try{ KEY = localStorage.getItem('os_crm_key')||''; }catch{}
+const id = new URLSearchParams(location.search).get('id')||'';
+let L = null;
+async function api(method, body){
+  const r = await fetch('/api/crm', {method, headers:{'x-crm-key':KEY,'content-type':'application/json'}, body: body?JSON.stringify(body):undefined, cache:'no-store'});
+  if(!r.ok) throw new Error(r.status); return r.json();
+}
+function list(t, a){ return a?.length ? `<h3>${t}</h3><ul>${a.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>` : ''; }
+function render(){
+  const r = L.call.report||{}, n = first(L.nome);
+  const when = new Date(L.call.at||Date.now()).toLocaleDateString('pt-BR',{day:'numeric',month:'long',year:'numeric',timeZone:'Europe/Rome'});
+  document.title = `Relatório · ${L.nome}`;
+  $('#paper').innerHTML = `<div class="ph"><span class="logo"><b>Operator</b> <i>Studio</i></span><span>Relatório de reunião</span></div>
+    <p class="eyebrow">${esc(when)}</p>
+    <h1>Reunião com <i>${esc(L.nome)}</i></h1>
+    <p class="meta">Luccas Torres e ${esc(L.nome)}${L.negocio&&L.negocio!==L.nome?' · '+esc(L.negocio):''}</p>
+    <h2>Resumo</h2><p class="lead">${esc(r.resumo)}</p>
+    ${(r.topicos||[]).length?`<h2>O que conversamos</h2>${r.topicos.map(t=>list(esc(t.titulo), t.pontos)).join('')}`:''}
+    ${r.decisoes?.length?`<h2>Decisões</h2>${list('', r.decisoes)}`:''}
+    <h2>Próximas ações</h2>${list('Luccas', r.acoes_luccas)}${list(esc(n), r.acoes_cliente)}
+    ${r.ideias?.length?`<h2>Ideias</h2>${list('', r.ideias)}`:''}
+    ${r.em_aberto?.length?`<h2>Pontos em aberto</h2>${list('', r.em_aberto)}`:''}`;
+  $('#paper').hidden = false; $('#msg').hidden = true; $('#acts').hidden = false;
+}
+function waText(){
+  const r = L.call.report||{}, n = first(L.nome), out = [`Oi, ${n}! Segue o resumo da nossa reunião:`, '', r.resumo||''];
+  const sec = (t,a)=>{ if(a?.length){ out.push('', `*${t}*`); a.forEach(x=>out.push('• '+x)); } };
+  sec('Próximas ações · Luccas', r.acoes_luccas); sec(`Próximas ações · ${n}`, r.acoes_cliente); sec('Pontos em aberto', r.em_aberto);
+  return out.join('\n');
+}
+async function preview(){
+  try{ const p = await api('POST',{action:'sendreport', id, preview:true, note:$('#sNote').value}); $('#sFrame').srcdoc = p.html; $('#sSubj').textContent = p.subject; }catch{}
+}
+function openSend(){
+  $('#scrim').hidden = false; $('#sheet').hidden = false;
+  $('#sheet').innerHTML = `<span class="eyebrow">Enviar relatório</span><h3>Para ${esc(L.nome)}</h3>
+    <div class="field"><label>E-mail</label><input class="in" id="sTo" type="email" value="${esc(L.email||'')}" placeholder="email@cliente.com"></div>
+    <div class="field"><label>Mensagem de abertura</label><textarea class="in" id="sNote">Segue o resumo da nossa reunião, com o que conversamos e os próximos passos de cada um.</textarea></div>
+    <div class="field"><label>Prévia · <span id="sSubj"></span></label><iframe id="sFrame"></iframe></div>
+    <div class="row"><button class="btn" id="sGo">Enviar e-mail</button><button class="btn ghost" id="sClose">Fechar</button><span id="sRes"></span></div>
+    ${L.call.sentAt?`<p class="ok" style="margin-top:10px">Já enviado para ${esc(L.call.sentTo||'')} em ${new Date(L.call.sentAt).toLocaleString('pt-BR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}.</p>`:''}`;
+  preview();
+  let t; $('#sNote').oninput = ()=>{ clearTimeout(t); t = setTimeout(preview, 500); };
+  $('#sClose').onclick = $('#scrim').onclick = ()=>{ $('#scrim').hidden = true; $('#sheet').hidden = true; };
+  $('#sGo').onclick = async()=>{
+    const to = $('#sTo').value.trim();
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(to)){ $('#sRes').textContent = 'Coloque um e-mail válido.'; return; }
+    const b = $('#sGo'); b.disabled = true; b.textContent = 'Enviando…';
+    try{ const r = await api('POST',{action:'sendreport', id, email:to, note:$('#sNote').value});
+      $('#sRes').innerHTML = r.result==='sent' ? '<span class="ok">Enviado! Você recebe uma cópia.</span>' : 'Não enviado (e-mail de teste).';
+      L.call.sentAt = new Date().toISOString(); L.call.sentTo = to; b.textContent = 'Enviado'; }
+    catch{ $('#sRes').textContent = 'Erro ao enviar. Tente de novo.'; b.disabled = false; b.textContent = 'Enviar e-mail'; }
+  };
+}
+(async()=>{
+  if(!KEY){ $('#msg').innerHTML = 'Entre no <a href="/crm/">CRM</a> primeiro.'; return; }
+  try{
+    const d = await api('GET'); L = d.leads.find(x=>x.id===id);
+    if(!L || !L.call || L.call.status!=='done'){ $('#msg').textContent = 'Ainda não há relatório para este cliente.'; return; }
+    render();
+    $('#pdf').onclick = ()=>window.print();
+    $('#mail').onclick = openSend;
+    $('#wa').onclick = async()=>{ try{ await navigator.clipboard.writeText(waText()); $('#wa').textContent = 'Copiado ✓'; setTimeout(()=>$('#wa').textContent='Copiar para WhatsApp',1800); }catch{ prompt('Copie:', waText()); } };
+  }catch(e){ $('#msg').innerHTML = e.message==='401' ? 'Entre no <a href="/crm/">CRM</a> primeiro.' : 'Erro ao carregar. Tente de novo.'; }
+})();
+</script>
+</body>
+</html>

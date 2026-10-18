@@ -1,6 +1,7 @@
 import { getStore } from "@netlify/blobs";
 import { createHash, randomBytes } from "node:crypto";
 import { followupEmail, sendFollowup } from "../lib/followup.mjs";
+import { reportEmail, sendReport } from "../lib/reportmail.mjs";
 
 // Private CRM API for Operator Studio.
 // Leads = every booking from the site (store "bookings") + leads added by hand.
@@ -181,6 +182,23 @@ export default async (req) => {
     if (b.action === "transcript-get") {
       const t = await getStore({ name: "calls", consistency: "strong" }).get(clip(b.id, 60), { type: "json" });
       return json({ ok: true, text: t?.text || "" });
+    }
+
+    // Send the meeting report to the client by e-mail (preview: true returns the e-mail without sending).
+    if (b.action === "sendreport") {
+      const id = clip(b.id, 60);
+      const lead = { id, ...((await bookings.get(id, { type: "json" })) || {}), ...((await crm.get(id, { type: "json" })) || {}) };
+      if (!lead.call || lead.call.status !== "done") return json({ error: "noreport" }, 400);
+      if (b.email) lead.email = clip(b.email, 160);
+      const note = clip(b.note, 600);
+      if (b.preview) return json({ ok: true, ...reportEmail(lead, lead.call, note) });
+      if (!lead.email) return json({ error: "noemail" }, 400);
+      const r = await sendReport(lead, lead.call, note);
+      if (r === "sent") {
+        const cur = (await crm.get(id, { type: "json" })) || {};
+        await crm.setJSON(id, { ...cur, ...(b.email && !cur.email ? { email: lead.email } : {}), call: { ...cur.call, sentAt: new Date().toISOString(), sentTo: lead.email } });
+      }
+      return json({ ok: true, result: r });
     }
 
     // Follow-up after the analysis: e-mail with the presentation, the offer and the start date.
