@@ -50,6 +50,7 @@ const TOOL = {
         type: "array", description: "TODAS as perguntas e dúvidas que o aluno levantou, na ordem em que aconteceram.",
         items: { type: "object", properties: {
           momento: { type: "string", description: "mm:ss da transcrição" },
+          aluno: { type: "string", description: "Primeiro nome de quem perguntou (importante em aula em grupo)." },
           pergunta: { type: "string", description: "A pergunta do aluno, reescrita de forma clara e curta." },
           resposta: { type: "string", description: "O que o mentor respondeu, em 1 a 3 frases. Se não foi respondida, escreva 'Ficou em aberto'." },
         }, required: ["momento", "pergunta", "resposta"] },
@@ -69,13 +70,13 @@ const TOOL = {
   },
 };
 
-function prompt({ student, week, material, transcript, minutes }) {
+function prompt({ student, week, material, transcript, minutes, group }) {
   return `Você é o assistente do Luccas Torres, mentor da Operator Studio (mentoria individual de 8 semanas que ensina empresários a usar IA, automações, sistemas, website e conteúdo no próprio negócio).
 
 Abaixo está a transcrição automática de uma aula individual ao vivo. A transcrição pode ter erros de reconhecimento de voz: interprete pelo contexto e não invente nada que não esteja nela.
 
-Aluno: ${student?.nome || "Aluno"}${student?.negocio ? ` · negócio: ${student.negocio}` : ""}
-Semana ${week || "?"} da mentoria${material ? `: ${material.title}. ${material.summary || ""}` : ""}
+${group ? `Aula EM GRUPO: ${group.title}. Participantes: ${group.names.join(", ")}. Em cada pergunta, diga quem perguntou (campo aluno). O resumo é para todo o grupo.` : `Aluno: ${student?.nome || "Aluno"}${student?.negocio ? ` · negócio: ${student.negocio}` : ""}
+Semana ${week || "?"} da mentoria${material ? `: ${material.title}. ${material.summary || ""}` : ""}`}
 Duração aproximada: ${minutes} minutos
 
 Gere o relatório da aula em português do Brasil, em tom natural e direto (sem frases de IA, sem exageros). Liste TODAS as perguntas e dúvidas do aluno, mesmo as pequenas. Nas tarefas, inclua só o que foi realmente combinado. Responda chamando a ferramenta relatorio_aula (obrigatório). Se não conseguir usar a ferramenta, responda só com um objeto JSON com os mesmos campos.
@@ -115,19 +116,24 @@ export async function buildReport(store, start) {
   const base = { start, shared: !!prev.shared, studentId: prev.studentId };
   try {
     const slot = await store.get(`slots/${start}`, { type: "json" });
+    const g = !slot?.studentId ? await store.get(`groups/${start}`, { type: "json" }) : null;
+    const gIds = g?.studentIds || prev.studentIds || [];
     const studentId = slot?.studentId || prev.studentId;
-    const student = studentId ? await store.get(`students/${studentId}`, { type: "json" }) : null;
+    const members = gIds.length ? (await Promise.all(gIds.map((id) => store.get(`students/${id}`, { type: "json" })))).filter(Boolean) : [];
+    const student = studentId ? await store.get(`students/${studentId}`, { type: "json" }) : (gIds.length ? { nome: "Aluno" } : null);
+    const group = gIds.length ? { title: g?.title || prev.title || "Aula em grupo", names: members.map((m) => m.nome) } : null;
+    if (group) Object.assign(base, { group: true, studentIds: gIds, title: group.title });
     const week = slot?.week || prev.week;
     const material = week ? await store.get(`materials/${week}`, { type: "json" }) : null;
     const lines = await mergedLines(store, start);
     const { text, paras, minutes } = transcriptText(lines, student);
     await store.setJSON(`transcripts/${start}`, { start, paras, minutes, count: lines.length, updatedAt: new Date().toISOString() });
-    const meta = { ...base, studentId, week, studentName: student?.nome || prev.studentName || "", minutes };
+    const meta = { ...base, studentId, week, studentName: group ? group.title : (student?.nome || prev.studentName || ""), minutes };
     if (!text || lines.length < 3) {
       await store.setJSON(`reports/${start}`, { ...meta, status: "empty", updatedAt: new Date().toISOString() });
       return "empty";
     }
-    const out = await callClaude({ student, week, material, transcript: text, minutes });
+    const out = await callClaude({ student, week, material, transcript: text, minutes, group });
     await store.setJSON(`reports/${start}`, { ...meta, status: "done", report: out.report, model: out.model, usage: out.usage, updatedAt: new Date().toISOString() });
     return "done";
   } catch (e) {

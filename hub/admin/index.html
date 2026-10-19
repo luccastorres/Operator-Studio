@@ -156,19 +156,29 @@ function vAulas(){
   const reps = Object.fromEntries((S.reports||[]).map(r=>[r.start,r]));
   const pastKeys = new Set([...S.slots.filter(s=>s.studentId && end(s) <= now).map(s=>s.start), ...(S.reports||[]).map(r=>r.start)]);
   upcoming.forEach(s=>pastKeys.delete(s.start));
-  const past = [...pastKeys].sort().reverse().map(k=>{ const sl=S.slots.find(x=>x.start===k)||{}; const r=reps[k]||{}; return { start:k, week:sl.week||r.week, nome:name(sl.studentId||r.studentId)||r.studentName||'Aluno', r:reps[k] }; });
+  (S.groups||[]).filter(g=>end(g) <= now).forEach(g=>pastKeys.add(g.start));
+  const past = [...pastKeys].sort().reverse().map(k=>{ const sl=S.slots.find(x=>x.start===k)||{}; const g=(S.groups||[]).find(x=>x.start===k); const r=reps[k]||{}; return { start:k, week:sl.week||r.week, nome:g?g.title+' · grupo':(r.group?(r.title||'Aula em grupo')+' · grupo':name(sl.studentId||r.studentId)||r.studentName||'Aluno'), r:reps[k], group:!!(g||r.group) }; });
   const status = r => !r ? '<span class="chip">Sem relatório</span>' : r.status==='done' ? `<span class="chip ok">Relatório · ${r.questions} perguntas</span>${r.shared?'<span class="chip ok">Publicado</span>':'<span class="chip">Só você vê</span>'}` : r.status==='pending' ? '<span class="chip wait">Gerando…</span>' : r.status==='empty' ? '<span class="chip">Sem transcrição</span>' : '<span class="chip wait">Erro · tente de novo</span>';
   const openAt = s => new Date(s.start).getTime() - 60*60000;
+  const groups = (S.groups||[]).filter(g=>end(g) > now).sort((a,b)=>a.start.localeCompare(b.start));
   return `<div><span class="ey">Aulas ao vivo</span><h1 class="h1">Sala e <em>relatórios.</em></h1><p class="muted" style="margin-top:6px">Cada sessão marcada tem a própria sala no Student Hub. A aula é transcrita e, ao encerrar, o relatório é gerado sozinho. Você revisa e publica para o aluno.</p></div>
   ${S.live?'':`<div class="card" style="background:#F1E7D6;border-color:#E6D7BC"><span class="ey" style="color:#8A6A3A">Falta ativar</span><p style="font-size:14.5px;line-height:1.55">A sala ao vivo ainda não está ligada. No Netlify, em Site configuration → Environment variables, adicione <b>DAILY_API_KEY</b> (sua chave da Daily) e <b>ANTHROPIC_API_KEY</b> (sua chave da API do Claude). Depois faça um novo deploy. Até lá, as sessões continuam com o link do Google Meet.</p></div>`}
   ${S.live && S.students.length?`<form class="card" id="fTest" style="background:var(--linen)"><span class="ey">Aula de teste</span><p class="muted" style="font-size:14px;line-height:1.5">Marca uma aula para daqui a 5 minutos, sem e-mails. Entre como mentor aqui e como aluno no Student Hub (outro aparelho).</p>
     <div class="row"><select class="in" name="id" style="max-width:320px">${S.students.map(x=>`<option value="${esc(x.id)}">${esc(x.nome)}</option>`).join('')}</select><button class="btn" type="submit">Marcar aula de teste</button></div></form>`:''}
+  ${S.live && S.students.length?`<form class="card" id="fGroup"><span class="ey">Aula em grupo · até 3 alunos</span>
+    <div class="g2"><div><label class="l">Dia</label><input class="in" type="date" name="date" required></div><div><label class="l">Horário (${esc(TZ)})</label><input class="in" type="time" name="time" step="300" required></div></div>
+    <div class="g2"><div><label class="l">Título</label><input class="in" name="title" placeholder="Encontro em grupo 1"></div><div><label class="l">Duração (min)</label><input class="in" name="dur" inputmode="numeric" value="90"></div></div>
+    <div><label class="l">Alunos</label><div class="row" id="gStu">${S.students.map(x=>`<button type="button" class="chip" data-gs="${esc(x.id)}" style="cursor:pointer;padding:8px 12px">${esc(x.nome)}</button>`).join('')}</div></div>
+    <label class="row" style="font-size:14px;gap:8px"><input type="checkbox" name="notify" checked> Avisar os alunos por e-mail</label>
+    <div><button class="btn" type="submit">Marcar aula em grupo</button></div></form>`:''}
+  ${groups.length?`<div class="card"><span class="ey">Aulas em grupo</span><div class="list">${groups.map(g=>`<div class="row" style="justify-content:space-between"><div><p class="h3">${esc(g.title)}</p><p class="muted" style="font-size:14px">${esc(fDT(g.start))} · ${g.dur||90} min · ${(g.studentIds||[]).map(id=>esc(first(name(id)||'Aluno'))).join(', ')}</p></div>
+      <div class="row">${S.live && now >= openAt(g) ? `<a class="btn sm" href="/aula/?s=${encodeURIComponent(g.start)}&m=1" target="_blank" rel="noopener">Entrar na aula</a>` : '<span class="chip">Sala abre 1h antes</span>'}${reps[g.start]?`<a class="btn ghost sm" href="/aula/relatorio/?s=${encodeURIComponent(g.start)}">Relatório</a>`:`<button class="btn ghost sm" data-gdel="${esc(g.start)}">Cancelar</button>`}</div></div>`).join('')}</div></div>`:''}
   <div class="card"><span class="ey">Próximas aulas</span>
     ${upcoming.length?`<div class="list">${upcoming.map(s=>`<div class="row" style="justify-content:space-between"><div><p class="h3">${esc(name(s.studentId)||'Aluno')}</p><p class="muted" style="font-size:14px">${esc(fDT(s.start))} · Semana ${s.week||''}</p></div>
       <div class="row">${S.live ? (now >= openAt(s) ? `<a class="btn sm" href="/aula/?s=${encodeURIComponent(s.start)}&m=1" target="_blank" rel="noopener">Entrar na aula</a>` : '<span class="chip">Sala abre 1h antes</span>') : (s.meet?`<a class="btn ghost sm" href="${esc(s.meet)}" target="_blank" rel="noopener">Meet</a>`:'')}${reps[s.start]?`<a class="btn ghost sm" href="/aula/relatorio/?s=${encodeURIComponent(s.start)}">Relatório</a>`:''}</div></div>`).join('')}</div>`:'<p class="muted">Nenhuma aula marcada.</p>'}
   </div>
   <div class="card"><span class="ey">Aulas dadas</span>
-    ${past.length?`<div class="list">${past.map(p=>`<div class="row" style="justify-content:space-between"><div><p class="h3">${esc(p.nome)}</p><p class="muted" style="font-size:14px">${esc(fDT(p.start))} · Semana ${p.week||''}</p><div class="row" style="margin-top:6px">${status(p.r)}</div></div>
+    ${past.length?`<div class="list">${past.map(p=>`<div class="row" style="justify-content:space-between"><div><p class="h3">${esc(p.nome)}</p><p class="muted" style="font-size:14px">${esc(fDT(p.start))}${p.group?'':` · Semana ${p.week||''}`}</p><div class="row" style="margin-top:6px">${status(p.r)}</div></div>
       <a class="btn ${p.r?.status==='done'?'':'ghost '}sm" href="/aula/relatorio/?s=${encodeURIComponent(p.start)}">${p.r?.status==='done'?'Abrir relatório':'Ver aula'}</a></div>`).join('')}</div>`:'<p class="muted">Os relatórios das aulas aparecem aqui.</p>'}
   </div>`;
 }
@@ -245,6 +255,15 @@ function bind(){
   }
   document.querySelectorAll('[data-rm]').forEach(b=>b.onclick=async()=>{ try{ await api('slots',{remove:[b.dataset.rm]}); await load(); }catch{ toast('Erro'); } });
   document.querySelectorAll('[data-acancel]').forEach(b=>b.onclick=async()=>{ if(!confirm('Desmarcar esta sessão? O aluno recebe um e-mail para escolher outro horário.')) return; try{ await api('slot-cancel',{start:b.dataset.acancel}); await load(); toast('Sessão desmarcada'); }catch{ toast('Erro'); } });
+  const fg=$('#fGroup'); if(fg){
+    fg.querySelectorAll('[data-gs]').forEach(b=>b.onclick=()=>{ const on=fg.querySelectorAll('[data-gs].on').length; if(!b.classList.contains('on') && on>=3){ toast('Até 3 alunos por aula'); return; } b.classList.toggle('on'); b.style.background=b.classList.contains('on')?'#151412':''; b.style.color=b.classList.contains('on')?'#F3F1EC':''; });
+    fg.onsubmit=async e=>{ e.preventDefault(); const fd=new FormData(fg); const ids=[...fg.querySelectorAll('[data-gs].on')].map(b=>b.dataset.gs);
+      if(!ids.length){ toast('Escolha os alunos'); return; }
+      const [y,mo,d]=String(fd.get('date')).split('-').map(Number), [h,mi]=String(fd.get('time')).split(':').map(Number);
+      const dt=new Date(y,mo-1,d,h,mi); if(!(dt>new Date())){ toast('Escolha um horário futuro'); return; }
+      try{ await api('group',{start:dt.toISOString(),title:fd.get('title'),dur:+fd.get('dur')||90,studentIds:ids,notify:!!fd.get('notify')}); await load(); toast('Aula em grupo marcada'); }catch(x){ toast(x.code==='taken'?'Já tem aula individual nesse horário':'Erro ao marcar'); } };
+  }
+  document.querySelectorAll('[data-gdel]').forEach(b=>b.onclick=async()=>{ if(!confirm('Cancelar esta aula em grupo?')) return; try{ await api('group-delete',{start:b.dataset.gdel}); await load(); toast('Aula cancelada'); }catch{ toast('Erro'); } });
   const ft=$('#fTest'); if(ft) ft.onsubmit=async e=>{ e.preventDefault(); try{ const r=await api('test-class',{id:new FormData(ft).get('id')}); await load(); toast('Aula de teste marcada: '+fT(r.start)); }catch{ toast('Erro'); } };
   const fp=$('#fPost'); if(fp) fp.onsubmit=async e=>{ e.preventDefault(); try{ await api('post',Object.fromEntries(new FormData(fp))); await load(); toast('Publicado'); }catch{ toast('Erro'); } };
   document.querySelectorAll('[data-reply]').forEach(f=>f.onsubmit=async e=>{ e.preventDefault(); try{ await api('post',{thread:f.dataset.reply,body:new FormData(f).get('body')}); await load(); toast('Resposta publicada'); }catch{ toast('Erro'); } });

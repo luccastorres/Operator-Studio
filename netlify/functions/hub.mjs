@@ -13,6 +13,7 @@ import { HOOK, OWNER, SITE, LIVE } from "../lib/notify.mjs";
 //   auth/<token>         -> { id, exp }
 //   materials/<week>     week material (1..8)
 //   slots/<iso>          { start, dur, studentId?, week?, meet? }
+//   groups/<iso>         group class { start, dur, title, studentIds[] } (up to 3 students + mentor)
 //   forum/<id>           thread with replies
 // Store "hubfiles": uploaded files
 
@@ -132,6 +133,23 @@ async function notifyBooked(student, slot) {
   } catch { return ""; }
 }
 
+async function notifyGroup(student, g) {
+  if (quiet(student)) return;
+  const html = emailHtml({
+    eyebrow: "Mentoria · Aula em grupo",
+    title: `${esc(g.title)}.`,
+    intro: `Oi, ${esc(student.nome.split(" ")[0])}! Você está na aula em grupo. A sala abre 15 minutos antes, pelo seu Student Hub.`,
+    whenText: esc(fmtWhen(g.start)),
+    cta: "Abrir o Student Hub", ctaUrl: `${SITE}/hub/#agenda`,
+    closing: "Até lá!",
+  });
+  await fetch(HOOK, {
+    method: "POST", headers: { "content-type": "application/json" }, signal: AbortSignal.timeout(25000),
+    body: JSON.stringify({ type: "reminder", id: "group-" + g.start + "-" + student.id, to: student.email, toName: student.nome, bcc: OWNER,
+      subject: `Aula em grupo · ${g.title} · ${fmtWhen(g.start)}`, html, meet: "", event: null }),
+  });
+}
+
 async function notifyCancelled(student, slot) {
   if (quiet(student)) return;
   const html = emailHtml({
@@ -197,12 +215,12 @@ export default async (req) => {
     const a = path.slice(6);
 
     if (a === "state" && method === "GET") {
-      const [students, slots, forum, mats, reps] = await Promise.all([
-        listJSON(store, "students/"), listJSON(store, "slots/"), listJSON(store, "forum/"), materials(store), listJSON(store, "reports/"),
+      const [students, slots, forum, mats, reps, groups] = await Promise.all([
+        listJSON(store, "students/"), listJSON(store, "slots/"), listJSON(store, "forum/"), materials(store), listJSON(store, "reports/"), listJSON(store, "groups/"),
       ]);
-      const reports = reps.map((r) => ({ start: r.start, status: r.status, shared: !!r.shared, studentId: r.studentId, studentName: r.studentName || "", week: r.week,
+      const reports = reps.map((r) => ({ start: r.start, status: r.status, shared: !!r.shared, studentId: r.studentId, studentName: r.studentName || "", week: r.week, group: !!r.group, title: r.title || "",
         minutes: r.minutes, questions: r.report?.perguntas?.length || 0, updatedAt: r.updatedAt }));
-      return json({ students: students.map(publicStudent), slots, forum, materials: mats, weeks: WEEKS, reports, live: !!process.env.DAILY_API_KEY });
+      return json({ students: students.map(publicStudent), slots, groups, forum, materials: mats, weeks: WEEKS, reports, live: !!process.env.DAILY_API_KEY });
     }
     if (a === "student" && method === "POST") {
       const id = clip(body.id, 40);
@@ -298,6 +316,27 @@ export default async (req) => {
       await store.setJSON(`slots/${k}`, { start: k, dur: DUR, studentId: s.id, week, test: true, bookedAt: now() });
       return json({ ok: true, start: k, week });
     }
+    // Group class: the mentor picks the time and up to 3 students.
+    if (a === "group" && method === "POST") {
+      const d = new Date(clip(body.start, 40));
+      if (isNaN(d)) return json({ error: "date" }, 400);
+      const ids = [...new Set((Array.isArray(body.studentIds) ? body.studentIds : []).map((x) => clip(x, 40)))].slice(0, 3);
+      const members = (await Promise.all(ids.map((id) => store.get(`students/${id}`, { type: "json" })))).filter(Boolean);
+      if (!members.length) return json({ error: "students" }, 400);
+      const k = d.toISOString();
+      if ((await store.get(`slots/${k}`, { type: "json" }))?.studentId) return json({ error: "taken" }, 409);
+      const g = { start: k, dur: Math.max(15, Math.min(180, Number(body.dur) || DUR)), title: clip(body.title, 80) || "Aula em grupo", studentIds: members.map((m) => m.id), group: true, createdAt: now() };
+      await store.setJSON(`groups/${k}`, g);
+      if (body.notify !== false) for (const m of members) await notifyGroup(m, g).catch(() => {});
+      return json({ ok: true, group: g });
+    }
+    if (a === "group-delete" && method === "POST") {
+      const k = clip(body.start, 40);
+      const g = await store.get(`groups/${k}`, { type: "json" });
+      if (!g) return json({ error: "nf" }, 404);
+      await store.delete(`groups/${k}`);
+      return json({ ok: true });
+    }
     if (a === "slot-cancel" && method === "POST") {
       const sl = await store.get(`slots/${clip(body.start, 40)}`, { type: "json" });
       if (!sl?.studentId) return json({ error: "nf" }, 404);
@@ -347,7 +386,10 @@ export default async (req) => {
     const free = slots.filter((s) => !s.studentId && new Date(s.start).getTime() > t + 2 * 3600000).sort((a, b) => a.start.localeCompare(b.start)).map((s) => ({ start: s.start, dur: s.dur }));
     const reps = await Promise.all(mine.map((s) => store.get(`reports/${s.start}`, { type: "json" })));
     const sessions = mine.map((s, i) => ({ ...s, report: !!(reps[i]?.shared && reps[i]?.status === "done" && reps[i]?.studentId === me.id) }));
-    return json({ me: publicStudent(me), weeks, sessions, free, live: !!process.env.DAILY_API_KEY, rules: { cancelHours: 24, weeks: WEEKS } });
+    const gl = (await listJSON(store, "groups/")).filter((g) => (g.studentIds || []).includes(me.id)).sort((a, b) => a.start.localeCompare(b.start));
+    const greps = await Promise.all(gl.map((g) => store.get(`reports/${g.start}`, { type: "json" })));
+    const groups = gl.map((g, i) => ({ start: g.start, dur: g.dur, title: g.title, group: true, report: !!(greps[i]?.shared && greps[i]?.status === "done") }));
+    return json({ me: publicStudent(me), weeks, sessions, groups, free, live: !!process.env.DAILY_API_KEY, rules: { cancelHours: 24, weeks: WEEKS } });
   }
 
   if (path === "book" && method === "POST") {

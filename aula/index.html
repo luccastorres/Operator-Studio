@@ -95,6 +95,13 @@ a{color:inherit}
 .dnav .stop{width:auto;padding:0 14px;font-size:13px;border-radius:999px;background:var(--ink);color:var(--linen)}
 .dnav span{min-width:64px;text-align:center;font-variant-numeric:tabular-nums;color:var(--soft)}
 .pip,.tag{z-index:2}
+.grid{position:absolute;inset:0;display:grid;gap:10px;padding:10px;grid-auto-rows:1fr}
+.gt{position:relative;border-radius:18px;overflow:hidden;background:var(--card);border:1px solid var(--line);min-height:0}
+.gt video{width:100%;height:100%;object-fit:cover;display:block}
+.gt .gav{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:44px;color:var(--sand)}
+.gt .gn{position:absolute;left:10px;bottom:10px;display:flex;align-items:center;gap:6px;background:rgba(251,250,247,.92);border:1px solid var(--line);border-radius:999px;padding:5px 10px;font-size:12.5px}
+.gt .gn svg{width:13px;height:13px;color:var(--red)}
+.stage.g .pip:not(.pip2){top:14px;bottom:auto;width:min(22%,170px)}
 .pick{position:fixed;inset:0;z-index:40;background:rgba(21,20,18,.28);display:flex;align-items:flex-end;justify-content:center}
 .pick>div{width:100%;max-width:520px;max-height:80vh;overflow-y:auto;background:var(--linen);border-radius:24px 24px 0 0;padding:22px 18px calc(24px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:10px}
 @media(min-width:700px){.pick{align-items:center}.pick>div{border-radius:24px}}
@@ -140,6 +147,7 @@ a{color:inherit}
   <div class="body" id="body">
     <div class="stage" id="stage">
       <video class="main" id="vMain" autoplay playsinline hidden></video>
+      <div class="grid" id="grid" hidden></div>
       <div class="wait" id="wait"><div class="av" id="waitAv"></div><p id="waitT"></p><span class="muted" id="waitS" style="font-size:14px"></span></div>
       <div class="deck" id="deck" hidden><canvas id="deckC"></canvas>
         <div class="dnav"><button id="dPrev" aria-label="Anterior">‹</button><span id="dNum"></span><button id="dNext" aria-label="Próxima">›</button><button class="stop" id="dStop">Parar</button></div></div>
@@ -225,10 +233,10 @@ async function boot(){
     return;
   }
   const other = MENTOR ? first(INFO.student.nome) : 'Luccas';
-  $('#preEy').textContent = `Mentoria · Semana ${INFO.week||''}`;
-  $('#preT').innerHTML = `Aula com <em>${esc(other)}.</em>`;
+  $('#preEy').textContent = INFO.group ? 'Mentoria · Aula em grupo' : `Mentoria · Semana ${INFO.week||''}`;
+  $('#preT').innerHTML = INFO.group ? `${esc(INFO.title)}<em>.</em>` : `Aula com <em>${esc(other)}.</em>`;
   $('#preW').textContent = `${cap(fDay(INFO.start))} · ${fTime(INFO.start)} · ${INFO.dur} min`;
-  $('#rTitle').textContent = `Semana ${INFO.week||''} · ${MENTOR?INFO.student.nome:'Luccas Torres'}`;
+  $('#rTitle').textContent = INFO.group ? `${INFO.title} · ${(INFO.members||[]).map(m=>first(m.nome)).join(', ')}` : `Semana ${INFO.week||''} · ${MENTOR?INFO.student.nome:'Luccas Torres'}`;
   if(MENTOR) $('#preHelp').textContent = 'A transcrição começa quando você entra. Ao encerrar a aula, o relatório é gerado automaticamente.';
   call = Daily.createCallObject({ subscribeToTracksAutomatically:true });
   bindCall();
@@ -241,7 +249,7 @@ function renderPreview(){
   const p = call.participants().local; const t = p?.tracks?.video;
   const v = $('#pv');
   if(camOn && t?.persistentTrack){ if(v.srcObject?.getVideoTracks?.()[0]?.id !== t.persistentTrack.id) v.srcObject = new MediaStream([t.persistentTrack]); v.hidden=false; $('#pvOff').hidden=true; }
-  else { v.hidden=true; $('#pvOff').hidden=false; $('#pvOff').textContent = MENTOR?'L':first(INFO.student.nome).charAt(0); }
+  else { v.hidden=true; $('#pvOff').hidden=false; $('#pvOff').textContent = MENTOR?'L':first(p?.user_name||INFO.student.nome).charAt(0); }
 }
 function paintPre(){
   $('#pMic').innerHTML = micOn?I.mic:I.micOff; $('#pMic').classList.toggle('offst',!micOn);
@@ -313,14 +321,34 @@ function setVideo(el, track){ if(!track){ el.srcObject=null; return; } if(el.src
 function updateTiles(){
   if(!call) return;
   const ps = call.participants(); const me = ps.local; const others = Object.values(ps).filter(p=>!p.local);
-  const r = others[0];
+  const scrP = others.find(p=>p.tracks?.screenVideo?.state==='playable');
+  const r = scrP || others.find(p=>p.user_id==='mentor') || others[0];
+  const grid = $('#grid');
+  const useGrid = INFO.group && !scrP && others.length > 0;
+  grid.hidden = !useGrid; $('#stage').classList.toggle('g', useGrid);
+  if(useGrid){
+    const box = $('#stage').getBoundingClientRect(), n = others.length;
+    grid.style.gridTemplateColumns = `repeat(${n===1 ? 1 : (box.width > box.height*1.1 ? Math.min(n,3) : (n>2?2:1))}, 1fr)`;
+    const keep = new Set();
+    for(const p of others){
+      keep.add(p.session_id);
+      let t = grid.querySelector(`[data-sid="${CSS.escape(p.session_id)}"]`);
+      if(!t){ t = document.createElement('div'); t.className='gt'; t.dataset.sid = p.session_id; t.innerHTML = '<video autoplay playsinline muted></video><div class="gav"></div><div class="gn"></div>'; grid.appendChild(t); }
+      const v = t.querySelector('video'), cam = p.tracks?.video;
+      if(cam?.state==='playable'){ setVideo(v, cam.persistentTrack); v.hidden=false; t.querySelector('.gav').hidden=true; }
+      else { v.hidden=true; const av=t.querySelector('.gav'); av.hidden=false; av.textContent = first(p.user_name).charAt(0).toUpperCase(); }
+      t.querySelector('.gn').innerHTML = `${p.tracks?.audio?.state==='playable'?'':I.micOff}${esc(p.user_id==='mentor'?'Luccas':first(p.user_name))}`;
+    }
+    grid.querySelectorAll('.gt').forEach(t=>{ if(!keep.has(t.dataset.sid)) t.remove(); });
+  }
   // my small tile
   const myV = me?.tracks?.video;
   if(myV?.state==='playable' && camOn){ setVideo($('#vMe'), myV.persistentTrack); $('#vMe').hidden=false; $('#meOff').hidden=true; }
-  else { $('#vMe').hidden=true; $('#meOff').hidden=false; $('#meOff').textContent = MENTOR?'L':first(INFO.student.nome).charAt(0); }
+  else { $('#vMe').hidden=true; $('#meOff').hidden=false; $('#meOff').textContent = MENTOR?'L':first(me?.user_name||INFO.student.nome).charAt(0); }
   // main stage
   const main = $('#vMain'), cam2 = $('#pipCam');
-  if(r){
+  if(useGrid){ main.hidden=true; cam2.hidden=true; $('#wait').hidden=true; $('#tag').hidden=true; }
+  else if(r){
     const scr = r.tracks?.screenVideo, cam = r.tracks?.video, aud = r.tracks?.audio;
     if(scr?.state==='playable'){ setVideo(main, scr.persistentTrack); main.classList.add('screen'); main.hidden=false; $('#wait').hidden=true;
       if(cam?.state==='playable'){ setVideo($('#vCam2'), cam.persistentTrack); cam2.hidden=false; } else cam2.hidden=true; }
@@ -330,7 +358,8 @@ function updateTiles(){
     const tag = $('#tag'); tag.hidden=false; tag.innerHTML = `${aud?.state==='playable'?'':I.micOff}${esc(r.user_name||'')}`;
   } else {
     main.hidden=true; cam2.hidden=true; $('#tag').hidden=true;
-    waiting(MENTOR?first(INFO.student.nome):'Luccas', MENTOR?`Aguardando ${first(INFO.student.nome)}.`:'O Luccas entra em instantes.', 'A sala está aberta.');
+    if(INFO.group) waiting(MENTOR?'·':'L', MENTOR?'Aguardando os alunos.':'Aguardando o Luccas e o grupo.', 'A sala está aberta.');
+    else waiting(MENTOR?first(INFO.student.nome):'Luccas', MENTOR?`Aguardando ${first(INFO.student.nome)}.`:'O Luccas entra em instantes.', 'A sala está aberta.');
   }
   // remote audio (call objects do not play audio on their own)
   const box = $('#audios'); const keep = new Set();
@@ -470,6 +499,7 @@ function beacon(){
   navigator.sendBeacon('/api/live/lines', blob);
 }
 window.addEventListener('pagehide', beacon);
+window.addEventListener('resize', () => { try{ updateTiles(); }catch{} });
 document.addEventListener('visibilitychange', () => { if(document.visibilityState==='hidden') beacon(); });
 
 /* ---------- after the class ---------- */

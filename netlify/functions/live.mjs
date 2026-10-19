@@ -46,12 +46,15 @@ export default async (req) => {
 
   const start = clip(body.start || url.searchParams.get("s"), 40);
   const slot = start ? await store.get(`slots/${start}`, { type: "json" }) : null;
+  const group = start && !slot?.studentId ? await store.get(`groups/${start}`, { type: "json" }) : null;
   const report = start ? await store.get(`reports/${start}`, { type: "json" }) : null;
-  // A student may only touch their own session. The mentor may open past sessions that still have a report.
-  const owns = admin || (slot?.studentId && slot.studentId === me.id) || (report?.studentId && report.studentId === me?.id);
+  // A student may only touch their own session (or a group class they are in). The mentor may open past sessions that still have a report.
+  const owns = admin || (slot?.studentId && slot.studentId === me.id) || (group?.studentIds || []).includes(me?.id)
+    || (report?.studentId && report.studentId === me?.id) || (report?.studentIds || []).includes(me?.id);
   if (!start || !owns) return json({ error: "nf" }, 404);
 
   if (path === "join" && req.method === "POST") {
+    if (group) return joinGroup(group, admin, me, store);
     if (!slot?.studentId) return json({ error: "nf" }, 404);
     const t0 = new Date(slot.start).getTime(), now = Date.now();
     const opensAt = t0 - (admin ? 60 : 15) * 60000, closesAt = t0 + (DUR + (admin ? 180 : 60)) * 60000;
@@ -103,6 +106,7 @@ export default async (req) => {
     await store.setJSON(`reports/${start}`, {
       ...(report || {}), start, status: "pending", shared: !!report?.shared,
       studentId: slot?.studentId || report?.studentId, week: slot?.week || report?.week, updatedAt: new Date().toISOString(),
+      ...(group ? { group: true, studentIds: group.studentIds, title: group.title, studentName: group.title } : {}),
     });
     return json({ ok: true });
   }
@@ -133,15 +137,49 @@ export default async (req) => {
       }
       const studentId = report?.studentId || slot?.studentId;
       const student = studentId ? await store.get(`students/${studentId}`, { type: "json" }) : null;
+      const gIds = group?.studentIds || report?.studentIds || [];
+      if (gIds.length) {
+        const ms = (await Promise.all(gIds.map((id) => store.get(`students/${id}`, { type: "json" })))).filter(Boolean);
+        return json({ report: report || null, transcript: tr, slot: slot || group, group: true,
+          student: { nome: group?.title || report?.title || "Aula em grupo", negocio: ms.map((m) => m.nome).join(", "), email: ms.map((m) => m.email).join(", ") } });
+      }
       return json({ report: report || null, transcript: tr, slot, student: student ? { nome: student.nome, negocio: student.negocio, email: student.email } : null });
     }
     if (!report?.shared || report.status !== "done") return json({ error: "nf" }, 404);
     const r = {};
     for (const f of STUDENT_FIELDS) r[f] = report.report?.[f];
-    return json({ report: { start, week: report.week, minutes: report.minutes, report: r, updatedAt: report.updatedAt } });
+    return json({ report: { start, week: report.week, minutes: report.minutes, report: r, updatedAt: report.updatedAt, group: !!report.group, title: report.title || "" } });
   }
 
   return json({ error: "route" }, 404);
 };
+
+// Group class room: mentor + up to 3 students, one room for the whole class.
+async function joinGroup(g, admin, me, store) {
+  const t0 = new Date(g.start).getTime(), now = Date.now(), dur = g.dur || DUR;
+  const opensAt = t0 - (admin ? 60 : 15) * 60000, closesAt = t0 + (dur + (admin ? 180 : 60)) * 60000;
+  if (now < opensAt) return json({ error: "early", opensAt: new Date(opensAt).toISOString() }, 400);
+  if (now > closesAt) return json({ error: "over" }, 400);
+  if (!process.env.DAILY_API_KEY) return json({ error: "setup" }, 503);
+  const exp = Math.floor((t0 + (dur + 180) * 60000) / 1000);
+  const name = "grupo-" + g.start.replace(/[^0-9T]/g, "").slice(0, 13);
+  let room = await daily("/rooms", "POST", { name, privacy: "private", properties: { exp, eject_at_room_exp: true, max_participants: 4, enable_chat: false, enable_prejoin_ui: false } });
+  if (!room.ok) room = await daily(`/rooms/${name}`);
+  if (!room.ok || !room.j.url) return json({ error: "daily", detail: room.j?.info || room.j?.error || room.status }, 502);
+  const user = admin ? { user_name: "Luccas Torres", user_id: "mentor", is_owner: true } : { user_name: me.nome, user_id: me.id, is_owner: false };
+  const tok = await daily("/meeting-tokens", "POST", { properties: { room_name: name, exp, ...user } });
+  if (!tok.ok || !tok.j.token) return json({ error: "daily", detail: tok.j?.info || tok.status }, 502);
+  const members = (await Promise.all((g.studentIds || []).map((id) => store.get(`students/${id}`, { type: "json" })))).filter(Boolean).map((m) => ({ id: m.id, nome: m.nome }));
+  const decks = [];
+  if (admin) for (let w = 1; w <= 8; w++) {
+    const m = await store.get(`materials/${w}`, { type: "json" });
+    for (const i of m?.items || []) if (/^\/api\/hub\/file\//.test(i.url) || /\.pdf($|\?)/i.test(i.url)) decks.push({ label: i.label, url: i.url, week: w });
+  }
+  return json({
+    ok: true, url: room.j.url, token: tok.j.token, role: admin ? "mentor" : "student", group: true, title: g.title, members,
+    start: g.start, dur, week: null, student: { id: "", nome: g.title, negocio: "" }, material: null, decks,
+    stt: { language: process.env.STT_LANG || "pt-BR", model: process.env.STT_MODEL || "nova-2" },
+  });
+}
 
 export const config = { path: ["/api/live/*"] };

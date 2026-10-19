@@ -119,6 +119,9 @@ async function load(){
 function head(){
   const s = D.student || {}, r = D.report || {}, slot = D.slot || {};
   const start = r.start || slot.start || START, week = r.week || slot.week;
+  if(D.group) return `<div><span class="ey">Relatório da aula em grupo</span>
+    <h1 class="h1" style="margin-top:10px">${esc(s.nome||'Aula em grupo')}<em>.</em></h1>
+    <div class="meta"><span>${esc(s.negocio||'')}</span><span>${esc(cap(fDT(start)))}</span>${(r.minutes||D.transcript?.minutes)?`<span>${r.minutes||D.transcript.minutes} min transcritos</span>`:''}${r.status==='done'?(r.shared?'<span class="chip ok">Publicado para os alunos</span>':'<span class="chip">Só você vê</span>'):''}</div></div>`;
   return `<div><span class="ey">Relatório da aula · Semana ${esc(week||'')}</span>
     <h1 class="h1" style="margin-top:10px">${esc(first(s.nome)||'Aluno')}<em>${s.negocio?', '+esc(s.negocio):''}.</em></h1>
     <div class="meta"><span>${esc(cap(fDT(start)))}</span>${(r.minutes||D.transcript?.minutes)?`<span>${r.minutes||D.transcript.minutes} min transcritos</span>`:''}${r.status==='done'?(r.shared?'<span class="chip ok">Publicado para o aluno</span>':'<span class="chip">Só você vê</span>'):''}</div></div>`;
@@ -137,13 +140,13 @@ function render(){
   } else {
     const x = r.report || {};
     html += `<div class="row noprint">
-        <button class="btn" id="share">${r.shared?'Ocultar do aluno':'Publicar para o aluno'}</button>
+        <button class="btn" id="share">${r.shared?(D.group?'Ocultar dos alunos':'Ocultar do aluno'):(D.group?'Publicar para os alunos':'Publicar para o aluno')}</button>
         <button class="btn ghost" id="wa">Copiar para WhatsApp</button>
         <button class="btn ghost" onclick="print()">Salvar PDF</button>
         <button class="btn ghost" id="gen">Gerar de novo</button></div>
       <div class="card"><span class="ey">Resumo</span><p class="lead">${esc(x.resumo||'')}</p></div>
-      <div class="card"><span class="ey">Perguntas de ${esc(first(D.student?.nome)||'aluno')} · ${(x.perguntas||[]).length}</span>
-        ${(x.perguntas||[]).length ? x.perguntas.map((q,i)=>`<div class="q"><span class="n">${String(i+1).padStart(2,'0')}</span><div><small>${esc(q.momento||'')}</small><h3>${esc(q.pergunta)}</h3><p>${esc(q.resposta||'')}</p></div></div>`).join('') : '<p class="muted">Nenhuma pergunta registrada.</p>'}</div>
+      <div class="card"><span class="ey">${D.group?'Perguntas da turma':'Perguntas de '+esc(first(D.student?.nome)||'aluno')} · ${(x.perguntas||[]).length}</span>
+        ${(x.perguntas||[]).length ? x.perguntas.map((q,i)=>`<div class="q"><span class="n">${String(i+1).padStart(2,'0')}</span><div><small>${esc(q.momento||'')}${D.group&&q.aluno?' · '+esc(q.aluno):''}</small><h3>${esc(q.pergunta)}</h3><p>${esc(q.resposta||'')}</p></div></div>`).join('') : '<p class="muted">Nenhuma pergunta registrada.</p>'}</div>
       <div class="two">
         <div class="card"><span class="ey">O que construímos</span>${list(x.construido)}</div>
         <div class="card"><span class="ey">Tarefas até a próxima sessão</span>${list((x.tarefas||[]).map(t=>t.tarefa+(t.prazo?` · ${t.prazo}`:'')),'t')}</div>
@@ -179,7 +182,7 @@ function waText(){
 }
 function bind(){
   const g=$('#gen'); if(g) g.onclick=()=>generate(false);
-  const s=$('#share'); if(s) s.onclick=async()=>{ try{ const r=await api('share',{shared:!D.report.shared}); D.report.shared=r.shared; render(); toast(r.shared?'Publicado no Student Hub do aluno':'Oculto do aluno'); }catch{ toast('Erro'); } };
+  const s=$('#share'); if(s) s.onclick=async()=>{ try{ const r=await api('share',{shared:!D.report.shared}); D.report.shared=r.shared; render(); toast(r.shared?(D.group?'Publicado no Student Hub dos alunos':'Publicado no Student Hub do aluno'):'Oculto'); }catch{ toast('Erro'); } };
   const w=$('#wa'); if(w) w.onclick=async()=>{ try{ await navigator.clipboard.writeText(waText()); toast('Resumo copiado'); }catch{ prompt('Copie o texto:', waText()); } };
   const q=$('#q'); if(q) q.oninput=()=>{ FILTER=q.value; $('#tr').innerHTML=paras(D.transcript.paras); };
 }
