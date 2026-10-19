@@ -198,6 +198,17 @@ export default async (req) => {
       await crm.setJSON(id, { ...cur, call: { status: "pending", kind, at, chars: text.length } });
       return json({ ok: true });
     }
+    // Regenerate the report from the stored transcript, as a sales analysis or as a meeting report.
+    if (b.action === "regen") {
+      const id = clip(b.id, 60), kind = b.kind === "reuniao" ? "reuniao" : "venda";
+      const cs = getStore({ name: "calls", consistency: "strong" });
+      const t = await cs.get(id, { type: "json" });
+      if (!t?.text) return json({ error: "notranscript" }, 404);
+      await cs.setJSON(id, { ...t, kind });
+      const cur = (await crm.get(id, { type: "json" })) || {};
+      await crm.setJSON(id, { ...cur, call: { status: "pending", kind, at: t.at, chars: t.text.length } });
+      return json({ ok: true });
+    }
     if (b.action === "transcript-get") {
       const t = await getStore({ name: "calls", consistency: "strong" }).get(clip(b.id, 60), { type: "json" });
       return json({ ok: true, text: t?.text || "" });

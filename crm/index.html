@@ -408,7 +408,7 @@ function callBlock(l){
   const c = l.call, wa = waNumber(l.whatsapp);
   const head = `<span class="eyebrow">Relatório da call · Google Meet</span>`;
   if(!c) return `<div class="blk" id="cr">${head}<p class="dstat">Depois da call, cole aqui a transcrição do Tactiq (texto ou PDF). Serve para análise de venda ou para reunião com cliente e mentorado.</p><div class="dgrow"><button class="btn sm" id="crImp">Importar transcrição</button></div></div>`;
-  if(c.status==='pending') return `<div class="blk" id="cr">${head}<p class="dstat"><b>Gerando o relatório…</b> leva cerca de 1 minuto. Pode fechar, ele aparece aqui sozinho.</p></div>`;
+  if(c.status==='pending') return `<div class="blk" id="cr">${head}<p class="dstat"><b>Gerando o ${c.kind==='reuniao'?'relatório da reunião':'relatório da análise'}…</b> leva cerca de 1 minuto. Pode fechar, ele aparece aqui sozinho.</p></div>`;
   if(c.status==='error') return `<div class="blk" id="cr">${head}<p class="dstat">Não deu certo: ${esc(c.error||'erro')}</p><div class="dgrow"><button class="btn sm" id="crRetry">Tentar de novo</button><button class="btn ghost sm" id="crImp">Colar outra transcrição</button></div></div>`;
   const r = c.report||{};
   const list = (t,a)=> a?.length ? `<h4>${t}</h4><ul>${a.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>` : '';
@@ -422,7 +422,8 @@ function callBlock(l){
     ${(r.topicos||[]).map(tp=>list(esc(tp.titulo), tp.pontos)).join('')}
     ${list('Decisões', r.decisoes)}${list('Próximas ações · Luccas', r.acoes_luccas)}${list('Próximas ações · '+esc(first(l.nome)), r.acoes_cliente)}${list('Ideias', r.ideias)}${list('Em aberto', r.em_aberto)}
     ${open}${btns}</div>`;
-  return `<div class="blk cr" id="cr">${head}
+  const other = c.kind==='reuniao' ? '' : `<div class="dgrow"><button class="btn sm" id="crRegen">Gerar relatório da reunião (para o cliente)</button></div>`;
+  return `<div class="blk cr" id="cr">${head}${other}
     ${r.interesse?`<div><span class="chip ${esc(r.interesse)}">Interesse ${esc(r.interesse)}</span></div>${r.interesse_nota?`<p class="dstat">${esc(r.interesse_nota)}</p>`:''}`:''}
     <p>${esc(r.resumo)}</p>
     ${r.perguntas?.length?`<h4>Perguntas (${r.perguntas.length})</h4><ol>${r.perguntas.map(q=>`<li>${esc(q.pergunta)}<small>${esc(q.resposta)}</small></li>`).join('')}</ol>`:''}
@@ -450,6 +451,8 @@ function pollCall(id){
 function bindCall(l){
   const imp = $('#crImp'); if(imp) imp.onclick = ()=>openImport(l);
   const rt = $('#crRetry'); if(rt) rt.onclick = async()=>{ l.call = {status:'pending'}; openLead(l.id, true); try{ await startCallReport(l.id); }catch{ toast('Erro'); } };
+  const rg = $('#crRegen'); if(rg) rg.onclick = ()=>regen(l, 'reuniao');
+  const rv = $('#crRegenV'); if(rv) rv.onclick = ()=>regen(l, 'venda');
   const cp = $('#crCopy'); if(cp) cp.onclick = async()=>{ try{ await navigator.clipboard.writeText(callText(l)); toast('Relatório copiado'); }catch{ prompt('Copie:', callText(l)); } };
   if(l.call?.status==='pending' && !CALLPOLL) pollCall(l.id);
 }
@@ -466,6 +469,11 @@ async function pdfText(file){
   }
   return out.map(x=>x.trim()).filter(Boolean).join('\n');
 }
+function defKind(l){ return l.call?.kind || (l.source==='site' && l.stage!=='cliente' ? 'venda' : 'reuniao'); }
+async function regen(l, kind){
+  try{ await api('POST',{action:'regen', id:l.id, kind}); l.call = {status:'pending', kind}; openLead(l.id, true); await startCallReport(l.id); }
+  catch{ toast('Erro ao gerar'); }
+}
 function openImport(l){
   INDIAG = true;
   $('#sheet').innerHTML = `<div class="grab"></div>
@@ -474,8 +482,9 @@ function openImport(l){
     <div class="blk">
       <p class="dstat">No Tactiq, abra a reunião e toque em <b>Copy</b> (ou baixe o .txt ou o PDF). Cole aqui embaixo ou escolha o arquivo.</p>
       <div class="field"><label>Tipo de conversa</label><div class="stages" id="txKind">
-        <button type="button" class="st ${l.stage==='cliente'?'':'on'}" data-k="venda">Análise de venda</button>
-        <button type="button" class="st ${l.stage==='cliente'?'on':''}" data-k="reuniao">Reunião / mentoria</button></div></div>
+        <button type="button" class="st ${defKind(l)==='venda'?'on':''}" data-k="venda">Análise de venda</button>
+        <button type="button" class="st ${defKind(l)==='reuniao'?'on':''}" data-k="reuniao">Reunião / mentoria</button></div>
+        <p class="dstat" style="margin-top:6px"><b>Reunião / mentoria</b> gera o relatório para enviar ao cliente. <b>Análise de venda</b> é só para você (dores, objeções, interesse).</p></div>
       <textarea class="in tx" id="txIn" placeholder="Cole a transcrição aqui…"></textarea>
       <div class="dgrow"><label class="btn ghost sm" style="cursor:pointer">Escolher arquivo<input type="file" id="txFile" accept=".txt,.vtt,.srt,.md,.pdf,text/plain,application/pdf" hidden></label><span class="dstat" id="txInfo"></span></div>
       <div class="dgrow"><button class="btn" id="txGo">Gerar relatório</button></div>
