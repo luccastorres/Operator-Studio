@@ -509,7 +509,7 @@ function navRender(){
   const leadsN = LEADS.filter(l=>!['cliente','perdido'].includes(l.stage)).length, alunosN = LEADS.filter(l=>l.stage==='cliente').length, newMsg = LEADS.filter(l=>l.waNew).length;
   const cnt = { leads: leadsN, alunos: alunosN };
   $('#snav').innerHTML = NAV.map(([k,t,ic])=>`<a href="#" data-view="${k}" class="${VIEW===k?'on':''}">${ic}${t}${k==='alunos'&&newMsg?`<i class="new">${newMsg}</i>`:cnt[k]!==undefined?`<i>${cnt[k]}</i>`:''}</a>`).join('')
-    + `<div class="sep"></div><button data-act="new">${NI.plus}Novo lead</button><button data-act="ag">${NI.clock}Horários de análise</button><button data-act="fu">${NI.mail}Follow-up por e-mail</button><a href="/hub/admin/" target="_blank" rel="noopener">${NI.hub}Admin do Student Hub</a><button data-act="ref">${NI.ref}Atualizar</button>`;
+    + `<div class="sep"></div><button data-act="wait">${NI.clock}Lista de espera${waitList().length?`<i class="new" style="font-style:normal;margin-left:auto;font-size:12px;background:var(--terra);color:#fff;border-radius:999px;padding:1px 7px">${waitList().length}</i>`:''}</button><button data-act="new">${NI.plus}Novo lead</button><button data-act="ag">${NI.clock}Horários de análise</button><button data-act="fu">${NI.mail}Follow-up por e-mail</button><a href="/hub/admin/" target="_blank" rel="noopener">${NI.hub}Admin do Student Hub</a><button data-act="ref">${NI.ref}Atualizar</button>`;
   $('#bnav').innerHTML = NAV.map(([k,t,ic])=>`<a href="#" data-view="${k}" class="${VIEW===k?'on':''}">${ic}${t}</a>`).join('');
   $('#meAv').innerHTML = avP({nome:'Luccas', photo:MENTOR_PHOTO}, 44);
 }
@@ -539,7 +539,8 @@ function home(){
   });
   LEADS.filter(l=>l.stage==='analise').forEach(l=>A.push({ id:l.id, t:`Enviar proposta para ${first(l.nome)}`, tag:'Comercial', w:'', o:4 }));
   LEADS.filter(l=>l.stage==='proposta' && l.updatedAt && days(l.updatedAt)>=3).forEach(l=>A.push({ id:l.id, t:`Follow-up da proposta · ${first(l.nome)}`, tag:'Comercial', w:`há ${days(l.updatedAt)}d`, o:4.5 }));
-  LEADS.filter(l=>l.stage==='novo' && !l.slot).forEach(l=>A.push({ id:l.id, t:`Marcar análise com ${first(l.nome)}`, tag:'Comercial', w:'', o:5 }));
+  { const ws = waitList().filter(l=>!l.waitAt); if(ws.length) A.push({ id:'__wait', t:`Avisar lista de espera (${ws.length}): novos horários`, tag:'Comercial', w:'', o:3.8 }); }
+  LEADS.filter(l=>l.stage==='novo' && !l.slot && l.source!=='waitlist').forEach(l=>A.push({ id:l.id, t:`Marcar análise com ${first(l.nome)}`, tag:'Comercial', w:'', o:5 }));
   A.sort((a,b)=>a.o-b.o);
   const F = [['novo','Novos'],['agendado','Análise agendada'],['analise','Análise feita'],['proposta','Proposta'],['cliente','Clientes']].map(([s,t])=>[t, LEADS.filter(l=>l.stage===s).length]);
   const fmax = Math.max(1, ...F.map(x=>x[1]));
@@ -576,6 +577,44 @@ function weekGrid(days, by, today){
     ${days.map(d=>{ const k = ymd(d); const es = (by[k]||[]).filter(e=>!e.allDay);
       return `<div class="col2 ${k===today?'today':''}" style="height:${hrs.length*PX}px">${k===today&&nowMin>=h0*60&&nowMin<=h1*60?`<span class="now" style="top:${(nowMin-h0*60)/60*PX}px"></span>`:''}${es.map(e=>{ const tp = top(e.time), ht = Math.max(24, (e.dur||30)/60*PX-3); const attr = e.lead ? `data-id="${esc(e.lead)}"` : e.room ? `data-room="${esc(e.room)}"` : ''; return (e.dur||30) <= 45 ? `<button class="ev sm ${e.type}" ${attr} style="top:${tp}px;height:${ht}px" title="${esc(e.t+' · '+e.sub)}"><b>${e.time}</b>${esc(e.type==='livre'?'Livre':first(e.t))}</button>` : evHtml(e).replace('<button class="ev', `<button style="top:${tp}px;height:${ht}px" class="ev`); }).join('')}</div>`; }).join('')}
   </div>`;
+}
+
+
+/* ---------- Lista de espera ---------- */
+const WAITMSG = 'Oi, {nome}! Aqui é o Luccas, da Operator Studio. Você está na lista de espera da análise gratuita de 30 minutos, e acabei de abrir novos horários. Reserve o seu aqui: {link}';
+const waitList = () => LEADS.filter(l => l.source === 'waitlist' && !['perdido','cliente'].includes(l.stage) && !l.slot);
+const waitLink = () => location.origin + '/#contato';
+const waitText = (l, tpl) => (tpl || store.get('os_waitmsg') || WAITMSG).replaceAll('{nome}', first(l.nome)).replaceAll('{link}', waitLink());
+async function openWaitlist(){
+  INDIAG = true; OPEN = null;
+  try{ if(!CAL.ag) await calLoad(); }catch{}
+  const free = (CAL.ag?.slots||[]).filter(k => !CAL.ag.booked?.[k] && slotDate(k) > Date.now()).length;
+  const ws = waitList(), tpl = store.get('os_waitmsg') || WAITMSG;
+  const fdt = iso => new Date(iso).toLocaleString('pt-BR',{timeZone:'Asia/Dubai',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+  $('#sheet').innerHTML = `<div class="sh">
+    <div class="sh-head"><div><span class="eyebrow">Análise gratuita · 30 min</span><h3>Lista de espera</h3><p>${ws.length} ${ws.length===1?'pessoa esperando':'pessoas esperando'} · ${free} ${free===1?'horário livre':'horários livres'} no site</p></div>
+      <button class="iconbtn" id="close" aria-label="Fechar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    ${free ? '' : `<div class="blk" style="background:var(--terra-s);border-color:#E6CDBE"><p class="dstat" style="color:var(--terra-d)"><b style="color:var(--terra-d)">Ainda não há horários livres.</b> Abra horários primeiro, para o link já mostrar a agenda.</p><div><button class="btn sm" id="wOpenAg">Abrir horários</button></div></div>`}
+    <div class="blk"><span class="eyebrow">Mensagem</span>
+      <textarea class="in" id="wMsg" style="min-height:120px">${esc(tpl)}</textarea>
+      <p class="dstat" style="font-size:12.5px">{nome} vira o primeiro nome de cada pessoa e {link} o link para reservar.</p>
+      <div class="dgrow"><button class="btn ghost sm" id="wReset">Voltar ao texto padrão</button></div></div>
+    <div class="blk"><span class="eyebrow">Avisar</span>
+      ${ws.length ? ws.map(l => { const wa = waNumber(l.whatsapp); return `<div style="display:flex;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--line)">${avP({nome:l.nome},40)}
+        <div style="flex:1;min-width:0"><b style="font-weight:500">${esc(l.nome)}</b><div class="dstat" style="font-size:13px">${l.createdAt?'Entrou em '+esc(fdt(l.createdAt)):''}${l.waitAt?` · <span style="color:var(--ok)">avisada em ${esc(fdt(l.waitAt))}</span>`:''}</div></div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">${wa?`<a class="btn sm" data-wwa="${esc(l.id)}" target="_blank" rel="noopener" href="#">WhatsApp</a>`:'<span class="dstat" style="font-size:12px">sem WhatsApp</span>'}<button class="btn ghost sm" data-wcp="${esc(l.id)}">Copiar</button><button class="btn ghost sm" data-wopen="${esc(l.id)}">Ficha</button></div></div>`; }).join('')
+      : '<p class="dstat">Ninguém na lista de espera agora.</p>'}
+      <p class="dstat" style="font-size:12.5px">"WhatsApp" abre a conversa no seu WhatsApp com a mensagem pronta, e a pessoa fica marcada como avisada.</p></div>
+  </div>`;
+  $('#sheet').scrollTop = 0; $('#sheet').classList.add('on'); $('#scrim').classList.add('on');
+  $('#close').onclick = closeSheet;
+  const oa = $('#wOpenAg'); if(oa) oa.onclick = () => openAgenda();
+  $('#wMsg').oninput = e => store.set('os_waitmsg', e.target.value);
+  $('#wReset').onclick = () => { store.del('os_waitmsg'); $('#wMsg').value = WAITMSG; };
+  const mark = async id => { const l = LEADS.find(x=>x.id===id); const at = new Date().toISOString(); try{ await api('POST',{action:'update', id, waitAt:at}); if(l) l.waitAt = at; }catch{} };
+  document.querySelectorAll('[data-wwa]').forEach(a => a.onclick = async e => { const l = LEADS.find(x=>x.id===a.dataset.wwa); a.href = `https://wa.me/${waNumber(l.whatsapp)}?text=${encodeURIComponent(waitText(l, $('#wMsg').value))}`; await mark(l.id); setTimeout(()=>openWaitlist(), 400); });
+  document.querySelectorAll('[data-wcp]').forEach(b => b.onclick = async () => { const l = LEADS.find(x=>x.id===b.dataset.wcp); const t = waitText(l, $('#wMsg').value); try{ await navigator.clipboard.writeText(t); toast('Mensagem copiada'); }catch{ prompt('Copie:', t); } });
+  document.querySelectorAll('[data-wopen]').forEach(b => b.onclick = () => openLead(b.dataset.wopen));
 }
 
 /* ---------- Calendário (análises + aulas do Student Hub) ---------- */
@@ -744,6 +783,7 @@ function gcal(l){
 function templates(l){
   const n = first(l.nome), when = l.slot ? slotLabel(l.slot).replace(' · ',' às ') : '';
   return {
+    ...(l.source==='waitlist' && !l.slot ? { 'Novos horários (lista de espera)': waitText(l) } : {}),
     'Confirmar análise': `Oi, ${n}! Aqui é o Luccas, da Operator Studio. Recebi a sua reserva${when?' para '+when+' (horário de Milão)':''}. Vou te mandar o link da videochamada antes do horário. Até lá!`,
     'Enviar link da call': `Oi, ${n}! Segue o link da nossa videochamada${when?' de '+when:''}: `,
     'Pós-análise': `Oi, ${n}! Obrigado pela conversa de hoje. Como combinamos, vou te mandar a proposta com os próximos passos para o ${l.negocio||'seu negócio'}.`,
@@ -1310,7 +1350,7 @@ async function openAgenda(load=true){
       ${Object.keys(by).length ? Object.keys(by).sort().map(d => `<div style="padding:8px 0;border-top:1px solid #D9D3C9"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><b style="font-size:15px">${esc(slotLabel(d+'T00:00').split(' · ')[0])}</b><button class="dstat" data-agday="${d}" style="text-decoration:underline">fechar o dia</button></div>
         <div style="display:flex;flex-wrap:wrap;gap:6px">${by[d].sort().map(k => AG.booked[k] ? `<span class="chip" style="background:#151412;color:#F3F1EC;border-color:#151412">${k.slice(11)} · ${esc(first(AG.booked[k]))}</span>` : `<button class="chip" data-agrm="${k}">${k.slice(11)} ×</button>`).join('')}</div></div>`).join('') : '<p class="dstat">Nenhum horário aberto. O site está mostrando a lista de espera.</p>'}
     </div>
-    ${wait.length ? `<div class="blk"><span class="eyebrow">Lista de espera · ${wait.length}</span><p class="dstat">Avise que abriu agenda nova:</p>
+    ${wait.length ? `<div class="blk"><span class="eyebrow">Lista de espera · ${wait.length}</span><p class="dstat">Avise que abriu agenda nova:</p><div><button class="btn sm" onclick="openWaitlist()">Abrir lista de espera</button></div>
       ${wait.map(l => `<div class="kv" style="align-items:center"><span>${esc(l.nome)}</span>${waNumber(l.whatsapp)?`<a class="btn ghost sm" target="_blank" rel="noopener" href="https://wa.me/${waNumber(l.whatsapp)}?text=${encodeURIComponent(wmsg(l))}">WhatsApp</a>`:''}</div>`).join('')}</div>` : ''}
   </div>`;
   $('#sheet').scrollTop = 0; $('#sheet').classList.add('on'); $('#scrim').classList.add('on');
@@ -1401,8 +1441,8 @@ document.addEventListener('click', e=>{
   const cd = e.target.closest('[data-calday]'); if(cd){ const [y,m,d] = cd.dataset.calday.split('-').map(Number); CAL.ref = new Date(y,m-1,d); CAL.mode = 'semana'; renderCal(); return; }
   const rm = e.target.closest('[data-room]'); if(rm){ window.open('/aula/?s='+encodeURIComponent(rm.dataset.room)+'&m=1','_blank','noopener'); return; }
   const t = e.target.closest('[data-tab]'); if(t){ TAB = t.dataset.tab; render(); const col = document.getElementById('col-'+TAB); if(col && innerWidth>=1000){ col.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'}); } return; }
-  const ac = e.target.closest('[data-act]'); if(ac){ e.preventDefault(); const k = ac.dataset.act; if(k==='new') newLead(); else if(k==='ag') openAgenda(); else if(k==='fu') openFollowup(); else if(k==='out') logout(); else if(k==='ref') $('#refresh').click(); return; }
-  const c = e.target.closest('.lead, .acard, .lead-x, .next li, .ev[data-id]'); if(c && c.dataset.id){ openLead(c.dataset.id); }
+  const ac = e.target.closest('[data-act]'); if(ac){ e.preventDefault(); const k = ac.dataset.act; if(k==='new') newLead(); else if(k==='wait') openWaitlist(); else if(k==='ag') openAgenda(); else if(k==='fu') openFollowup(); else if(k==='out') logout(); else if(k==='ref') $('#refresh').click(); return; }
+  const c = e.target.closest('.lead, .acard, .lead-x, .next li, .ev[data-id]'); if(c && c.dataset.id){ if(c.dataset.id==='__wait') openWaitlist(); else openLead(c.dataset.id); }
 });
 $('#scrim').onclick = closeSheet;
 document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeSheet(); });

@@ -88,6 +88,7 @@ export default async (req) => {
       // partner (duo mentoring) — any lead
       for (const f of ["socioNome", "socioEmail", "socioWhats"]) if (b[f] !== undefined) next[f] = clip(b[f], 160);
       if (b.hub && typeof b.hub === "object") next.hub = { ids: (b.hub.ids || []).slice(0, 2).map((x) => clip(x, 40)), invites: Object.fromEntries(Object.entries(b.hub.invites || {}).slice(0, 2).map(([k, v]) => [clip(k, 40), clip(v, 60)])), at: new Date().toISOString() };
+      if (b.waitAt !== undefined) next.waitAt = clip(b.waitAt, 30);
       // payments (mentoria): total + installments with due dates
       if (b.pay && typeof b.pay === "object") {
         const num = (v) => Math.max(0, Math.round(Number(String(v ?? "").replace(",", ".")) * 100) / 100 || 0);
