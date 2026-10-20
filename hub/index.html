@@ -485,7 +485,7 @@ function vHome(){
   const wk = cw || (d.setup ? { week:0, title:d.setup.title, summary:d.setup.summary, content:true, pdf:d.setup.pdf } : null);
   const lastRep = [...d.sessions].reverse().find(s=>s.report) || [...(d.groups||[])].reverse().find(s=>s.report);
   const items = wk ? [
-    wk.content ? `<button class="mrow" data-wk="${wk.week}"><span class="th">${pic(wk.week?'w'+wk.week:'setup',240)}</span><span class="tx"><b>Aula completa · Semana ${wk.week}</b><span>Passo a passo, prompts e checklist</span></span><span class="ic">${I.arrow}</span></button>`:'',
+    wk.content ? `<button class="mrow" data-wk="${wk.week}"><span class="th">${pic(wk.week?'w'+wk.week:'setup',240)}</span><span class="tx"><b>${wk.week?'Aula completa · Semana '+wk.week:'Preparação · antes da 1ª aula'}</b><span>Passo a passo, prompts e checklist</span></span><span class="ic">${I.arrow}</span></button>`:'',
     wk.pdf ? `<a class="mrow" href="${esc(wk.pdf)}" target="_blank" rel="noopener"><span class="th">${pic('w5',240)}</span><span class="tx"><b>PDF da semana</b><span>Para baixar e imprimir</span></span><span class="ic">${I.down}</span></a>`:'',
     ...((wk.items||[]).concat(wk.extra||[])).slice(0,3).map(i=>`<a class="mrow" href="${esc(fileUrl(i.url))}" target="_blank" rel="noopener"><span class="th">${pic('w6',240)}</span><span class="tx"><b>${esc(i.label)}</b><span>${esc(i.kind||'Material')}</span></span><span class="ic">${I.link}</span></a>`)
   ].filter(Boolean) : [];
@@ -498,7 +498,7 @@ function vHome(){
     <div class="card">
       <div class="card-h"><span class="t">${I.book}Continue de onde parou</span></div>
       ${wk ? `<div class="cont"><div>
-          <h2 class="h2" style="font-size:28px">Semana ${wk.week} · ${esc(wk.title)}</h2>
+          <h2 class="h2" style="font-size:28px">${wk.week?`Semana ${wk.week} · `:'Preparação · '}${esc(wk.title)}</h2>
           <p class="muted" style="font-size:15px;line-height:1.55;margin:10px 0 16px">${esc(wk.summary||'')}</p>
           <div class="row" style="gap:14px;margin-bottom:18px"><span class="bar"><i style="width:${Math.round(done/8*100)}%"></i></span><span class="muted" style="font-size:14px">${done}/8 semanas</span></div>
           <div class="row">${wk.content?`<button class="btn" data-wk="${wk.week}">Continuar ${I.arrow}</button>`:''}<button class="btn ghost" data-go="materiais">Ver jornada</button></div>
@@ -515,8 +515,8 @@ function vHome(){
     </div>
     <div class="card">
       <div class="card-h"><span class="t">${I.chart}Sua jornada</span><span class="muted" style="font-size:13.5px">${done} de 8 concluídas</span></div>
-      <div class="steps">${[{week:0,open:true},...d.weeks].map((w,i)=>{ const st = w.week===0 ? 'done' : wstate(w); return `${i?'<span class="ln"></span>':''}<button class="s ${st==='done'?'done':st==='cur'?'cur':''}" ${w.open?`data-wk="${w.week}"`:'disabled'} title="Semana ${w.week}">${st==='lock'?w.week:st==='done'&&w.week?I.check:w.week}</button>`; }).join('')}</div>
-      <p class="muted" style="font-size:14.5px">${done ? 'Você está construindo no seu ritmo. Siga assim.' : 'A Semana 0 já está aberta: prepare as ferramentas antes da primeira aula.'}</p>
+      <div class="steps">${[{week:0,open:true},...d.weeks].map((w,i)=>{ const st = w.week===0 ? 'done' : wstate(w); return `${i?'<span class="ln"></span>':''}<button class="s ${st==='done'?'done':st==='cur'?'cur':''}" ${w.open?`data-wk="${w.week}"`:'disabled'} title="${w.week?'Semana '+w.week:'Preparação'}">${w.week===0?'P':st==='lock'?w.week:st==='done'?I.check:w.week}</button>`; }).join('')}</div>
+      <p class="muted" style="font-size:14.5px">${done ? 'Você está construindo no seu ritmo. Siga assim.' : 'A Preparação já está aberta: deixe as ferramentas prontas antes da primeira aula.'}</p>
     </div>
     <div class="card">
       <div class="card-h"><span class="t">${I.file}${lastRep?'Resumo da última aula':'Materiais da semana'}</span>${lastRep?'':`<button class="link" data-go="materiais">Ver todos ${I.arrow}</button>`}</div>
@@ -545,7 +545,7 @@ function vMaterials(){
     <div class="art" style="text-align:right"><p class="hand" style="display:inline-block;font-size:30px;margin-right:30px">Disciplina hoje,<br>liberdade amanhã.</p></div>
   </section>
   <div class="row" style="justify-content:space-between;margin-bottom:16px"><h2 class="h2">Sua jornada de 8 semanas</h2><div class="prog8"><span class="muted" style="font-size:14px">${done} de 8 concluídas</span><span class="segs">${DATA.weeks.map(w=>`<i class="${wstate(w)==='done'?'on':''}"></i>`).join('')}</span></div></div>
-  ${st?`<article class="card setupc"><div class="im">${pic('setup',600)}</div><div class="bd"><span class="ey">Semana 0 · comece aqui</span><h3 class="h2">${esc(st.title)}</h3><p class="muted" style="font-size:15px;line-height:1.5">${esc(st.summary||'')}</p></div>
+  ${st?`<article class="card setupc"><div class="im">${pic('setup',600)}</div><div class="bd"><span class="ey">Preparação · antes da 1ª aula</span><h3 class="h2">${esc(st.title)}</h3><p class="muted" style="font-size:15px;line-height:1.5">${esc(st.summary||'')}</p></div>
     <div class="act row">${st.content?`<button class="btn ghost" data-wk="0">Ver material ${I.arrow}</button>`:''}</div></article>`:''}
   <div class="wks">${DATA.weeks.map(w=>{ const s = wstate(w), nx = sessOf(w.week)[0];
     return `<article class="card wkc ${s==='cur'?'cur':''} ${s==='lock'?'lock':''}">
@@ -663,7 +663,7 @@ function vReader(n){
   if(c.error) return `<div class="rd">${back}<p class="h2">Esta semana ainda não abriu.</p><p class="muted" style="margin-top:8px">Ela fica disponível no dia da sua sessão.</p></div>`;
   const m = c.meta||{};
   return `<div class="rd">${back}
-    <span class="ey">Semana ${String(c.week).padStart(2,'0')}</span><h1 class="h1" style="margin-top:8px">${esc(c.title)}</h1>
+    <span class="ey">${c.week?'Semana '+String(c.week).padStart(2,'0'):'Preparação · antes da 1ª aula'}</span><h1 class="h1" style="margin-top:8px">${esc(c.title)}</h1>
     <p class="muted" style="font-size:17px;line-height:1.5;margin-top:12px">${esc(c.lead||'')}</p>
     <div class="meta3"><div><span class="ey">Entrega</span>${esc(m['Entrega no ar']||'')}</div><div><span class="ey">Ferramentas</span>${esc(m['Ferramentas']||'')}</div><div><span class="ey">Tempo</span>${esc(m['Tempo da tarefa da semana']||'')}</div></div>
     ${c.pdf?`<div class="row" style="margin-top:12px"><a class="btn sm" href="${esc(c.pdf)}" target="_blank" rel="noopener">Baixar PDF da semana</a></div>`:''}

@@ -237,8 +237,8 @@ function contentLine(m){ return m.content ? `<div class="row"><span class="chip 
 function contentBtns(m){ return m.content ? `<button class="btn sm" data-prev="${m.week}">Ver aula</button>${m.pdf?`<a class="btn ghost sm" href="${esc(m.pdf)}" target="_blank" rel="noopener">PDF</a>`:''}` : ''; }
 function vMat(){
   const st = S.setup;
-  return `<div><span class="ey">Materiais</span><h1 class="h1">Conteúdo das <em>8 semanas.</em></h1><p class="muted" style="margin-top:6px">O mesmo material para todos. Cada semana abre sozinha no dia da sessão do aluno, ou antes, se você liberar na aba Alunos. A Semana 0 fica sempre aberta.</p></div>
-  ${st?`<div class="card"><div class="row" style="justify-content:space-between"><p class="h3">Semana 0 · ${esc(st.title)}</p><div class="row">${contentBtns(st)}</div></div>${contentLine(st)}<p class="muted" style="font-size:14px">Sempre aberta para todos os alunos.</p></div>`:''}
+  return `<div><span class="ey">Materiais</span><h1 class="h1">Conteúdo das <em>8 semanas.</em></h1><p class="muted" style="margin-top:6px">O mesmo material para todos. Cada semana abre sozinha no dia da sessão do aluno, ou antes, se você liberar na aba Alunos. A A Preparação (antes da 1ª aula) fica sempre aberta.</p></div>
+  ${st?`<div class="card"><div class="row" style="justify-content:space-between"><p class="h3">Preparação · ${esc(st.title)}</p><div class="row">${contentBtns(st)}</div></div>${contentLine(st)}<p class="muted" style="font-size:14px">Sempre aberta para todos os alunos.</p></div>`:''}
   ${S.materials.map(m=>`<div class="card" data-mat="${m.week}">
     <div class="row" style="justify-content:space-between"><p class="h3">Semana ${m.week} · ${esc(m.title)}</p><div class="row">${contentBtns(m)}<button class="btn ghost sm" data-open="m${m.week}">${OPEN['m'+m.week]?'Fechar':'Editar'}</button></div></div>
     ${contentLine(m)}
