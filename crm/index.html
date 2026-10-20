@@ -333,6 +333,17 @@ main{padding-bottom:110px}
   .tg .now::before{content:'';position:absolute;left:-4px;top:-3px;width:8px;height:8px;border-radius:50%;background:var(--terra)}
   .wk.mob{display:none}
 }
+
+/* board: all 5 stages visible on desktop */
+.kpi.on{border-color:var(--terra);box-shadow:0 0 0 1px var(--terra) inset,var(--sh)}
+@media(min-width:1000px){
+  .split{grid-template-columns:minmax(0,1fr)!important}
+  .next{position:static!important;order:2}
+  .board{display:grid!important;grid-template-columns:repeat(5,minmax(210px,1fr));overflow-x:auto}
+  .col{flex:none!important;min-width:0}
+  .col.on{background:var(--terra-s)}
+  .col.on>h4{color:var(--terra-d)}
+}
 </style>
 </head>
 <body>
@@ -450,17 +461,17 @@ function render(){
     return;
   }
   $('#kpis').innerHTML = [
-    [LEADS.filter(l=>!['cliente','perdido'].includes(l.stage)).length,'Leads ativos'],
+    [c('novo'),'Novos'],
     [c('agendado'),'Análises agendadas'],
     [c('proposta'),'Propostas'],
     [c('perdido'),'Perdidos']
-  ].map(([n,t],i)=>`<div class="kpi"><span class="ki">${[NI.leads,NI.cal,NI.mail,NI.out][i]}</span><span><b>${n}</b><span>${t}</span></span></div>`).join('');
+  ].map(([n,t],i)=>`<button class="kpi ${TAB===['novo','agendado','proposta','perdido'][i]?'on':''}" data-tab="${['novo','agendado','proposta','perdido'][i]}" style="text-align:left;cursor:pointer"><span class="ki">${[NI.leads,NI.cal,NI.mail,NI.out][i]}</span><span><b>${n}</b><span>${t}</span></span></button>`).join('');
 
-  if(!LORDER.includes(TAB) || !LEADS.some(l=>l.stage===TAB)) TAB = LORDER.find(s=>c(s)) || 'agendado';
+  if(!LORDER.includes(TAB)) TAB = LORDER.find(s=>c(s)) || 'agendado';
   $('#tabs').innerHTML = LORDER.map(s=>`<button class="tab ${s===TAB?'on':''}" data-tab="${s}">${STAGE[s]}<i>${c(s)}</i></button>`).join('');
   $('#board').innerHTML = LORDER.map(s=>{
     const ls = LEADS.filter(l=>l.stage===s);
-    return `<section class="col ${s===TAB?'on':''}"><h4><span>${STAGE[s]}</span><span>${ls.length}</span></h4>${ls.length?ls.map(card).join(''):'<p class="empty" style="padding:4px">Nada aqui ainda.</p>'}</section>`;
+    return `<section class="col ${s===TAB?'on':''}" id="col-${s}"><h4><span>${STAGE[s]}</span><span>${ls.length}</span></h4>${ls.length?ls.map(card).join(''):'<p class="empty" style="padding:4px">Nada aqui ainda.</p>'}</section>`;
   }).join('');
 
   const now = Date.now()-30*60*1000;
@@ -1389,7 +1400,7 @@ document.addEventListener('click', e=>{
   const ct = e.target.closest('[data-caltz]'); if(ct){ CAL.tz = ct.dataset.caltz; store.set('os_cal_tz', CAL.tz); renderCal(); return; }
   const cd = e.target.closest('[data-calday]'); if(cd){ const [y,m,d] = cd.dataset.calday.split('-').map(Number); CAL.ref = new Date(y,m-1,d); CAL.mode = 'semana'; renderCal(); return; }
   const rm = e.target.closest('[data-room]'); if(rm){ window.open('/aula/?s='+encodeURIComponent(rm.dataset.room)+'&m=1','_blank','noopener'); return; }
-  const t = e.target.closest('[data-tab]'); if(t){ TAB = t.dataset.tab; render(); return; }
+  const t = e.target.closest('[data-tab]'); if(t){ TAB = t.dataset.tab; render(); const col = document.getElementById('col-'+TAB); if(col && innerWidth>=1000){ col.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'}); } return; }
   const ac = e.target.closest('[data-act]'); if(ac){ e.preventDefault(); const k = ac.dataset.act; if(k==='new') newLead(); else if(k==='ag') openAgenda(); else if(k==='fu') openFollowup(); else if(k==='out') logout(); else if(k==='ref') $('#refresh').click(); return; }
   const c = e.target.closest('.lead, .acard, .lead-x, .next li, .ev[data-id]'); if(c && c.dataset.id){ openLead(c.dataset.id); }
 });
