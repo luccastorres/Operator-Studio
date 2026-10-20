@@ -601,7 +601,7 @@ function welcomeBlock(l){
   return `<div class="blk cr" id="wel"><span class="eyebrow">Boas-vindas e 1ª aula</span>
     ${w.sentAt ? `<p class="dstat"><b>E-mail de boas-vindas enviado</b> · ${esc(new Date(w.sentAt).toLocaleString('pt-BR',{timeZone:'Europe/Rome',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}))}${w.start?' · 1ª aula: '+esc(w.start):''}</p>`
       : `<p class="dstat">Um e-mail com boas-vindas, o convite do Student Hub${l.hub?'':' (crie o acesso acima antes)'} e o formulário "antes da 1ª aula": negócio, dores, onde vai o tempo, ferramentas e IA.</p>`}
-    <div class="dgrow"><button class="btn sm" id="welOpen">${w.sentAt?'Reenviar boas-vindas':'Enviar boas-vindas'}</button></div>
+    <div class="dgrow"><button class="btn sm" id="welOpen">${w.sentAt?'Ver e-mail / reenviar':'Ver e enviar boas-vindas'}</button></div>
     ${w.tokens ? `<div>${people.map(p=>`<div class="kv" style="align-items:center"><span>${esc(first(p.nome))}: ${ob[p.who]?'<b style="color:#4E6B4F">respondeu</b>':'aguardando resposta'}</span>${!ob[p.who]&&w.tokens[p.who]?`<button class="btn ghost sm" data-welcp="${esc(location.origin+'/boas-vindas/?t='+w.tokens[p.who])}">Copiar link</button>`:''}</div>`).join('')}</div>` : ''}
     ${answers.map(p=>{ const a = ob[p.who]; return `<details style="border-top:1px solid #D9D3C9;padding-top:10px"><summary style="cursor:pointer;font-size:15px"><b>Respostas de ${esc(first(p.nome))}</b></summary>
       <div class="ans" style="margin-top:10px">${ONBQ.map(([k,t])=>{ const v = Array.isArray(a[k])?a[k].join(', '):a[k]; return v?`<div><span>${t}</span><p>${esc(v)}</p></div>`:''; }).join('')}</div></details>`; }).join('')}
