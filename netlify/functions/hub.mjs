@@ -92,7 +92,7 @@ const SOON_MS = 15 * 60000;
 function openWeeks(me, slots) {
   const set = new Set(me.released || []);
   const t = Date.now() + SOON_MS;
-  for (const s of slots) if (s.studentId === me.id && s.week && new Date(s.start).getTime() <= t) set.add(s.week);
+  for (const s of slots) if ((s.studentId === me.id || (me.partnerId && s.studentId === me.partnerId)) && s.week && new Date(s.start).getTime() <= t) set.add(s.week);
   return set;
 }
 
@@ -258,6 +258,10 @@ export default async (req) => {
           next.extra = ex;
         }
         await store.setJSON(`students/${id}`, next);
+        if (Array.isArray(body.released) && next.partnerId) {
+          const pt = await store.get(`students/${next.partnerId}`, { type: "json" });
+          if (pt) await store.setJSON(`students/${pt.id}`, { ...pt, released: next.released });
+        }
         return json({ ok: true, student: publicStudent(next) });
       }
       const nome = clip(body.nome, 120), email = clip(body.email, 160).toLowerCase();
@@ -267,6 +271,8 @@ export default async (req) => {
       const inviteToken = rid(18);
       const s = { id: sid, nome, email, negocio: clip(body.negocio, 160), perfil: clip(body.perfil, 20) || "Construir",
         whatsapp: clip(body.whatsapp, 40), released: [], extra: {}, notes: "", inviteToken, createdAt: now() };
+      const partner = body.partnerId ? await store.get(`students/${clip(body.partnerId, 40)}`, { type: "json" }) : null;
+      if (partner) { s.partnerId = partner.id; s.released = partner.released || []; await store.setJSON(`students/${partner.id}`, { ...partner, partnerId: sid }); }
       await store.setJSON(`students/${sid}`, s);
       await store.setJSON(`email/${email}`, { id: sid });
       await store.setJSON(`invite/${inviteToken}`, { id: sid });
@@ -281,9 +287,23 @@ export default async (req) => {
       await store.setJSON(`invite/${inviteToken}`, { id: s.id });
       return json({ ok: true, invite: inviteToken });
     }
+    // Duo mentoring: two students share sessions, materials and reports.
+    if (a === "pair" && method === "POST") {
+      const x = await store.get(`students/${clip(body.a, 40)}`, { type: "json" });
+      if (!x) return json({ error: "nf" }, 404);
+      if (x.partnerId) { const old = await store.get(`students/${x.partnerId}`, { type: "json" }); if (old) { const { partnerId, ...rest } = old; await store.setJSON(`students/${old.id}`, rest); } }
+      const y = body.b ? await store.get(`students/${clip(body.b, 40)}`, { type: "json" }) : null;
+      if (!y) { const { partnerId, ...rest } = x; await store.setJSON(`students/${x.id}`, rest); return json({ ok: true }); }
+      if (y.partnerId && y.partnerId !== x.id) { const old = await store.get(`students/${y.partnerId}`, { type: "json" }); if (old) { const { partnerId, ...rest } = old; await store.setJSON(`students/${old.id}`, rest); } }
+      const rel = [...new Set([...(x.released || []), ...(y.released || [])])].sort((m, n) => m - n);
+      await store.setJSON(`students/${x.id}`, { ...x, partnerId: y.id, released: rel });
+      await store.setJSON(`students/${y.id}`, { ...y, partnerId: x.id, released: rel });
+      return json({ ok: true });
+    }
     if (a === "student-delete" && method === "POST") {
       const s = await store.get(`students/${clip(body.id, 40)}`, { type: "json" });
       if (!s) return json({ error: "nf" }, 404);
+      if (s.partnerId) { const pt = await store.get(`students/${s.partnerId}`, { type: "json" }); if (pt) { const { partnerId, ...rest } = pt; await store.setJSON(`students/${pt.id}`, rest); } }
       for (const sl of await listJSON(store, "slots/")) if (sl.studentId === s.id) await store.setJSON(`slots/${sl.start}`, { start: sl.start, dur: sl.dur });
       if (s.inviteToken) await store.delete(`invite/${s.inviteToken}`);
       await store.delete(`email/${s.email}`);
@@ -402,14 +422,16 @@ export default async (req) => {
       ? { ...m, open: true, extra: (me.extra || {})[m.week] || [] }
       : { week: m.week, title: m.title, summary: m.summary, open: false });
     const t = Date.now();
-    const mine = slots.filter((s) => s.studentId === me.id).sort((a, b) => a.start.localeCompare(b.start));
+    const pair = new Set([me.id, me.partnerId].filter(Boolean));
+    const mine = slots.filter((s) => pair.has(s.studentId)).sort((a, b) => a.start.localeCompare(b.start));
     const free = slots.filter((s) => !s.studentId && new Date(s.start).getTime() > t + 2 * 3600000).sort((a, b) => a.start.localeCompare(b.start)).map((s) => ({ start: s.start, dur: s.dur }));
     const reps = await Promise.all(mine.map((s) => store.get(`reports/${s.start}`, { type: "json" })));
-    const sessions = mine.map((s, i) => ({ ...s, report: !!(reps[i]?.shared && reps[i]?.status === "done" && reps[i]?.studentId === me.id) }));
+    const sessions = mine.map((s, i) => ({ ...s, report: !!(reps[i]?.shared && reps[i]?.status === "done" && (pair.has(reps[i]?.studentId) || (reps[i]?.studentIds || []).includes(me.id))) }));
+    const partner = me.partnerId ? await store.get(`students/${me.partnerId}`, { type: "json" }) : null;
     const gl = (await listJSON(store, "groups/")).filter((g) => (g.studentIds || []).includes(me.id)).sort((a, b) => a.start.localeCompare(b.start));
     const greps = await Promise.all(gl.map((g) => store.get(`reports/${g.start}`, { type: "json" })));
     const groups = gl.map((g, i) => ({ start: g.start, dur: g.dur, title: g.title, group: true, report: !!(greps[i]?.shared && greps[i]?.status === "done") }));
-    return json({ me: publicStudent(me), weeks, setup: setupWeek(), sessions, groups, free, live: !!process.env.DAILY_API_KEY, rules: { cancelHours: 24, weeks: WEEKS } });
+    return json({ me: { ...publicStudent(me), partner: partner ? { nome: partner.nome } : null }, weeks, setup: setupWeek(), sessions, groups, free, live: !!process.env.DAILY_API_KEY, rules: { cancelHours: 24, weeks: WEEKS } });
   }
 
   if (path === "content" && method === "GET") {
@@ -428,7 +450,7 @@ export default async (req) => {
     if (!sl || sl.studentId) return json({ error: "taken" }, 409);
     if (new Date(sl.start).getTime() < Date.now() + 2 * 3600000) return json({ error: "late" }, 400);
     const all = await listJSON(store, "slots/");
-    const mine = all.filter((s) => s.studentId === me.id);
+    const mine = all.filter((s) => s.studentId === me.id || (me.partnerId && s.studentId === me.partnerId));
     // rescheduling: free the old slot first (only if allowed)
     let week = null;
     if (body.replace) {
@@ -459,7 +481,7 @@ export default async (req) => {
 
   if (path === "cancel" && method === "POST") {
     const sl = await store.get(`slots/${clip(body.start, 40)}`, { type: "json" });
-    if (!sl || sl.studentId !== me.id) return json({ error: "nf" }, 404);
+    if (!sl || !(sl.studentId === me.id || (me.partnerId && sl.studentId === me.partnerId))) return json({ error: "nf" }, 404);
     if (new Date(sl.start).getTime() - Date.now() < CANCEL_MS) return json({ error: "too-late" }, 400);
     await store.setJSON(`slots/${sl.start}`, { start: sl.start, dur: sl.dur });
     await notifyCancelled(me, sl);

@@ -162,16 +162,17 @@ function vStudents(){
   <form class="card" id="fNew"><span class="ey">Novo aluno</span>
     <div class="g2"><div><label class="l">Nome</label><input class="in" name="nome" required></div><div><label class="l">E-mail (login)</label><input class="in" name="email" type="email" required></div></div>
     <div class="g2"><div><label class="l">WhatsApp</label><input class="in" name="whatsapp" inputmode="tel"></div><div><label class="l">Negócio</label><input class="in" name="negocio"></div></div>
-    <div class="g2"><div><label class="l">Perfil</label><select class="in" name="perfil"><option>Construir</option><option>Otimizar</option><option>Automatizar</option></select></div><div style="display:flex;align-items:flex-end"><button class="btn" type="submit">Criar e gerar convite</button></div></div>
+    <div class="g2"><div><label class="l">Perfil</label><select class="in" name="perfil"><option>Construir</option><option>Otimizar</option><option>Automatizar</option></select></div><div><label class="l">Dupla com (opcional)</label><select class="in" name="partnerId"><option value="">Mentoria individual</option>${S.students.filter(x=>!x.partnerId).map(x=>`<option value="${esc(x.id)}">${esc(x.nome)}</option>`).join('')}</select></div></div>
+    <div><button class="btn" type="submit">Criar e gerar convite</button></div>
   </form>
   ${S.students.length ? S.students.sort((a,b)=>a.nome.localeCompare(b.nome)).map(s=>{
-    const mine = sl.filter(x=>x.studentId===s.id).sort((a,b)=>a.start.localeCompare(b.start));
+    const mine = sl.filter(x=>x.studentId===s.id || (s.partnerId && x.studentId===s.partnerId)).sort((a,b)=>a.start.localeCompare(b.start));
     const nextS = mine.find(x=>new Date(x.start)>Date.now());
     const inv = INVITES[s.id]; const wa = waNumber(s.whatsapp);
     const auto = new Set(mine.filter(x=>x.week && new Date(x.start).getTime() <= Date.now()+15*60000).map(x=>x.week));
     return `<div class="card">
       <div class="row" style="justify-content:space-between"><div><p class="h3">${esc(s.nome)}</p><p class="muted" style="font-size:14px">${esc(s.email)}${s.negocio?' · '+esc(s.negocio):''}</p></div>
-        <div class="row"><span class="chip">${esc(s.perfil||'')}</span>${s.active?'<span class="chip ok">Ativo</span>':'<span class="chip wait">Convite pendente</span>'}</div></div>
+        <div class="row">${s.partnerId?`<span class="chip">Dupla com ${esc(first((S.students.find(x=>x.id===s.partnerId)||{}).nome||''))}</span>`:''}<span class="chip">${esc(s.perfil||'')}</span>${s.active?'<span class="chip ok">Ativo</span>':'<span class="chip wait">Convite pendente</span>'}</div></div>
       <p class="muted" style="font-size:14px">Sessões: ${mine.length}/8${nextS?' · próxima '+esc(fDT(nextS.start)):''}</p>
       <div><label class="l">Semanas abertas · a semana abre sozinha no dia da sessão (verde). Toque para liberar antes.</label><div class="wk" data-rel="${esc(s.id)}">${[1,2,3,4,5,6,7,8].map(w=>`<button class="${(s.released||[]).includes(w)?'on':''} ${auto.has(w)?'auto':''}" title="${auto.has(w)?'Aberta pela sessão':''}" data-w="${w}">${w}</button>`).join('')}</div></div>
       ${inv?`<div class="card" style="background:var(--linen)"><span class="ey">Convite pronto</span><p style="font-size:13px;word-break:break-all">${esc(inviteUrl(inv))}</p><div class="row">${wa?`<a class="btn sm" target="_blank" rel="noopener" href="https://wa.me/${wa}?text=${encodeURIComponent(inviteMsg(s,inv))}">Enviar no WhatsApp</a>`:''}<button class="btn ghost sm" data-copy="${esc(inviteUrl(inv))}">Copiar link</button></div></div>`:''}

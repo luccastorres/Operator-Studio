@@ -298,7 +298,9 @@ function diagCalc(d){
 }
 const fmt = n => Math.round(n).toLocaleString('pt-BR');
 function formLink(l){ return l.formToken ? `${location.origin}/diagnostico/?t=${l.formToken}` : ''; }
-function formMsg(l){ const n = first(l.nome), when = l.slot ? ' ('+slotLabel(l.slot).replace(' · ',' às ')+')' : ''; return `Oi, ${n}! Aqui é o Luccas, da Operator Studio. Antes da nossa análise${when}, preparei 13 perguntas rápidas, leva uns 5 minutos. Assim eu chego já sabendo onde olhar no seu negócio: ${formLink(l)}`; }
+function formMsg(l){ const n = first(l.nome), when = l.slot ? ' ('+slotLabel(l.slot).replace(' · ',' às ')+')' : '';
+  if(['analise','proposta','cliente'].includes(l.stage)) return `Oi, ${n}! Que bom ter você na mentoria. Para eu preparar a nossa primeira aula com tudo alinhado ao seu negócio, preenche essas perguntas rápidas? Leva uns 5 minutos: ${formLink(l)}`;
+  return `Oi, ${n}! Aqui é o Luccas, da Operator Studio. Antes da nossa análise${when}, preparei 13 perguntas rápidas, leva uns 5 minutos. Assim eu chego já sabendo onde olhar no seu negócio: ${formLink(l)}`; }
 
 function diagBlock(l){
   const wa = waNumber(l.whatsapp), c = diagCalc(l.diag);
@@ -546,6 +548,48 @@ function bindFiles(l){
   });
 }
 
+/* ---------- Sócia / dupla + acesso ao Student Hub ---------- */
+const HUBINV = t => `${location.origin}/hub/?convite=${t}`;
+function duoBlock(l){
+  const h = l.hub, inv = h?.invites || {};
+  const people = [{ k:'a', nome:l.nome, email:l.email, whats:l.whatsapp }, ...(l.socioNome ? [{ k:'b', nome:l.socioNome, email:l.socioEmail, whats:l.socioWhats }] : [])];
+  const msg = (p, t) => `Oi, ${first(p.nome)}! Boas-vindas à mentoria Operator Studio${l.socioNome?' em dupla':''}. Este é o seu Student Hub: materiais de cada semana, agenda das aulas e comunidade. Crie sua senha por aqui: ${HUBINV(t)}`;
+  return `<div class="blk" id="duo"><span class="eyebrow">Mentoria · dupla e Student Hub</span>
+    <div class="field"><label>Sócio(a) que faz a mentoria junto (opcional)</label><input class="in" id="soN" placeholder="Nome" value="${esc(l.socioNome||'')}"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><input class="in" id="soE" type="email" placeholder="E-mail" value="${esc(l.socioEmail||'')}" style="flex:1;min-width:160px"><input class="in" id="soW" placeholder="WhatsApp" value="${esc(l.socioWhats||'')}" style="flex:1;min-width:140px"></div>
+    <div class="dgrow"><button class="btn ghost sm" id="soSave">Salvar sócio(a)</button></div>
+    ${h ? `<p class="dstat"><b>Acesso criado no Student Hub</b>${l.socioNome?' · mentoria em dupla':''}. Envie o convite para criar a senha:</p>
+      ${h.ids.map((id,i)=>{ const p = people[i] || {}; const t = inv[id]; const wa = waNumber(p.whats); return `<div class="kv" style="align-items:center"><span>${esc(p.nome||'')}</span><span style="display:flex;gap:6px">${t&&wa?`<a class="btn sm" target="_blank" rel="noopener" href="https://wa.me/${wa}?text=${encodeURIComponent(msg(p,t))}">WhatsApp</a>`:''}${t?`<button class="btn ghost sm" data-hubcp="${esc(HUBINV(t))}">Copiar link</button>`:''}</span></div>`; }).join('')}`
+    : `<p class="dstat">Quando fechar a mentoria, crie o acesso ao Student Hub${l.socioNome?' das duas pessoas, já ligadas como dupla (mesmas aulas, materiais e relatórios)':''}.</p>
+      <div class="dgrow"><button class="btn sm" id="hubMk">Criar acesso no Student Hub</button></div>`}
+  </div>`;
+}
+async function hubAdmin(path, body){
+  const r = await fetch('/api/hub/admin/'+path, {method:'POST', headers:{'x-crm-key':KEY,'content-type':'application/json'}, body:JSON.stringify(body)});
+  const j = await r.json().catch(()=>({})); if(!r.ok){ const e = new Error(j.error||'api'); e.code = j.error; throw e; } return j;
+}
+function bindDuo(l){
+  const sv = $('#soSave'); if(sv) sv.onclick = async()=>{
+    l.socioNome = $('#soN').value.trim(); l.socioEmail = $('#soE').value.trim(); l.socioWhats = $('#soW').value.trim();
+    try{ await api('POST',{action:'update', id:l.id, socioNome:l.socioNome, socioEmail:l.socioEmail, socioWhats:l.socioWhats}); toast('Sócio(a) salvo'); openLead(l.id, true); }catch{ toast('Erro ao salvar'); }
+  };
+  document.querySelectorAll('[data-hubcp]').forEach(b=>b.onclick=async()=>{ try{ await navigator.clipboard.writeText(b.dataset.hubcp); toast('Link copiado'); }catch{ prompt('Copie o link:', b.dataset.hubcp); } });
+  const mk = $('#hubMk'); if(mk) mk.onclick = async()=>{
+    const ok = e => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e||'');
+    if(!ok(l.email)){ toast('Falta o e-mail do cliente'); return; }
+    if(l.socioNome && !ok(l.socioEmail)){ toast('Falta o e-mail do(a) sócio(a)'); return; }
+    mk.disabled = true; mk.textContent = 'Criando…';
+    try{
+      const a = await hubAdmin('student', { nome:l.nome, email:l.email, negocio:l.negocio||'', whatsapp:l.whatsapp||'' });
+      const ids = [a.student.id], invites = { [a.student.id]: a.invite };
+      if(l.socioNome){ const b = await hubAdmin('student', { nome:l.socioNome, email:l.socioEmail, negocio:l.negocio||'', whatsapp:l.socioWhats||'', partnerId:a.student.id }); ids.push(b.student.id); invites[b.student.id] = b.invite; }
+      l.hub = { ids, invites }; l.stage = 'cliente';
+      await api('POST',{action:'update', id:l.id, hub:l.hub, stage:'cliente'});
+      render(); openLead(l.id, true); toast('Acesso criado');
+    }catch(e){ toast(e.code==='exists' ? 'Esse e-mail já tem acesso no Student Hub' : 'Erro ao criar acesso'); mk.disabled = false; mk.textContent = 'Criar acesso no Student Hub'; }
+  };
+}
+
 function openLead(id, keep){
   const l = LEADS.find(x=>x.id===id); if(!l) return;
   OPEN = id; INDIAG = false; $('#sheet').oninput = null;
@@ -573,6 +617,7 @@ function openLead(id, keep){
       ${l.desafio?`<span class="eyebrow" style="margin-top:4px">O que mais toma o tempo</span><p class="quote">“${esc(l.desafio)}”</p>`:''}
     </div>
     <div class="blk"><span class="eyebrow">Etapa</span><div class="stages">${ORDER.map(s=>`<button class="st ${s===l.stage?'on':''}" data-stage="${s}">${STAGE[s]}</button>`).join('')}</div></div>
+    ${duoBlock(l)}
     ${callBlock(l)}
     ${filesBlock(l)}
     ${diagBlock(l)}
@@ -586,7 +631,7 @@ function openLead(id, keep){
   if(!keep){ $('#sheet').scrollTop = 0; }
   $('#sheet').classList.add('on'); $('#scrim').classList.add('on');
   $('#close').onclick = closeSheet;
-  bindDiag(l); bindCall(l); bindFiles(l);
+  bindDiag(l); bindCall(l); bindFiles(l); bindDuo(l);
   $('#sheet').querySelectorAll('[data-stage]').forEach(b=>b.onclick = async()=>{
     const s = b.dataset.stage; l.stage = s;
     $('#sheet').querySelectorAll('[data-stage]').forEach(x=>x.classList.toggle('on', x===b));

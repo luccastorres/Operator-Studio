@@ -49,8 +49,9 @@ export default async (req) => {
   const group = start && !slot?.studentId ? await store.get(`groups/${start}`, { type: "json" }) : null;
   const report = start ? await store.get(`reports/${start}`, { type: "json" }) : null;
   // A student may only touch their own session (or a group class they are in). The mentor may open past sessions that still have a report.
-  const owns = admin || (slot?.studentId && slot.studentId === me.id) || (group?.studentIds || []).includes(me?.id)
-    || (report?.studentId && report.studentId === me?.id) || (report?.studentIds || []).includes(me?.id);
+  const mine = (id) => id && (id === me?.id || id === me?.partnerId);
+  const owns = admin || mine(slot?.studentId) || (group?.studentIds || []).includes(me?.id)
+    || mine(report?.studentId) || (report?.studentIds || []).includes(me?.id);
   if (!start || !owns) return json({ error: "nf" }, 404);
 
   if (path === "join" && req.method === "POST") {

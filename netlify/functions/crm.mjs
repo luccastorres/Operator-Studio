@@ -82,6 +82,9 @@ export default async (req) => {
       }
       if (b.notes !== undefined) next.notes = clip(b.notes, 4000);
       if (b.value !== undefined) next.value = clip(b.value, 20);
+      // partner (duo mentoring) — any lead
+      for (const f of ["socioNome", "socioEmail", "socioWhats"]) if (b[f] !== undefined) next[f] = clip(b[f], 160);
+      if (b.hub && typeof b.hub === "object") next.hub = { ids: (b.hub.ids || []).slice(0, 2).map((x) => clip(x, 40)), invites: Object.fromEntries(Object.entries(b.hub.invites || {}).slice(0, 2).map(([k, v]) => [clip(k, 40), clip(v, 60)])), at: new Date().toISOString() };
       // manual leads can edit their contact fields too
       for (const f of ["nome", "whatsapp", "email", "negocio", "setor", "desafio", "slot"]) {
         if (b[f] !== undefined && cur.nome) next[f] = clip(b[f], f === "desafio" ? 1000 : 160);

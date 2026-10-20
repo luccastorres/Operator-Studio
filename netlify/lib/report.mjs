@@ -121,14 +121,17 @@ export async function buildReport(store, start) {
     const studentId = slot?.studentId || prev.studentId;
     const members = gIds.length ? (await Promise.all(gIds.map((id) => store.get(`students/${id}`, { type: "json" })))).filter(Boolean) : [];
     const student = studentId ? await store.get(`students/${studentId}`, { type: "json" }) : (gIds.length ? { nome: "Aluno" } : null);
-    const group = gIds.length ? { title: g?.title || prev.title || "Aula em grupo", names: members.map((m) => m.nome) } : null;
-    if (group) Object.assign(base, { group: true, studentIds: gIds, title: group.title });
+    let group = gIds.length ? { title: g?.title || prev.title || "Aula em grupo", names: members.map((m) => m.nome) } : null;
+    // Duo mentoring: the session belongs to both partners.
+    const partner = !group && student?.partnerId ? await store.get(`students/${student.partnerId}`, { type: "json" }) : null;
+    if (partner) { group = { title: `Mentoria em dupla · ${student.nome.split(" ")[0]} e ${partner.nome.split(" ")[0]}`, names: [student.nome, partner.nome] }; gIds.push(student.id, partner.id); }
+    if (group) Object.assign(base, { group: true, studentIds: gIds, title: group.title, ...(partner ? { duo: true } : {}) });
     const week = slot?.week || prev.week;
     const material = week ? await store.get(`materials/${week}`, { type: "json" }) : null;
     const lines = await mergedLines(store, start);
     const { text, paras, minutes } = transcriptText(lines, student);
     await store.setJSON(`transcripts/${start}`, { start, paras, minutes, count: lines.length, updatedAt: new Date().toISOString() });
-    const meta = { ...base, studentId, week, studentName: group ? group.title : (student?.nome || prev.studentName || ""), minutes };
+    const meta = { ...base, studentId, week, studentName: group ? (partner ? `${student.nome} e ${partner.nome}` : group.title) : (student?.nome || prev.studentName || ""), minutes };
     if (!text || lines.length < 3) {
       await store.setJSON(`reports/${start}`, { ...meta, status: "empty", updatedAt: new Date().toISOString() });
       return "empty";

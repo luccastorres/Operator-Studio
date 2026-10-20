@@ -285,7 +285,7 @@ function vHome(){
   const d = DATA, open = d.weeks.filter(w=>w.open), nextS = d.sessions.find(s=>new Date(s.start).getTime() > Date.now()-((s.dur||90)+30)*60000);
   const done = open.length, nextWeek = Math.min(done+1, 8);
   const last = open[open.length-1];
-  return `<div class="hello"><span class="ey">Mentoria individual · ${esc(d.me.perfil||'')}</span><h1 class="h1">Olá, <em>${esc(first(d.me.nome))}.</em></h1>
+  return `<div class="hello"><span class="ey">${d.me.partner?'Mentoria em dupla com '+esc(first(d.me.partner.nome)):'Mentoria individual'} · ${esc(d.me.perfil||'')}</span><h1 class="h1">Olá, <em>${esc(first(d.me.nome))}.</em></h1>
     <p class="muted">${done? `Você já tem ${done} de 8 semanas liberadas. Siga construindo.` : 'Sua jornada de 8 semanas começa aqui. Reserve a sua primeira sessão.'}</p></div>
   <div class="grid two">
     <div class="card next"><span class="ey">Próxima sessão</span>

@@ -324,7 +324,7 @@ function updateTiles(){
   const scrP = others.find(p=>p.tracks?.screenVideo?.state==='playable');
   const r = scrP || others.find(p=>p.user_id==='mentor') || others[0];
   const grid = $('#grid');
-  const useGrid = INFO.group && !scrP && others.length > 0;
+  const useGrid = !scrP && (INFO.group ? others.length > 0 : others.length > 1);
   grid.hidden = !useGrid; $('#stage').classList.toggle('g', useGrid);
   if(useGrid){
     const box = $('#stage').getBoundingClientRect(), n = others.length;
