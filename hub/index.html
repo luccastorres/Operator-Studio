@@ -224,7 +224,8 @@ nav.bottom a.on{color:var(--ink)}
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const store = {get(k){try{return localStorage.getItem(k)}catch{return null}},set(k,v){try{localStorage.setItem(k,v)}catch{}},del(k){try{localStorage.removeItem(k)}catch{}}};
-const TZ = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+const DEVICE_TZ = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+let TZ = DEVICE_TZ;
 let TOKEN = store.get('os_hub_token') || '', DATA = null, FORUM = null, VIEW = 'inicio', OPEN_T = null, RESCHED = null, OPEN_W = null, CONTENT = {};
 
 const I = {
@@ -285,6 +286,7 @@ function render(){
   else if(VIEW==='agenda') m.innerHTML = vAgenda();
   else if(VIEW==='comunidade'){ m.innerHTML = vForum(); if(!FORUM) loadForum(); }
   else m.innerHTML = vHome();
+  if(DATA.mentorView) m.insertAdjacentHTML('afterbegin', `<div style="background:#151412;color:#F3F1EC;border-radius:14px;padding:10px 14px;margin-bottom:16px;font-size:14px;line-height:1.45">Você está vendo como <b>${esc(first(DATA.me.nome))}</b>. Horários no fuso dela: <b>${esc(TZ.split('/').pop().replace(/_/g,' '))}</b>.</div>`);
   bind();
 }
 
@@ -523,7 +525,12 @@ function bindPhoto(){
 function profileOf(form){ const fd = new FormData(form), p = { tz: TZ }; ['nome','whatsapp','cidade','nascimento','instagram'].forEach(k=>p[k]=String(fd.get(k)||'').trim()); return p; }
 
 /* ---------- auth ---------- */
-async function load(){ DATA = await api('me?tz='+encodeURIComponent(TZ)); render(); }
+async function load(){
+  DATA = await api('me?tz='+encodeURIComponent(DEVICE_TZ));
+  // Mentor viewing as the student: show times in the student's own time zone (Italy if unknown).
+  TZ = DATA.mentorView ? (DATA.me.tz || 'Europe/Rome') : DEVICE_TZ;
+  render();
+}
 function showApp(){ $('#vLogin').hidden=true; $('#vInvite').hidden=true; $('#app').hidden=false; const v=location.hash.slice(1); VIEW = TABS.some(t=>t[0]===v)?v:'inicio'; }
 async function logout(silent){ if(!silent){ try{ await api('logout',{}); }catch{} } TOKEN=''; store.del('os_hub_token'); DATA=null; FORUM=null; closeSheet(); $('#app').hidden=true; $('#vLogin').hidden=false; }
 $('#fLogin').onsubmit=async e=>{ e.preventDefault(); $('#eLogin').hidden=true;

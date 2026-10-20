@@ -484,7 +484,7 @@ export default async (req) => {
     const gl = (await listJSON(store, "groups/")).filter((g) => (g.studentIds || []).includes(me.id)).sort((a, b) => a.start.localeCompare(b.start));
     const greps = await Promise.all(gl.map((g) => store.get(`reports/${g.start}`, { type: "json" })));
     const groups = gl.map((g, i) => ({ start: g.start, dur: g.dur, title: g.title, group: true, report: !!(greps[i]?.shared && greps[i]?.status === "done") }));
-    return json({ me: { ...publicStudent(me), partner: partner ? { nome: partner.nome } : null }, weeks, setup: setupWeek(), sessions, groups, free, live: !!process.env.DAILY_API_KEY, rules: { cancelHours: 24, weeks: WEEKS } });
+    return json({ mentorView: !!auth.mentor, me: { ...publicStudent(me), partner: partner ? { nome: partner.nome } : null }, weeks, setup: setupWeek(), sessions, groups, free, live: !!process.env.DAILY_API_KEY, rules: { cancelHours: 24, weeks: WEEKS } });
   }
 
   if (path === "content" && method === "GET") {
