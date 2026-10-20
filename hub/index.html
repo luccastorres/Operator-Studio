@@ -130,6 +130,46 @@ nav.bottom a.on{color:var(--ink)}
 @media(min-width:900px){.sheet{left:50%;bottom:auto;top:8vh;width:560px;transform:translateX(-50%);border-radius:24px;max-height:84vh}}
 .toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:var(--linen);padding:10px 16px;border-radius:999px;font-size:14px;opacity:0;transition:.2s;z-index:30;pointer-events:none}
 .toast.on{opacity:1}
+/* full lesson reader */
+.rd{max-width:760px}
+.rd .back{display:flex;width:fit-content;margin-bottom:18px}
+.rd .meta3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin:18px 0 6px}
+.rd .meta3 div{background:var(--card);padding:12px 14px;display:flex;flex-direction:column;gap:4px;font-size:14px;line-height:1.4;min-width:0}
+@media(max-width:640px){.rd .meta3{grid-template-columns:1fr}}
+.rd .toc{display:flex;gap:6px;overflow-x:auto;padding:4px 0 2px;margin:14px 0 4px;scrollbar-width:none;position:sticky;top:calc(61px + env(safe-area-inset-top));background:var(--linen);z-index:2}
+.rd .toc button{flex:none;font-size:13px;padding:7px 12px;border:1px solid var(--line);border-radius:999px;background:var(--card);color:var(--soft)}
+.rd section{padding-top:30px;scroll-margin-top:120px}
+.rd section>h2{font-family:var(--serif);font-weight:400;font-size:30px;line-height:1.1;margin-bottom:14px}
+.rd h3{font-size:17px;font-weight:600;line-height:1.35;margin:24px 0 8px}
+.rd p,.rd li{font-size:15.5px;line-height:1.65}
+.rd p{margin-bottom:12px}
+.rd ul,.rd ol{padding-left:20px;margin-bottom:14px;display:flex;flex-direction:column;gap:5px}
+.rd blockquote{border-left:2px solid var(--taupe);padding-left:14px;color:var(--soft);margin-bottom:14px}
+.rd code{font-size:.9em;background:var(--linen2);padding:1px 5px;border-radius:5px}
+.rd .table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--card);margin:6px 0 18px}
+.rd table{border-collapse:collapse;width:100%;font-size:14px;line-height:1.45}
+.rd th,.rd td{text-align:left;vertical-align:top;padding:9px 11px;border-bottom:1px solid var(--line)}
+.rd th{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--taupe);font-weight:500;background:var(--linen)}
+.rd tr:last-child td{border-bottom:0}
+.rd pre.code{font-family:ui-monospace,Menlo,monospace;font-size:13px;line-height:1.55;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;white-space:pre-wrap;overflow-x:auto;margin-bottom:16px}
+.rd .prompt{border:1px solid var(--ink);border-radius:14px;background:var(--card);margin:8px 0 12px;overflow:hidden}
+.rd .prompt-bar{display:flex;justify-content:space-between;align-items:center;padding:7px 8px 7px 14px;border-bottom:1px solid var(--line);background:var(--linen)}
+.rd .prompt-bar span{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--taupe)}
+.rd .copy{background:var(--ink);color:var(--linen);border-radius:999px;padding:6px 14px;font-size:13px;font-weight:500}
+.rd .copy.done{background:var(--ok)}
+.rd .prompt-text{margin:0;padding:14px;font-family:ui-monospace,Menlo,monospace;font-size:13px;line-height:1.6;white-space:pre-wrap;word-break:break-word;max-height:360px;overflow:auto}
+.rd .prompt.full .prompt-text{max-height:none}
+.rd .more{display:block;width:100%;border-top:1px solid var(--line);padding:8px;font-size:13px;color:var(--soft);background:var(--card)}
+.rd ul.checklist{list-style:none;padding:0;gap:0;border:1px solid var(--line);border-radius:12px;background:var(--card);overflow:hidden}
+.rd li.check{display:flex;gap:12px;align-items:flex-start;padding:10px 14px;border-bottom:1px solid var(--line)}
+.rd li.check:last-child{border-bottom:0}
+.rd li.check input{appearance:none;-webkit-appearance:none;flex:none;width:20px;height:20px;margin-top:2px;border:1.5px solid var(--ink);border-radius:6px;background:var(--card);display:grid;place-content:center}
+.rd li.check input:checked{background:var(--ink)}
+.rd li.check input:checked::after{content:"";width:9px;height:5px;border-left:2px solid var(--linen);border-bottom:2px solid var(--linen);transform:rotate(-45deg) translate(1px,-1px)}
+.rd li.check input:checked+label{color:var(--soft);text-decoration:line-through}
+.rd .prog-c{font-size:13px;color:var(--taupe);margin:-6px 0 10px}
+.setup{background:var(--linen2);border:1px solid var(--ink)}
+.setup .num{color:var(--taupe)!important}
 </style>
 </head>
 <body>
@@ -177,7 +217,7 @@ const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const store = {get(k){try{return localStorage.getItem(k)}catch{return null}},set(k,v){try{localStorage.setItem(k,v)}catch{}},del(k){try{localStorage.removeItem(k)}catch{}}};
 const TZ = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
-let TOKEN = store.get('os_hub_token') || '', DATA = null, FORUM = null, VIEW = 'inicio', OPEN_T = null, RESCHED = null;
+let TOKEN = store.get('os_hub_token') || '', DATA = null, FORUM = null, VIEW = 'inicio', OPEN_T = null, RESCHED = null, OPEN_W = null, CONTENT = {};
 
 const I = {
   home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>',
@@ -218,7 +258,7 @@ function kindIcon(i){ const k=(i.kind||'').toLowerCase(), u=(i.url||'').toLowerC
 function fileUrl(u){ return u.startsWith('/api/hub/file/') ? u+'?t='+encodeURIComponent(TOKEN) : u; }
 
 /* ---------- routing ---------- */
-function go(v){ VIEW=v; OPEN_T=null; if(location.hash!=='#'+v) history.replaceState(null,'','#'+v); render(); window.scrollTo(0,0); }
+function go(v){ VIEW=v; OPEN_T=null; OPEN_W=null; if(location.hash!=='#'+v) history.replaceState(null,'','#'+v); render(); window.scrollTo(0,0); }
 window.addEventListener('hashchange',()=>{ const v=location.hash.slice(1); if(TABS.some(t=>t[0]===v) && v!==VIEW){ VIEW=v; OPEN_T=null; render(); } });
 
 function shell(){
@@ -233,7 +273,7 @@ function render(){
   if(!DATA) return;
   shell();
   const m = $('#main');
-  if(VIEW==='materiais') m.innerHTML = vMaterials();
+  if(VIEW==='materiais') m.innerHTML = OPEN_W!==null ? vReader(OPEN_W) : vMaterials();
   else if(VIEW==='agenda') m.innerHTML = vAgenda();
   else if(VIEW==='comunidade'){ m.innerHTML = vForum(); if(!FORUM) loadForum(); }
   else m.innerHTML = vHome();
@@ -264,17 +304,56 @@ function vHome(){
 }
 
 /* ---------- materials ---------- */
+function lessonBtns(w){ return w.content ? `<div class="row" style="margin-top:4px"><button class="btn sm" data-wk="${w.week}">Abrir aula completa</button>${w.pdf?`<a class="btn ghost sm" href="${esc(w.pdf)}" target="_blank" rel="noopener">PDF da semana</a>`:''}</div>` : ''; }
 function vMaterials(){
-  return `<div class="hello"><span class="ey">Materiais</span><h1 class="h1">Suas 8 <em>semanas.</em></h1><p class="muted">Cada semana é liberada depois da sua sessão, com tudo o que vimos juntos.</p></div>
+  const st = DATA.setup;
+  return `<div class="hello"><span class="ey">Materiais</span><h1 class="h1">Suas 8 <em>semanas.</em></h1><p class="muted">Cada semana abre no dia da sua sessão: passo a passo, prompts prontos para copiar, exercício, checklist e PDF.</p></div>
+  ${st?`<article class="wk setup" style="margin-bottom:12px"><div class="top"><div><span class="ey">Comece aqui · Semana 0</span><h3 style="margin-top:6px">${esc(st.title)}</h3></div><span class="num">00</span></div><p>${esc(st.summary||'')}</p>${lessonBtns(st)}</article>`:''}
   <div class="weeks">${DATA.weeks.map(w=> w.open ? `<article class="wk open">
       <div class="top"><div><span class="ey">Semana ${w.week}</span><h3 style="margin-top:6px">${esc(w.title)}</h3></div><span class="num">${String(w.week).padStart(2,'0')}</span></div>
       ${w.summary?`<p>${esc(w.summary)}</p>`:''}
-      ${w.body?`<div class="body">${esc(w.body)}</div>`:''}
+      ${lessonBtns(w)}
+      ${w.body?`<span class="ey" style="margin-top:6px">Recado do mentor</span><div class="body">${esc(w.body)}</div>`:''}
       ${(w.items||[]).length?`<div class="items">${w.items.map(i=>`<a class="item" href="${esc(fileUrl(i.url))}" target="_blank" rel="noopener">${kindIcon(i)}<span>${esc(i.label)}</span>${i.kind?`<small>${esc(i.kind)}</small>`:''}</a>`).join('')}</div>`:''}
       ${(w.extra||[]).length?`<span class="ey" style="margin-top:6px">Da sua sessão</span><div class="items">${w.extra.map(i=>`<a class="item" href="${esc(fileUrl(i.url))}" target="_blank" rel="noopener">${kindIcon(i)}<span>${esc(i.label)}</span></a>`).join('')}</div>`:''}
     </article>` : `<article class="wk lock">
       <div class="top"><div><span class="ey">Semana ${w.week}</span><h3 style="margin-top:6px">${esc(w.title)}</h3></div><span class="num">${String(w.week).padStart(2,'0')}</span></div>
-      <p>${esc(w.summary||'')}</p><span class="lockmsg">${I.lock}Liberado depois da sua sessão</span></article>`).join('')}</div>`;
+      <p>${esc(w.summary||'')}</p><span class="lockmsg">${I.lock}Abre no dia da sua sessão</span></article>`).join('')}</div>`;
+}
+
+/* ---------- full lesson reader ---------- */
+function vReader(n){
+  const c = CONTENT[n];
+  const back = `<button class="btn ghost sm back" data-wkback>← Materiais</button>`;
+  if(!c) return `<div class="rd">${back}<p class="muted">Carregando a aula…</p></div>`;
+  if(c.error) return `<div class="rd">${back}<p class="h2">Esta semana ainda não abriu.</p><p class="muted" style="margin-top:8px">Ela fica disponível no dia da sua sessão.</p></div>`;
+  const m = c.meta||{};
+  return `<div class="rd">${back}
+    <span class="ey">Semana ${String(c.week).padStart(2,'0')}</span><h1 class="h1" style="margin-top:8px">${esc(c.title)}</h1>
+    <p class="muted" style="font-size:17px;line-height:1.5;margin-top:12px">${esc(c.lead||'')}</p>
+    <div class="meta3"><div><span class="ey">Entrega</span>${esc(m['Entrega no ar']||'')}</div><div><span class="ey">Ferramentas</span>${esc(m['Ferramentas']||'')}</div><div><span class="ey">Tempo</span>${esc(m['Tempo da tarefa da semana']||'')}</div></div>
+    ${c.pdf?`<div class="row" style="margin-top:12px"><a class="btn sm" href="${esc(c.pdf)}" target="_blank" rel="noopener">Baixar PDF da semana</a></div>`:''}
+    <nav class="toc">${c.sections.map(s=>`<button data-toc="${esc(s.slug)}">${esc(s.short)}</button>`).join('')}</nav>
+    ${c.sections.map(s=>`<section id="sec-${esc(s.slug)}"><h2>${esc(s.name)}</h2>${s.slug==='checklist'?'<p class="prog-c" data-progc></p>':''}${s.html}</section>`).join('')}
+    <div class="row" style="margin-top:28px">${back}</div></div>`;
+}
+async function openWeek(n){
+  OPEN_W=n; VIEW='materiais'; render(); window.scrollTo(0,0);
+  if(!CONTENT[n]){ try{ const j=await api('content?w='+n); CONTENT[n]=j.content; }catch(e){ CONTENT[n]={error:true}; } if(OPEN_W===n){ render(); } }
+}
+function bindReader(){
+  const rd=document.querySelector('.rd'); if(!rd) return;
+  rd.querySelectorAll('[data-wkback]').forEach(b=>b.onclick=()=>{ OPEN_W=null; render(); window.scrollTo(0,0); });
+  rd.querySelectorAll('[data-toc]').forEach(b=>b.onclick=()=>{ const el=document.getElementById('sec-'+b.dataset.toc); if(el) el.scrollIntoView({behavior:'smooth'}); });
+  rd.querySelectorAll('.prompt').forEach(p=>{
+    const pre=p.querySelector('.prompt-text'), btn=p.querySelector('.copy');
+    btn.onclick=async()=>{ try{ await navigator.clipboard.writeText(pre.textContent); btn.textContent='Copiado'; btn.classList.add('done'); setTimeout(()=>{btn.textContent='Copiar';btn.classList.remove('done');},1800); }
+      catch{ const r=document.createRange(); r.selectNodeContents(pre); const s=getSelection(); s.removeAllRanges(); s.addRange(r); toast('Texto selecionado: copie'); } };
+    if(pre.textContent.split('\n').length>16 && !p.querySelector('.more')){ const mb=document.createElement('button'); mb.className='more'; mb.textContent='Ver prompt completo'; mb.onclick=()=>{ p.classList.toggle('full'); mb.textContent=p.classList.contains('full')?'Recolher':'Ver prompt completo'; }; p.append(mb); }
+  });
+  const boxes=[...rd.querySelectorAll('li.check input')], pc=rd.querySelector('[data-progc]');
+  const upd=()=>{ if(pc) pc.textContent=boxes.filter(i=>i.checked).length+' de '+boxes.length+' concluídos'; };
+  boxes.forEach(i=>{ const k='os_ck_'+DATA.me.id+'_'+i.id; i.checked=store.get(k)==='1'; i.onchange=()=>{ store.set(k,i.checked?'1':'0'); upd(); }; }); upd();
 }
 
 /* ---------- group classes ---------- */
@@ -331,6 +410,8 @@ async function loadForum(){ try{ FORUM = await api('forum'); if(VIEW==='comunida
 
 /* ---------- interactions ---------- */
 function bind(){
+  document.querySelectorAll('[data-wk]').forEach(b=>b.onclick=()=>openWeek(+b.dataset.wk));
+  bindReader();
   document.querySelectorAll('[data-book]').forEach(b=>b.onclick=()=>confirmBook(b.dataset.book));
   document.querySelectorAll('[data-resched]').forEach(b=>b.onclick=()=>{ RESCHED=b.dataset.resched; render(); window.scrollTo(0,0); });
   document.querySelectorAll('[data-cancel]').forEach(b=>b.onclick=()=>confirmCancel(b.dataset.cancel));

@@ -3,3 +3,9 @@
 
 [functions]
   directory = "netlify/functions"
+
+[[headers]]
+  for = "/hub/material/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+    Cache-Control = "public, max-age=3600"

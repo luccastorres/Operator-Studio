@@ -61,6 +61,46 @@ main{max-width:1100px;margin:0 auto;padding:22px 16px 80px;display:flex;flex-dir
 .toast.on{opacity:1}
 .login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
 .login form{width:100%;max-width:360px;display:flex;flex-direction:column;gap:16px}
+.wk button.auto{background:#E3EADF;border-color:#C9D6C4;color:var(--ok)}
+.wk button.auto.on{background:var(--ink);color:var(--linen);border-color:var(--ink)}
+/* full lesson reader */
+.rd{max-width:760px}
+.rd .back{display:flex;width:fit-content;margin-bottom:18px}
+.rd .meta3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin:18px 0 6px}
+.rd .meta3 div{background:var(--card);padding:12px 14px;display:flex;flex-direction:column;gap:4px;font-size:14px;line-height:1.4;min-width:0}
+@media(max-width:640px){.rd .meta3{grid-template-columns:1fr}}
+.rd .toc{display:flex;gap:6px;overflow-x:auto;padding:4px 0 2px;margin:14px 0 4px;scrollbar-width:none;position:sticky;top:calc(96px + env(safe-area-inset-top));background:var(--linen);z-index:2}
+.rd .toc button{flex:none;font-size:13px;padding:7px 12px;border:1px solid var(--line);border-radius:999px;background:var(--card);color:var(--soft)}
+.rd section{padding-top:30px;scroll-margin-top:120px}
+.rd section>h2{font-family:var(--serif);font-weight:400;font-size:30px;line-height:1.1;margin-bottom:14px}
+.rd h3{font-size:17px;font-weight:600;line-height:1.35;margin:24px 0 8px}
+.rd p,.rd li{font-size:15.5px;line-height:1.65}
+.rd p{margin-bottom:12px}
+.rd ul,.rd ol{padding-left:20px;margin-bottom:14px;display:flex;flex-direction:column;gap:5px}
+.rd blockquote{border-left:2px solid var(--taupe);padding-left:14px;color:var(--soft);margin-bottom:14px}
+.rd code{font-size:.9em;background:var(--linen2);padding:1px 5px;border-radius:5px}
+.rd .table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--card);margin:6px 0 18px}
+.rd table{border-collapse:collapse;width:100%;font-size:14px;line-height:1.45}
+.rd th,.rd td{text-align:left;vertical-align:top;padding:9px 11px;border-bottom:1px solid var(--line)}
+.rd th{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--taupe);font-weight:500;background:var(--linen)}
+.rd tr:last-child td{border-bottom:0}
+.rd pre.code{font-family:ui-monospace,Menlo,monospace;font-size:13px;line-height:1.55;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;white-space:pre-wrap;overflow-x:auto;margin-bottom:16px}
+.rd .prompt{border:1px solid var(--ink);border-radius:14px;background:var(--card);margin:8px 0 12px;overflow:hidden}
+.rd .prompt-bar{display:flex;justify-content:space-between;align-items:center;padding:7px 8px 7px 14px;border-bottom:1px solid var(--line);background:var(--linen)}
+.rd .prompt-bar span{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--taupe)}
+.rd .copy{background:var(--ink);color:var(--linen);border-radius:999px;padding:6px 14px;font-size:13px;font-weight:500}
+.rd .copy.done{background:var(--ok)}
+.rd .prompt-text{margin:0;padding:14px;font-family:ui-monospace,Menlo,monospace;font-size:13px;line-height:1.6;white-space:pre-wrap;word-break:break-word;max-height:360px;overflow:auto}
+.rd .prompt.full .prompt-text{max-height:none}
+.rd .more{display:block;width:100%;border-top:1px solid var(--line);padding:8px;font-size:13px;color:var(--soft);background:var(--card)}
+.rd ul.checklist{list-style:none;padding:0;gap:0;border:1px solid var(--line);border-radius:12px;background:var(--card);overflow:hidden}
+.rd li.check{display:flex;gap:12px;align-items:flex-start;padding:10px 14px;border-bottom:1px solid var(--line)}
+.rd li.check:last-child{border-bottom:0}
+.rd li.check input{appearance:none;-webkit-appearance:none;flex:none;width:20px;height:20px;margin-top:2px;border:1.5px solid var(--ink);border-radius:6px;background:var(--card);display:grid;place-content:center}
+.rd li.check input:checked{background:var(--ink)}
+.rd li.check input:checked::after{content:"";width:9px;height:5px;border-left:2px solid var(--linen);border-bottom:2px solid var(--linen);transform:rotate(-45deg) translate(1px,-1px)}
+.rd li.check input:checked+label{color:var(--soft);text-decoration:line-through}
+.rd .prog-c{font-size:13px;color:var(--taupe);margin:-6px 0 10px}
 </style>
 </head>
 <body>
@@ -86,7 +126,7 @@ const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const store = {get(k){try{return localStorage.getItem(k)}catch{return null}},set(k,v){try{localStorage.setItem(k,v)}catch{}},del(k){try{localStorage.removeItem(k)}catch{}}};
 const TZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
-let KEY = store.get('os_crm_key')||'', S = null, TAB = location.hash.slice(1)||'alunos', OPEN = {}, INVITES = {};
+let KEY = store.get('os_crm_key')||'', S = null, TAB = location.hash.slice(1)||'alunos', OPEN = {}, INVITES = {}, PREV = null, CONTENT = {};
 const TABS = [['alunos','Alunos'],['aulas','Aulas'],['materiais','Materiais'],['agenda','Agenda'],['comunidade','Comunidade']];
 const KINDS = ['Aula','PDF','Vídeo','Template','Link'];
 
@@ -110,10 +150,10 @@ async function load(){ S = await api('state'); render(); }
 function render(){
   $('#tabs').innerHTML = TABS.map(([k,t])=>`<button class="tab ${k===TAB?'on':''}" data-tab="${k}">${t}</button>`).join('');
   const m=$('#main');
-  m.innerHTML = TAB==='aulas'?vAulas():TAB==='materiais'?vMat():TAB==='agenda'?vAgenda():TAB==='comunidade'?vForum():vStudents();
+  m.innerHTML = TAB==='aulas'?vAulas():TAB==='materiais'?(PREV!==null?vPreview(PREV):vMat()):TAB==='agenda'?vAgenda():TAB==='comunidade'?vForum():vStudents();
   bind();
 }
-document.addEventListener('click',e=>{ const t=e.target.closest('[data-tab]'); if(t){ TAB=t.dataset.tab; history.replaceState(null,'','#'+TAB); render(); } });
+document.addEventListener('click',e=>{ const t=e.target.closest('[data-tab]'); if(t){ TAB=t.dataset.tab; PREV=null; history.replaceState(null,'','#'+TAB); render(); } });
 
 /* ---------- students ---------- */
 function vStudents(){
@@ -128,11 +168,12 @@ function vStudents(){
     const mine = sl.filter(x=>x.studentId===s.id).sort((a,b)=>a.start.localeCompare(b.start));
     const nextS = mine.find(x=>new Date(x.start)>Date.now());
     const inv = INVITES[s.id]; const wa = waNumber(s.whatsapp);
+    const auto = new Set(mine.filter(x=>x.week && new Date(x.start).getTime() <= Date.now()+15*60000).map(x=>x.week));
     return `<div class="card">
       <div class="row" style="justify-content:space-between"><div><p class="h3">${esc(s.nome)}</p><p class="muted" style="font-size:14px">${esc(s.email)}${s.negocio?' · '+esc(s.negocio):''}</p></div>
         <div class="row"><span class="chip">${esc(s.perfil||'')}</span>${s.active?'<span class="chip ok">Ativo</span>':'<span class="chip wait">Convite pendente</span>'}</div></div>
       <p class="muted" style="font-size:14px">Sessões: ${mine.length}/8${nextS?' · próxima '+esc(fDT(nextS.start)):''}</p>
-      <div><label class="l">Semanas liberadas (toque para liberar depois da aula)</label><div class="wk" data-rel="${esc(s.id)}">${[1,2,3,4,5,6,7,8].map(w=>`<button class="${(s.released||[]).includes(w)?'on':''}" data-w="${w}">${w}</button>`).join('')}</div></div>
+      <div><label class="l">Semanas abertas · a semana abre sozinha no dia da sessão (verde). Toque para liberar antes.</label><div class="wk" data-rel="${esc(s.id)}">${[1,2,3,4,5,6,7,8].map(w=>`<button class="${(s.released||[]).includes(w)?'on':''} ${auto.has(w)?'auto':''}" title="${auto.has(w)?'Aberta pela sessão':''}" data-w="${w}">${w}</button>`).join('')}</div></div>
       ${inv?`<div class="card" style="background:var(--linen)"><span class="ey">Convite pronto</span><p style="font-size:13px;word-break:break-all">${esc(inviteUrl(inv))}</p><div class="row">${wa?`<a class="btn sm" target="_blank" rel="noopener" href="https://wa.me/${wa}?text=${encodeURIComponent(inviteMsg(s,inv))}">Enviar no WhatsApp</a>`:''}<button class="btn ghost sm" data-copy="${esc(inviteUrl(inv))}">Copiar link</button></div></div>`:''}
       <div class="row">
         <button class="btn ghost sm" data-extra="${esc(s.id)}">${OPEN['x'+s.id]?'Fechar links da sessão':'Links da sessão (gravação etc.)'}</button>
@@ -184,20 +225,47 @@ function vAulas(){
 }
 
 /* ---------- materials ---------- */
+function contentLine(m){ return m.content ? `<div class="row"><span class="chip ok">Aula completa · ${m.steps} passos · ${m.prompts} prompts</span>${m.pdf?'<span class="chip ok">PDF</span>':''}</div>` : ''; }
+function contentBtns(m){ return m.content ? `<button class="btn sm" data-prev="${m.week}">Ver aula</button>${m.pdf?`<a class="btn ghost sm" href="${esc(m.pdf)}" target="_blank" rel="noopener">PDF</a>`:''}` : ''; }
 function vMat(){
-  return `<div><span class="ey">Materiais</span><h1 class="h1">Conteúdo das <em>8 semanas.</em></h1><p class="muted" style="margin-top:6px">O mesmo material para todos. Cada aluno só vê a semana depois que você liberar na aba Alunos.</p></div>
+  const st = S.setup;
+  return `<div><span class="ey">Materiais</span><h1 class="h1">Conteúdo das <em>8 semanas.</em></h1><p class="muted" style="margin-top:6px">O mesmo material para todos. Cada semana abre sozinha no dia da sessão do aluno, ou antes, se você liberar na aba Alunos. A Semana 0 fica sempre aberta.</p></div>
+  ${st?`<div class="card"><div class="row" style="justify-content:space-between"><p class="h3">Semana 0 · ${esc(st.title)}</p><div class="row">${contentBtns(st)}</div></div>${contentLine(st)}<p class="muted" style="font-size:14px">Sempre aberta para todos os alunos.</p></div>`:''}
   ${S.materials.map(m=>`<div class="card" data-mat="${m.week}">
-    <div class="row" style="justify-content:space-between"><p class="h3">Semana ${m.week} · ${esc(m.title)}</p><button class="btn ghost sm" data-open="m${m.week}">${OPEN['m'+m.week]?'Fechar':'Editar'}</button></div>
-    <p class="muted" style="font-size:14px">${(m.items||[]).length} itens${m.updatedAt?' · atualizado '+esc(fDT(m.updatedAt)):''}</p>
+    <div class="row" style="justify-content:space-between"><p class="h3">Semana ${m.week} · ${esc(m.title)}</p><div class="row">${contentBtns(m)}<button class="btn ghost sm" data-open="m${m.week}">${OPEN['m'+m.week]?'Fechar':'Editar'}</button></div></div>
+    ${contentLine(m)}
+    <p class="muted" style="font-size:14px">${(m.items||[]).length} itens extras${m.updatedAt?' · atualizado '+esc(fDT(m.updatedAt)):''}</p>
     ${OPEN['m'+m.week]?`<div><label class="l">Título</label><input class="in" data-f="title" value="${esc(m.title)}"></div>
       <div><label class="l">Resumo</label><textarea class="in" style="min-height:60px" data-f="summary">${esc(m.summary||'')}</textarea></div>
-      <div><label class="l">Texto da semana (passo a passo, tarefas)</label><textarea class="in" style="min-height:140px" data-f="body">${esc(m.body||'')}</textarea></div>
+      <div><label class="l">Recado do mentor (opcional, aparece acima dos itens)</label><textarea class="in" style="min-height:140px" data-f="body">${esc(m.body||'')}</textarea></div>
       <span class="ey">Itens</span><div data-items>${(m.items||[]).map(itemRow).join('')}</div>
       <div class="row"><button class="btn ghost sm" data-additem>+ Link</button><label class="btn ghost sm" style="cursor:pointer">Enviar arquivo (até 5 MB)<input type="file" data-up hidden></label></div>
       <div><button class="btn" data-savemat="${m.week}">Salvar semana ${m.week}</button></div>`:''}
   </div>`).join('')}`;
 }
 const itemRow = i => `<div class="g3" style="margin-bottom:8px"><div><label class="l">Título</label><input class="in" data-i="label" value="${esc(i.label||'')}"></div><div><label class="l">Link</label><input class="in" data-i="url" value="${esc(i.url||'')}"></div><div><label class="l">Tipo</label><select class="in" data-i="kind">${KINDS.map(k=>`<option ${i.kind===k?'selected':''}>${k}</option>`).join('')}</select></div><button class="btn ghost sm" data-rmitem>×</button></div>`;
+
+/* ---------- lesson preview ---------- */
+function vPreview(n){
+  const c = CONTENT[n]; const back = `<button class="btn ghost sm back" data-prevback>← Materiais</button>`;
+  if(!c) return `<div class="rd">${back}<p class="muted">Carregando…</p></div>`;
+  const m = c.meta||{};
+  return `<div class="rd">${back}<span class="ey">Prévia do aluno · Semana ${String(c.week).padStart(2,'0')}</span><h1 class="h1" style="margin-top:8px">${esc(c.title)}</h1>
+    <p class="muted" style="font-size:17px;line-height:1.5;margin-top:12px">${esc(c.lead||'')}</p>
+    <div class="meta3"><div><span class="ey">Entrega</span>${esc(m['Entrega no ar']||'')}</div><div><span class="ey">Ferramentas</span>${esc(m['Ferramentas']||'')}</div><div><span class="ey">Tempo</span>${esc(m['Tempo da tarefa da semana']||'')}</div></div>
+    ${c.pdf?`<div class="row" style="margin-top:12px"><a class="btn sm" href="${esc(c.pdf)}" target="_blank" rel="noopener">Abrir PDF</a></div>`:''}
+    <nav class="toc">${c.sections.map(s=>`<button data-toc="${esc(s.slug)}">${esc(s.short)}</button>`).join('')}</nav>
+    ${c.sections.map(s=>`<section id="sec-${esc(s.slug)}"><h2>${esc(s.name)}</h2>${s.html}</section>`).join('')}
+    <div class="row" style="margin-top:28px">${back}</div></div>`;
+}
+async function openPrev(n){ PREV=n; render(); window.scrollTo(0,0); if(!CONTENT[n]){ try{ const r=await fetch('/api/hub/admin/content?w='+n,{headers:{'x-crm-key':KEY},cache:'no-store'}); const j=await r.json(); CONTENT[n]=j.content; }catch{ toast('Erro ao carregar'); PREV=null; } render(); } }
+function bindPrev(){
+  const rd=document.querySelector('.rd'); if(!rd) return;
+  rd.querySelectorAll('[data-prevback]').forEach(b=>b.onclick=()=>{ PREV=null; render(); window.scrollTo(0,0); });
+  rd.querySelectorAll('[data-toc]').forEach(b=>b.onclick=()=>{ const el=document.getElementById('sec-'+b.dataset.toc); if(el) el.scrollIntoView({behavior:'smooth'}); });
+  rd.querySelectorAll('.prompt').forEach(p=>{ const pre=p.querySelector('.prompt-text'), btn=p.querySelector('.copy');
+    btn.onclick=async()=>{ try{ await navigator.clipboard.writeText(pre.textContent); btn.textContent='Copiado'; btn.classList.add('done'); setTimeout(()=>{btn.textContent='Copiar';btn.classList.remove('done');},1800); }catch{ toast('Não foi possível copiar'); } }; });
+}
 
 /* ---------- agenda ---------- */
 function vAgenda(){
@@ -226,6 +294,8 @@ function vForum(){
 
 /* ---------- bind ---------- */
 function bind(){
+  document.querySelectorAll('[data-prev]').forEach(b=>b.onclick=()=>openPrev(+b.dataset.prev));
+  bindPrev();
   const fn=$('#fNew'); if(fn) fn.onsubmit=async e=>{ e.preventDefault(); try{ const r=await api('student',Object.fromEntries(new FormData(fn))); INVITES[r.student.id]=r.invite; await load(); toast('Aluno criado'); }catch(x){ toast(x.code==='exists'?'Esse e-mail já existe':'Preencha nome e e-mail'); } };
   document.querySelectorAll('[data-rel]').forEach(box=>box.querySelectorAll('[data-w]').forEach(b=>b.onclick=async()=>{
     const s=S.students.find(x=>x.id===box.dataset.rel); const w=+b.dataset.w; const set=new Set(s.released||[]); set.has(w)?set.delete(w):set.add(w); s.released=[...set].sort((a,b)=>a-b); b.classList.toggle('on');

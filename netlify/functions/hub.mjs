@@ -1,6 +1,7 @@
 import { getStore } from "@netlify/blobs";
 import { createHash, randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
 import { HOOK, OWNER, SITE, LIVE } from "../lib/notify.mjs";
+import { CURRICULUM } from "../lib/curriculum.mjs";
 
 // Operator Studio · Student Hub API
 // Students log in with e-mail + password (invited by the mentor).
@@ -75,9 +76,24 @@ async function materials(store) {
   const out = [];
   for (let w = 1; w <= WEEKS; w++) {
     const m = await store.get(`materials/${w}`, { type: "json" });
-    out.push(m || { week: w, title: DEFAULT_WEEKS[w - 1][0], summary: DEFAULT_WEEKS[w - 1][1], body: "", items: [] });
+    const c = CURRICULUM[w];
+    const base = m || { week: w, title: c?.title || DEFAULT_WEEKS[w - 1][0], summary: c?.lead || DEFAULT_WEEKS[w - 1][1], body: "", items: [] };
+    out.push({ ...base, content: !!c, pdf: c?.pdf || "", prompts: c?.prompts || 0, steps: c?.steps || 0 });
   }
   return out;
+}
+
+// Week 0 (tool setup) is always open for every student.
+const setupWeek = () => { const c = CURRICULUM[0]; return c ? { week: 0, title: c.title, summary: c.lead, pdf: c.pdf, content: true, prompts: c.prompts, steps: c.steps, open: true } : null; };
+const contentOf = (w) => { const c = CURRICULUM[w]; return c ? { week: c.week, title: c.title, lead: c.lead, meta: c.meta, pdf: c.pdf, sections: c.sections } : null; };
+
+// A week opens when the mentor releases it, or automatically when the student's session for that week starts.
+const SOON_MS = 15 * 60000;
+function openWeeks(me, slots) {
+  const set = new Set(me.released || []);
+  const t = Date.now() + SOON_MS;
+  for (const s of slots) if (s.studentId === me.id && s.week && new Date(s.start).getTime() <= t) set.add(s.week);
+  return set;
 }
 
 function fmtWhen(iso) {
@@ -220,7 +236,11 @@ export default async (req) => {
       ]);
       const reports = reps.map((r) => ({ start: r.start, status: r.status, shared: !!r.shared, studentId: r.studentId, studentName: r.studentName || "", week: r.week, group: !!r.group, title: r.title || "",
         minutes: r.minutes, questions: r.report?.perguntas?.length || 0, updatedAt: r.updatedAt }));
-      return json({ students: students.map(publicStudent), slots, groups, forum, materials: mats, weeks: WEEKS, reports, live: !!process.env.DAILY_API_KEY });
+      return json({ students: students.map(publicStudent), slots, groups, forum, materials: mats, setup: setupWeek(), weeks: WEEKS, reports, live: !!process.env.DAILY_API_KEY });
+    }
+    if (a === "content" && method === "GET") {
+      const c = contentOf(Number(url.searchParams.get("w")));
+      return c ? json({ content: c }) : json({ error: "nf" }, 404);
     }
     if (a === "student" && method === "POST") {
       const id = clip(body.id, 40);
@@ -377,7 +397,7 @@ export default async (req) => {
 
   if (path === "me" && method === "GET") {
     const [mats, slots] = await Promise.all([materials(store), listJSON(store, "slots/")]);
-    const released = new Set(me.released || []);
+    const released = openWeeks(me, slots);
     const weeks = mats.map((m) => released.has(m.week)
       ? { ...m, open: true, extra: (me.extra || {})[m.week] || [] }
       : { week: m.week, title: m.title, summary: m.summary, open: false });
@@ -389,7 +409,17 @@ export default async (req) => {
     const gl = (await listJSON(store, "groups/")).filter((g) => (g.studentIds || []).includes(me.id)).sort((a, b) => a.start.localeCompare(b.start));
     const greps = await Promise.all(gl.map((g) => store.get(`reports/${g.start}`, { type: "json" })));
     const groups = gl.map((g, i) => ({ start: g.start, dur: g.dur, title: g.title, group: true, report: !!(greps[i]?.shared && greps[i]?.status === "done") }));
-    return json({ me: publicStudent(me), weeks, sessions, groups, free, live: !!process.env.DAILY_API_KEY, rules: { cancelHours: 24, weeks: WEEKS } });
+    return json({ me: publicStudent(me), weeks, setup: setupWeek(), sessions, groups, free, live: !!process.env.DAILY_API_KEY, rules: { cancelHours: 24, weeks: WEEKS } });
+  }
+
+  if (path === "content" && method === "GET") {
+    const w = Number(url.searchParams.get("w"));
+    if (w !== 0) {
+      const open = openWeeks(me, await listJSON(store, "slots/"));
+      if (!open.has(w)) return json({ error: "locked" }, 403);
+    }
+    const c = contentOf(w);
+    return c ? json({ content: c }) : json({ error: "nf" }, 404);
   }
 
   if (path === "book" && method === "POST") {
