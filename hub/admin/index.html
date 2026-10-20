@@ -178,6 +178,7 @@ function vStudents(){
       ${inv?`<div class="card" style="background:var(--linen)"><span class="ey">Convite pronto</span><p style="font-size:13px;word-break:break-all">${esc(inviteUrl(inv))}</p><div class="row">${wa?`<a class="btn sm" target="_blank" rel="noopener" href="https://wa.me/${wa}?text=${encodeURIComponent(inviteMsg(s,inv))}">Enviar no WhatsApp</a>`:''}<button class="btn ghost sm" data-copy="${esc(inviteUrl(inv))}">Copiar link</button></div></div>`:''}
       <div class="row">
         <button class="btn ghost sm" data-extra="${esc(s.id)}">${OPEN['x'+s.id]?'Fechar links da sessão':'Links da sessão (gravação etc.)'}</button>
+        <button class="btn ghost sm" data-viewas="${esc(s.id)}">Ver como aluno</button>
         <button class="btn ghost sm" data-reinv="${esc(s.id)}">${s.active?'Novo link de senha':'Gerar convite'}</button>
         <button class="btn ghost sm" data-del="${esc(s.id)}">Remover</button></div>
       ${OPEN['x'+s.id]?extraEditor(s):''}
@@ -305,6 +306,7 @@ function bind(){
     const s=S.students.find(x=>x.id===box.dataset.rel); const w=+b.dataset.w; const set=new Set(s.released||[]); set.has(w)?set.delete(w):set.add(w); s.released=[...set].sort((a,b)=>a-b); b.classList.toggle('on');
     try{ await api('student',{id:s.id,released:s.released}); toast(set.has(w)?`Semana ${w} liberada`:`Semana ${w} bloqueada`); }catch{ toast('Erro'); } }));
   document.querySelectorAll('[data-copy]').forEach(b=>b.onclick=async()=>{ try{ await navigator.clipboard.writeText(b.dataset.copy); toast('Link copiado'); }catch{ prompt('Copie:',b.dataset.copy); } });
+  document.querySelectorAll('[data-viewas]').forEach(b=>b.onclick=async()=>{ const w=window.open('about:blank','_blank'); try{ const r=await api('view-as',{id:b.dataset.viewas}); w.location='/hub/#sessao='+r.token; }catch{ if(w) w.close(); toast('Erro'); } });
   document.querySelectorAll('[data-reinv]').forEach(b=>b.onclick=async()=>{ try{ const r=await api('reinvite',{id:b.dataset.reinv}); INVITES[b.dataset.reinv]=r.invite; render(); }catch{ toast('Erro'); } });
   document.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{ const s=S.students.find(x=>x.id===b.dataset.del); if(!confirm(`Remover ${s.nome} do hub? As sessões marcadas voltam a ficar livres.`)) return; try{ await api('student-delete',{id:s.id}); await load(); toast('Aluno removido'); }catch{ toast('Erro'); } });
   document.querySelectorAll('[data-extra]').forEach(b=>b.onclick=()=>{ OPEN['x'+b.dataset.extra]=!OPEN['x'+b.dataset.extra]; render(); });

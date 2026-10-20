@@ -306,6 +306,14 @@ export default async (req) => {
       await store.setJSON(`invite/${inviteToken}`, { id: sid });
       return json({ ok: true, student: publicStudent(s), invite: inviteToken });
     }
+    // Mentor opens the Student Hub as this student (no password needed). Session lasts 4 hours.
+    if (a === "view-as" && method === "POST") {
+      const s = await store.get(`students/${clip(body.id, 40)}`, { type: "json" });
+      if (!s) return json({ error: "nf" }, 404);
+      const token = rid(24);
+      await store.setJSON(`auth/${token}`, { id: s.id, exp: Date.now() + 4 * 3600000, mentor: true });
+      return json({ ok: true, token });
+    }
     if (a === "reinvite" && method === "POST") {
       const s = await store.get(`students/${clip(body.id, 40)}`, { type: "json" });
       if (!s) return json({ error: "nf" }, 404);
@@ -460,7 +468,7 @@ export default async (req) => {
 
   if (path === "me" && method === "GET") {
     const tzq = clip(url.searchParams.get("tz"), 60);
-    if (tzq && tzq !== me.tz) { try { new Intl.DateTimeFormat("en", { timeZone: tzq }); me.tz = tzq; await store.setJSON(`students/${me.id}`, me); } catch {} }
+    if (tzq && tzq !== me.tz && !auth.mentor) { try { new Intl.DateTimeFormat("en", { timeZone: tzq }); me.tz = tzq; await store.setJSON(`students/${me.id}`, me); } catch {} }
     const [mats, slots] = await Promise.all([materials(store), listJSON(store, "slots/")]);
     const released = openWeeks(me, slots);
     const weeks = mats.map((m) => released.has(m.week)

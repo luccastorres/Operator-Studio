@@ -532,6 +532,8 @@ $('#fLogin').onsubmit=async e=>{ e.preventDefault(); $('#eLogin').hidden=true;
   catch{ $('#eLogin').textContent='E-mail ou senha incorretos.'; $('#eLogin').hidden=false; } };
 
 (async()=>{
+  const ses = /^#sessao=([\w-]+)$/.exec(location.hash);
+  if(ses){ TOKEN=ses[1]; store.set('os_hub_token',TOKEN); history.replaceState(null,'','/hub/#inicio'); }
   const inv = new URLSearchParams(location.search).get('convite');
   if(inv){
     try{ const r=await fetch('/api/hub/invite?t='+encodeURIComponent(inv)); const j=await r.json(); if(!r.ok) throw 0;
