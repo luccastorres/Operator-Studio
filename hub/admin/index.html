@@ -9,7 +9,7 @@
 <title>Hub · Painel do mentor</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600&family=Tinos:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..500;1,9..144,300..400&family=Hanken+Grotesk:wght@400;500;600&family=Tinos:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 <style>
 :root{--ink:#151412;--linen:#F3F1EC;--linen2:#EAE6DF;--card:#FBFAF7;--line:#D9D3C9;--taupe:#7E7669;--soft:#5F594F;--sand:#B5AEA2;--gold:#C9A36A;--ok:#4E6B4F;
 --serif:'Tinos','Times New Roman',serif;--sans:'Hanken Grotesk',-apple-system,Helvetica,Arial,sans-serif}
@@ -101,23 +101,70 @@ main{max-width:1100px;margin:0 auto;padding:22px 16px 80px;display:flex;flex-dir
 .rd li.check input:checked::after{content:"";width:9px;height:5px;border-left:2px solid var(--linen);border-bottom:2px solid var(--linen);transform:rotate(-45deg) translate(1px,-1px)}
 .rd li.check input:checked+label{color:var(--soft);text-decoration:line-through}
 .rd .prog-c{font-size:13px;color:var(--taupe);margin:-6px 0 10px}
+
+/* ===== v2 ===== */
+:root{--ink:#1C1A17;--linen:#F4F1EB;--linen2:#ECE6DD;--panel:#EFEAE2;--card:#FBF9F5;--line:#E0D9CE;--line2:#D3CABD;--taupe:#857B6E;--soft:#5F584F;--sand:#B7AEA1;--terra:#A65E40;--terra-d:#8E4D33;--terra-s:#F3E4DA;--ok:#5E7A5C;
+--serif:'Fraunces','Tinos','Times New Roman',serif;--sh:0 1px 0 rgba(28,26,23,.02),0 10px 30px -18px rgba(60,45,30,.18)}
+.logo{font-family:var(--serif);font-weight:400;font-size:23px}
+.logo small{display:block;font-family:var(--sans);font-size:9.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--taupe);margin-top:8px}
+.h1{font-weight:400;font-size:40px;letter-spacing:-.02em;line-height:1.04}.h1 em{font-style:italic}
+.h3{font-weight:400}
+.btn{background:var(--terra);color:#FFF8F2;border-radius:12px}.btn:hover{background:var(--terra-d)}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line2)}.btn.ghost:hover{background:var(--card)}
+.btn.sm{border-radius:10px}
+.in{border-color:var(--line2);border-radius:12px}.in:focus{border-color:var(--terra)}
+.card{border-color:var(--line);border-radius:18px;padding:20px;box-shadow:var(--sh)}
+.wk button.on,.wk button.auto.on{background:var(--terra);border-color:var(--terra)}
+.sl.b{background:#2B2723;border-color:#2B2723}
+.chip.ok{background:#E4EBE2;color:#3F5A40}
+.tab.on{color:var(--ink);border-color:var(--terra)}
+.side{display:none}
+@media(min-width:1000px){
+  #app:not([hidden]){display:grid;grid-template-columns:248px minmax(0,1fr);background:linear-gradient(to right,var(--panel) 248px,var(--linen) 248px);min-height:100vh}
+  .side{display:flex;flex-direction:column;position:sticky;top:0;height:100vh;border-right:1px solid var(--line);padding:34px 18px 20px}
+  .side .logo{padding:0 12px 30px}
+  .side nav{display:flex;flex-direction:column;gap:3px}
+  .side nav a,.side nav button{display:flex;align-items:center;gap:13px;padding:11px 14px;border-radius:12px;font-size:15px;color:var(--soft);text-decoration:none;position:relative;width:100%;text-align:left;border:0}
+  .side nav svg{width:19px;height:19px;flex:none}
+  .side nav a:hover,.side nav button:hover{background:rgba(255,255,255,.45)}
+  .side nav button.on{background:var(--linen2);color:var(--ink)}
+  .side nav button.on::before{content:'';position:absolute;left:-18px;top:8px;bottom:8px;width:3px;border-radius:0 3px 3px 0;background:var(--terra)}
+  .side nav button.on svg{color:var(--terra)}
+  .side .sep{height:1px;background:var(--line);margin:14px 10px}
+  .side .sp{flex:1}
+  .side .who{display:flex;align-items:center;gap:12px;padding:14px 10px 4px;border-top:1px solid var(--line)}
+  .side .who b{display:block;font-weight:500;font-size:15px}.side .who span.r{font-size:13px;color:var(--taupe)}
+  header{display:none}
+  main{max-width:1180px;margin:0;padding:40px 44px 64px;gap:18px}
+  .h1{font-size:54px}
+}
 </style>
 </head>
 <body>
 <section class="login" id="vLogin" hidden><form id="fL">
-  <span class="logo"><b>Operator</b> <i>Studio</i></span>
+  <span class="logo">Operator Studio<small>Student Hub · mentor</small></span>
   <h1 class="h1">Painel do <em>mentor.</em></h1>
   <div><label class="l">Senha do CRM</label><input class="in" id="k" type="password" autocomplete="current-password" required></div>
   <button class="btn" type="submit">Entrar</button><p class="err" id="eL" hidden>Senha incorreta.</p>
 </form></section>
 
 <div id="app" hidden>
+  <aside class="side">
+    <span class="logo">Operator Studio<small>Student Hub · mentor</small></span>
+    <nav id="stabs"></nav>
+    <div class="sep"></div>
+    <nav><a href="/crm/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c.8-3.2 3-5 5.5-5s4.7 1.8 5.5 5"/><circle cx="17" cy="9" r="2.4"/><path d="M15.5 14.2c2.4-.5 4.4 1 5 3.8"/></svg>CRM</a><a href="/hub/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 4h6v6M20 4l-9 9M18 14v6H4V6h6"/></svg>Login do Hub</a></nav>
+    <div class="sp"></div>
+    <div class="who"><span id="meAv"></span><span><b>Luccas</b><span class="r">Mentor · Admin</span></span></div>
+  </aside>
+  <div style="min-width:0">
   <header><div class="hin">
-    <div class="htop"><span class="logo"><b>Operator</b> <i>Studio</i> <span class="ey" style="margin-left:6px">Student Hub</span></span>
+    <div class="htop"><span class="logo">Operator Studio</span>
       <div class="row"><a class="btn ghost sm" href="/hub/" target="_blank">Login do Hub</a><a class="btn ghost sm" href="/crm/">CRM</a></div></div>
     <nav class="tabs" id="tabs"></nav>
   </div></header>
   <main id="main"></main>
+  </div>
 </div>
 <div class="toast" id="toast"></div>
 
@@ -128,6 +175,7 @@ const store = {get(k){try{return localStorage.getItem(k)}catch{return null}},set
 const TZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
 let KEY = store.get('os_crm_key')||'', S = null, TAB = location.hash.slice(1)||'alunos', OPEN = {}, INVITES = {}, PREV = null, CONTENT = {};
 const TABS = [['alunos','Alunos'],['aulas','Aulas'],['materiais','Materiais'],['agenda','Agenda'],['comunidade','Comunidade']];
+const TI = { alunos:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 9l9-4 9 4-9 4z"/><path d="M7 11v4.5c0 1.4 2.2 2.5 5 2.5s5-1.1 5-2.5V11"/></svg>', aulas:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10l5-3v10l-5-3z"/></svg>', materiais:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19V5"/></svg>', agenda:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>', comunidade:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 5h16v11H9l-5 4z"/></svg>' };
 const KINDS = ['Aula','PDF','Vídeo','Template','Link'];
 
 function toast(t){ const el=$('#toast'); el.textContent=t; el.classList.add('on'); clearTimeout(toast.t); toast.t=setTimeout(()=>el.classList.remove('on'),2000); }
@@ -149,6 +197,8 @@ const inviteMsg = (s,t) => `Oi, ${first(s.nome)}! Bem-vindo à mentoria Operator
 async function load(){ const [st, mp] = await Promise.all([api('state'), api('mentor').catch(()=>({}))]); S = { ...st, mentorPhoto: mp.photo||'' }; render(); }
 function render(){
   $('#tabs').innerHTML = TABS.map(([k,t])=>`<button class="tab ${k===TAB?'on':''}" data-tab="${k}">${t}</button>`).join('');
+  $('#stabs').innerHTML = TABS.map(([k,t])=>`<button class="${k===TAB?'on':''}" data-tab="${k}">${TI[k]}${t}</button>`).join('');
+  $('#meAv').innerHTML = `<span style="width:44px;height:44px;border-radius:50%;overflow:hidden;background:#ECE6DD;display:inline-flex;align-items:center;justify-content:center;font-family:Fraunces,Tinos,serif;font-size:18px;color:#857B6E">${S.mentorPhoto?`<img src="${esc(S.mentorPhoto)}" alt="" style="width:100%;height:100%;object-fit:cover">`:'L'}</span>`;
   const m=$('#main');
   m.innerHTML = TAB==='aulas'?vAulas():TAB==='materiais'?(PREV!==null?vPreview(PREV):vMat()):TAB==='agenda'?vAgenda():TAB==='comunidade'?vForum():vStudents();
   bind();
@@ -207,9 +257,9 @@ function vAulas(){
   const status = r => !r ? '<span class="chip">Sem relatório</span>' : r.status==='done' ? `<span class="chip ok">Relatório · ${r.questions} perguntas</span>${r.shared?'<span class="chip ok">Publicado</span>':'<span class="chip">Só você vê</span>'}` : r.status==='pending' ? '<span class="chip wait">Gerando…</span>' : r.status==='empty' ? '<span class="chip">Sem transcrição</span>' : '<span class="chip wait">Erro · tente de novo</span>';
   const openAt = s => new Date(s.start).getTime() - 60*60000;
   const groups = (S.groups||[]).filter(g=>end(g) > now).sort((a,b)=>a.start.localeCompare(b.start));
-  return `<div><span class="ey">Aulas ao vivo</span><h1 class="h1">Sala e <em>relatórios.</em></h1><p class="muted" style="margin-top:6px">Cada sessão marcada tem a própria sala no Student Hub. A aula é transcrita e, ao encerrar, o relatório é gerado sozinho. Você revisa e publica para o aluno.</p></div>
+  return `<div><span class="ey">Aulas ao vivo</span><h1 class="h1">Encontros que <em>viram ação.</em></h1><p class="muted" style="margin-top:6px">Cada sessão marcada tem a própria sala no Student Hub. A aula é transcrita e, ao encerrar, o relatório é gerado sozinho. Você revisa e publica para o aluno.</p></div>
   ${S.live?'':`<div class="card" style="background:#F1E7D6;border-color:#E6D7BC"><span class="ey" style="color:#8A6A3A">Falta ativar</span><p style="font-size:14.5px;line-height:1.55">A sala ao vivo ainda não está ligada. No Netlify, em Site configuration → Environment variables, adicione <b>DAILY_API_KEY</b> (sua chave da Daily) e <b>ANTHROPIC_API_KEY</b> (sua chave da API do Claude). Depois faça um novo deploy. Até lá, as sessões continuam com o link do Google Meet.</p></div>`}
-  ${S.students.length?`<form class="card" id="fAssign"><span class="ey">Marcar aula para um aluno</span><p class="muted" style="font-size:14px;line-height:1.5">A aula entra na agenda do aluno (e da dupla) como a próxima semana, e o material dessa semana abre 15 minutos antes.</p>
+  ${S.students.length?`<form class="card" id="fAssign"><span class="ey">Marcar aula para um aluno</span><p class="muted" style="font-size:14px;line-height:1.5">A aula entra na agenda do aluno (e da dupla) como a próxima semana, e o material dessa semana abre 15 minutos antes. A sala abre 10 minutos antes para o aluno.</p>
     <div class="g2"><div><label class="l">Aluno</label><select class="in" name="id">${S.students.map(x=>`<option value="${esc(x.id)}">${esc(x.nome)}</option>`).join('')}</select></div><div class="g2"><div><label class="l">Dia</label><input class="in" type="date" name="date" required></div><div><label class="l">Hora</label><input class="in" type="time" name="time" required></div></div></div>
     <div><button class="btn" type="submit">Marcar aula</button></div></form>`:''}
   ${S.live && S.students.length?`<form class="card" id="fTest" style="background:var(--linen)"><span class="ey">Aula de teste</span><p class="muted" style="font-size:14px;line-height:1.5">Marca uma aula para daqui a 5 minutos, sem e-mails. Entre como mentor aqui e como aluno no Student Hub (outro aparelho).</p>
@@ -235,12 +285,16 @@ function vAulas(){
 /* ---------- materials ---------- */
 function contentLine(m){ return m.content ? `<div class="row"><span class="chip ok">Aula completa · ${m.steps} passos · ${m.prompts} prompts</span>${m.pdf?'<span class="chip ok">PDF</span>':''}</div>` : ''; }
 function contentBtns(m){ return m.content ? `<button class="btn sm" data-prev="${m.week}">Ver aula</button>${m.pdf?`<a class="btn ghost sm" href="${esc(m.pdf)}" target="_blank" rel="noopener">PDF</a>`:''}` : ''; }
+const HF = 'https://d8j0ntlcm91z4.cloudfront.net/user_3DMJVscwQvFTrMP11mO9Sz1Jsdw/';
+const SRC = { setup:'hf_20261020_211552_59ec0a41-59ce-4447-a9d1-797f6a7f4703', w1:'hf_20261020_211645_d639074d-2289-400d-9047-10744776ac86', w2:'hf_20261020_211644_e9a24ec1-48b9-4be6-8511-96ef55fcf227', w3:'hf_20261020_211646_ee58139d-e357-4c1e-a19a-28b63480bbee', w4:'hf_20261020_211645_57f4077d-c510-423e-a61f-f42f378153b4', w5:'hf_20261020_211644_88f377ef-9597-432b-83c5-73b65936bf9a', w6:'hf_20261020_211645_b75447d1-9419-49b4-a2e7-6ae82022f375', w7:'hf_20261020_211646_d71087c3-0148-4ea5-babb-5c5396028486', w8:'hf_20261020_211644_38d35765-97f1-4c9d-a045-2869c15d7124' };
+const img = (k, w=400) => { const u = HF+SRC[k]+'.png'; return /^(localhost|127\.)/.test(location.hostname) ? u : `/.netlify/images?url=${encodeURIComponent(u)}&w=${w}&fm=webp&q=72`; };
+const thumb = k => SRC[k] ? `<span style="width:92px;height:62px;border-radius:10px;overflow:hidden;flex:none;background:#ECE6DD"><img src="${img(k,240)}" alt="" style="width:100%;height:100%;object-fit:cover;display:block" loading="lazy"></span>` : '';
 function vMat(){
   const st = S.setup;
-  return `<div><span class="ey">Materiais</span><h1 class="h1">Conteúdo das <em>8 semanas.</em></h1><p class="muted" style="margin-top:6px">O mesmo material para todos. Cada semana abre sozinha no dia da sessão do aluno, ou antes, se você liberar na aba Alunos. A A Preparação (antes da 1ª aula) fica sempre aberta.</p></div>
-  ${st?`<div class="card"><div class="row" style="justify-content:space-between"><p class="h3">Preparação · ${esc(st.title)}</p><div class="row">${contentBtns(st)}</div></div>${contentLine(st)}<p class="muted" style="font-size:14px">Sempre aberta para todos os alunos.</p></div>`:''}
+  return `<div><span class="ey">Materiais</span><h1 class="h1">A biblioteca <em>do Studio.</em></h1><p class="muted" style="margin-top:6px">O mesmo material para todos. Cada semana abre sozinha no dia da sessão do aluno, ou antes, se você liberar na aba Alunos. A Preparação (antes da 1ª aula) fica sempre aberta.</p></div>
+  ${st?`<div class="card"><div class="row" style="justify-content:space-between"><div class="row" style="gap:14px">${thumb('setup')}<p class="h3">Preparação · ${esc(st.title)}</p></div><div class="row">${contentBtns(st)}</div></div>${contentLine(st)}<p class="muted" style="font-size:14px">Sempre aberta para todos os alunos.</p></div>`:''}
   ${S.materials.map(m=>`<div class="card" data-mat="${m.week}">
-    <div class="row" style="justify-content:space-between"><p class="h3">Semana ${m.week} · ${esc(m.title)}</p><div class="row">${contentBtns(m)}<button class="btn ghost sm" data-open="m${m.week}">${OPEN['m'+m.week]?'Fechar':'Editar'}</button></div></div>
+    <div class="row" style="justify-content:space-between"><div class="row" style="gap:14px">${thumb('w'+m.week)}<p class="h3">Semana ${m.week} · ${esc(m.title)}</p></div><div class="row">${contentBtns(m)}<button class="btn ghost sm" data-open="m${m.week}">${OPEN['m'+m.week]?'Fechar':'Editar'}</button></div></div>
     ${contentLine(m)}
     <p class="muted" style="font-size:14px">${(m.items||[]).length} itens extras${m.updatedAt?' · atualizado '+esc(fDT(m.updatedAt)):''}</p>
     ${OPEN['m'+m.week]?`<div><label class="l">Título</label><input class="in" data-f="title" value="${esc(m.title)}"></div>
@@ -280,7 +334,7 @@ function vAgenda(){
   const fut = S.slots.filter(s=>new Date(s.start)>Date.now()-2*3600000).sort((a,b)=>a.start.localeCompare(b.start));
   const groups={}; fut.forEach(s=>{ const k=new Intl.DateTimeFormat('en-CA',{timeZone:TZ}).format(new Date(s.start)); (groups[k]=groups[k]||[]).push(s); });
   const name = id => (S.students.find(x=>x.id===id)||{}).nome || 'Aluno';
-  return `<div><span class="ey">Agenda</span><h1 class="h1">Horários das <em>sessões.</em></h1><p class="muted" style="margin-top:6px">Você abre os horários, cada aluno escolhe o seu. Horários no seu fuso: ${esc(TZ)}. Sessões de 90 minutos.</p></div>
+  return `<div><span class="ey">Agenda</span><h1 class="h1">O ritmo <em>da mentoria.</em></h1><p class="muted" style="margin-top:6px">Você abre os horários, cada aluno escolhe o seu. Horários no seu fuso: ${esc(TZ)}. Sessões de 90 minutos.</p></div>
   <form class="card" id="fSlots"><span class="ey">Abrir horários</span>
     <div class="g2"><div><label class="l">A partir do dia</label><input class="in" type="date" name="date" required></div><div><label class="l">Horários (separados por vírgula)</label><input class="in" name="times" placeholder="10:00, 14:00, 16:00" required></div></div>
     <div class="g2"><div><label class="l">Dias da semana</label><div class="wk" id="dows">${['D','S','T','Q','Q','S','S'].map((d,i)=>`<button type="button" data-dow="${i}" class="${[1,2,3,4,5].includes(i)?'on':''}">${d}</button>`).join('')}</div></div><div><label class="l">Por quantas semanas</label><select class="in" name="weeks">${[1,2,3,4,6,8].map(n=>`<option ${n===2?'selected':''}>${n}</option>`).join('')}</select></div></div>
@@ -293,7 +347,7 @@ function vAgenda(){
 /* ---------- forum ---------- */
 function vForum(){
   const ts=[...S.forum].sort((a,b)=>(b.lastAt||'').localeCompare(a.lastAt||''));
-  return `<div><span class="ey">Comunidade</span><h1 class="h1">Conversas dos <em>alunos.</em></h1></div>
+  return `<div><span class="ey">Comunidade</span><h1 class="h1">O Studio está <em>conversando.</em></h1></div>
   <form class="card" id="fPost"><span class="ey">Nova conversa como mentor</span><div class="g2"><div><label class="l">Título</label><input class="in" name="title" required></div><div><label class="l">Tema</label><select class="in" name="topic">${['Avisos','Geral','IA e prompts','Marca','Website','Conteúdo','Vendas e CRM','Automações','Agentes','Vitórias'].map(t=>`<option>${t}</option>`).join('')}</select></div></div><textarea class="in" name="body" required></textarea><div><button class="btn" type="submit">Publicar</button></div></form>
   ${ts.map(t=>`<div class="card"><div class="row" style="justify-content:space-between"><div><span class="ey">${esc(t.topic)}</span><p class="h3" style="margin-top:4px">${esc(t.title)}</p><p class="muted" style="font-size:13px">${esc(t.author)} · ${t.replies.length} respostas</p></div><div class="row"><button class="btn ghost sm" data-open="t${t.id}">${OPEN['t'+t.id]?'Fechar':'Abrir'}</button><button class="btn ghost sm" data-delt="${esc(t.id)}">Apagar</button></div></div>
     ${OPEN['t'+t.id]?`<div class="post" style="border-top:0"><b>${esc(t.author)}</b><p>${esc(t.body)}</p></div>${t.replies.map(r=>`<div class="post"><b>${esc(r.author)}</b> <button class="muted" style="font-size:12px;text-decoration:underline" data-delr="${esc(t.id)}|${esc(r.id)}">apagar</button><p>${esc(r.body)}</p></div>`).join('')}
