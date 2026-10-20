@@ -54,6 +54,33 @@ main{padding:20px 16px 40px;max-width:1440px;margin:0 auto}
 .view button i{font-style:normal;opacity:.6;margin-left:6px}
 .alunos{display:grid;grid-template-columns:1fr;gap:10px}
 @media (min-width:900px){.alunos{grid-template-columns:repeat(3,1fr)}}
+.calbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin-bottom:14px}
+.calbar .g{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.calbar h3{font-family:var(--serif);font-size:22px;font-weight:400;margin:0 6px}
+@media (max-width:520px){header.top{gap:8px}header.top .logo{font-size:18px;line-height:1.05}header.top .r{gap:6px!important}header.top .btn.sm{padding:8px 10px;font-size:13px}header.top .iconbtn{width:36px;height:36px}}
+.cseg{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--card)}
+.cseg button{padding:7px 14px;font-size:13px;color:var(--soft)}.cseg button.on{background:var(--ink);color:var(--linen)}
+.wk{display:grid;grid-template-columns:1fr;gap:10px}
+.wd{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px;min-height:60px}
+.wd.today{border-color:var(--ink)}
+.wd h5{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--taupe);font-weight:500;margin:0 0 8px;display:flex;justify-content:space-between}
+.wd h5 b{font-family:var(--serif);font-size:20px;letter-spacing:0;color:var(--ink);font-weight:400}
+.ev{display:block;width:100%;text-align:left;border-radius:10px;padding:7px 9px;margin-top:6px;font-size:13px;line-height:1.3;border:1px solid var(--line);background:var(--linen)}
+.ev b{display:block;font-size:12px;font-weight:600}
+.ev.aula{background:var(--ink);color:var(--linen);border-color:var(--ink)}
+.ev.grupo{background:#4E6B4F;color:#fff;border-color:#4E6B4F}
+.ev.analise{background:#EDE6DA;border-color:#CDBFA8}
+.ev.livre{background:transparent;border-style:dashed;color:var(--taupe)}
+.mo{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.mo .h{font-size:11px;text-align:center;color:var(--taupe);letter-spacing:.1em;text-transform:uppercase;padding:4px 0}
+.md{background:var(--card);border:1px solid var(--line);border-radius:10px;min-height:64px;padding:5px;text-align:left;display:flex;flex-direction:column;gap:3px;overflow:hidden}
+.md.out{opacity:.4}.md.today{border-color:var(--ink)}
+.md span{font-size:12px;color:var(--soft)}
+.md i{font-style:normal;font-size:11px;border-radius:6px;padding:1px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:#EDE6DA}
+.md i.aula{background:var(--ink);color:var(--linen)}.md i.grupo{background:#4E6B4F;color:#fff}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--soft);margin-top:12px}
+.legend span::before{content:'';display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px;background:var(--c)}
+@media (min-width:900px){.wk{grid-template-columns:repeat(7,1fr);gap:8px}.wd{min-height:240px}.md{min-height:96px}.md i{font-size:12px}}
 .hello h2{font-family:var(--serif);font-size:32px;line-height:1.05}
 .hello h2 em{color:var(--taupe);font-weight:400}
 .kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:22px}
@@ -175,7 +202,7 @@ main{padding:20px 16px 40px;max-width:1440px;margin:0 auto}
     <span class="logo"><b>Operator</b> <i>Studio</i></span>
     <div class="r">
       <button class="iconbtn" id="refresh" aria-label="Atualizar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5"/></svg></button>
-      <button class="btn ghost sm" id="agBtn">Agenda</button>
+      <button class="btn ghost sm" id="agBtn">Horários</button>
       <button class="btn ghost sm" id="fuBtn">Follow-up</button>
       <button class="btn sm" id="newBtn">+ Lead</button>
     </div>
@@ -192,6 +219,7 @@ main{padding:20px 16px 40px;max-width:1440px;margin:0 auto}
       <aside class="next" id="next"></aside>
     </div>
     <div class="alunos" id="alunos" hidden></div>
+    <div id="cal" hidden></div>
   </main>
 </div>
 
@@ -209,7 +237,7 @@ let KEY = '', LEADS = [], TAB = 'agendado', VIEW = 'leads', OPEN = null, INDIAG 
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const store = {get(k){try{return localStorage.getItem(k)}catch{return null}},set(k,v){try{localStorage.setItem(k,v)}catch{}},del(k){try{localStorage.removeItem(k)}catch{}}};
-if(store.get('os_crm_view')==='alunos') VIEW = 'alunos';
+{ const v = store.get('os_crm_view'); if(v==='alunos'||v==='cal') VIEW = v; }
 
 function romeOff(k){ const g = new Date(k+':00Z'); const p = new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Rome',hourCycle:'h23',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).formatToParts(g); const v = t => +p.find(x=>x.type===t).value; return (Date.UTC(v('year'),v('month')-1,v('day'),v('hour'),v('minute'))-g.getTime())/60000; }
 function slotDate(s){ if(!s) return null; const k = s.slice(0,16); const t = Date.parse(k+':00Z'); if(isNaN(t)) return null; return new Date(t - romeOff(k)*60000); }
@@ -236,8 +264,10 @@ const LORDER = ORDER.filter(s=>s!=='cliente');
 function render(){
   const c = s => LEADS.filter(l=>l.stage===s).length;
   const alunos = LEADS.filter(l=>l.stage==='cliente');
-  $('#view').innerHTML = `<button data-view="leads" class="${VIEW==='leads'?'on':''}">Leads<i>${LEADS.filter(l=>!['cliente','perdido'].includes(l.stage)).length}</i></button><button data-view="alunos" class="${VIEW==='alunos'?'on':''}">Alunos<i>${alunos.length}</i></button>`;
-  const isA = VIEW==='alunos';
+  $('#view').innerHTML = `<button data-view="leads" class="${VIEW==='leads'?'on':''}">Leads<i>${LEADS.filter(l=>!['cliente','perdido'].includes(l.stage)).length}</i></button><button data-view="alunos" class="${VIEW==='alunos'?'on':''}">Alunos<i>${alunos.length}</i></button><button data-view="cal" class="${VIEW==='cal'?'on':''}">Calendário</button>`;
+  const isA = VIEW==='alunos', isC = VIEW==='cal';
+  $('#cal').hidden = !isC; $('#kpis').style.display = isC ? 'none' : '';
+  if(isC){ $('#helloEy').textContent = 'Agenda'; $('#helloH').innerHTML = 'Seu <em>calendário.</em>'; document.querySelector('.split').style.display = 'none'; $('#alunos').hidden = true; renderCal(); return; }
   $('#helloEy').textContent = isA ? 'Mentoria' : 'Pipeline';
   $('#helloH').innerHTML = isA ? 'Seus <em>alunos.</em>' : 'Seus <em>leads.</em>';
   document.querySelector('.split').style.display = isA ? 'none' : '';
@@ -270,6 +300,62 @@ function render(){
   const up = LEADS.filter(l=>l.stage==='agendado' && slotDate(l.slot) && slotDate(l.slot).getTime()>now).sort((a,b)=>a.slot.localeCompare(b.slot));
   $('#next').innerHTML = `<h3>Próximas análises</h3>${up.length?`<ul>${up.map(l=>`<li data-id="${esc(l.id)}"><span class="when">${esc(slotLabel(l.slot))}</span><span class="who">${esc(l.nome)}${l.negocio?' · '+esc(l.negocio):''}</span></li>`).join('')}</ul>`:'<p class="empty">Nenhuma análise marcada.</p>'}`;
 }
+/* ---------- Calendário (análises + aulas do Student Hub) ---------- */
+const CAL = { mode: innerWidth>=900?'semana':'semana', tz: store.get('os_cal_tz')||'Europe/Rome', ref: new Date(), hub: null, ag: null, loading: false };
+const TZN = { 'Europe/Rome':'Itália', 'Asia/Dubai':'Dubai' };
+function tzParts(d){ const p = new Intl.DateTimeFormat('en-CA',{timeZone:CAL.tz,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(d); const g = t => p.find(x=>x.type===t).value; return { day:`${g('year')}-${g('month')}-${g('day')}`, time:`${g('hour')}:${g('minute')}` }; }
+async function calLoad(force){
+  if(CAL.loading || (CAL.hub && CAL.ag && !force)) return;
+  CAL.loading = true;
+  try{
+    const [h, a] = await Promise.all([
+      fetch('/api/hub/admin/state',{headers:{'x-crm-key':KEY},cache:'no-store'}).then(r=>r.ok?r.json():null).catch(()=>null),
+      api('POST',{action:'agenda-get'}).catch(()=>null)]);
+    CAL.hub = h || { slots:[], groups:[], students:[] }; CAL.ag = a || { slots:[], booked:{} };
+  } finally { CAL.loading = false; }
+  if(VIEW==='cal') renderCal();
+}
+function calEvents(){
+  const ev = [], hub = CAL.hub || {}, ag = CAL.ag || {};
+  const sName = id => (hub.students||[]).find(x=>x.id===id)?.nome || 'Aluno';
+  const leadOf = sid => LEADS.find(l=>(l.hub?.ids||[]).includes(sid));
+  LEADS.filter(l=>l.slot && l.stage!=='perdido').forEach(l=>{ const d = slotDate(l.slot); if(d) ev.push({ d, dur:30, type:'analise', t:l.nome, sub:'Análise 30 min', lead:l.id }); });
+  (ag.slots||[]).forEach(k=>{ if(ag.booked?.[k]) return; const d = slotDate(k); if(d && d > Date.now()) ev.push({ d, dur:30, type:'livre', t:'Livre', sub:'Análise' }); });
+  (hub.slots||[]).filter(x=>x.studentId).forEach(x=>{ const l = leadOf(x.studentId); ev.push({ d:new Date(x.start), dur:x.dur||90, type:'aula', t:first(sName(x.studentId))+(l?.socioNome?' e '+first(l.socioNome):''), sub:`Aula · Semana ${x.week||'?'}`, lead:l?.id, room:x.start }); });
+  (hub.groups||[]).forEach(g=>ev.push({ d:new Date(g.start), dur:g.dur||90, type:'grupo', t:g.title||'Aula em grupo', sub:(g.studentIds||[]).map(id=>first(sName(id))).join(', '), room:g.start, group:true }));
+  return ev.map(e=>({ ...e, ...tzParts(e.d) })).sort((a,b)=>a.d-b.d);
+}
+const ymd = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+function renderCal(){
+  if(!CAL.hub || !CAL.ag){ $('#cal').innerHTML = '<p class="empty">Carregando calendário…</p>'; calLoad(); return; }
+  const ev = calEvents(), today = tzParts(new Date()).day;
+  const by = {}; ev.forEach(e=>(by[e.day] = by[e.day] || []).push(e));
+  const r = new Date(CAL.ref.getFullYear(), CAL.ref.getMonth(), CAL.ref.getDate());
+  const DOWL = ['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'];
+  let title, body;
+  if(CAL.mode==='semana'){
+    const mon = new Date(r); mon.setDate(r.getDate() - ((r.getDay()+6)%7));
+    const days = [...Array(7)].map((_,i)=>{ const d = new Date(mon); d.setDate(mon.getDate()+i); return d; });
+    title = `${days[0].getDate()} ${MON[days[0].getMonth()]} – ${days[6].getDate()} ${MON[days[6].getMonth()]}`;
+    body = `<div class="wk">${days.map((d,i)=>{ const k = ymd(d), es = by[k]||[];
+      return `<div class="wd ${k===today?'today':''}"><h5><span>${DOWL[i]}</span><b>${d.getDate()}</b></h5>${es.length?es.map(evHtml).join(''):'<p class="dstat" style="font-size:12px;opacity:.6">—</p>'}</div>`; }).join('')}</div>`;
+  } else {
+    const f = new Date(r.getFullYear(), r.getMonth(), 1), start = new Date(f); start.setDate(1 - ((f.getDay()+6)%7));
+    title = `${['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'][r.getMonth()]} ${r.getFullYear()}`;
+    body = `<div class="mo">${DOWL.map(x=>`<div class="h">${x}</div>`).join('')}${[...Array(42)].map((_,i)=>{ const d = new Date(start); d.setDate(start.getDate()+i); const k = ymd(d), es = (by[k]||[]).filter(e=>e.type!=='livre');
+      return `<button class="md ${d.getMonth()!==r.getMonth()?'out':''} ${k===today?'today':''}" data-calday="${k}"><span>${d.getDate()}</span>${es.slice(0,3).map(e=>`<i class="${e.type}">${e.time} ${esc(e.group?e.t:first(e.t))}</i>`).join('')}${es.length>3?`<span>+${es.length-3}</span>`:''}</button>`; }).join('')}</div>`;
+  }
+  $('#cal').innerHTML = `<div class="calbar"><div class="g"><button class="iconbtn" data-calnav="-1" aria-label="Anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M15 6l-6 6 6 6"/></svg></button><button class="btn ghost sm" data-calnav="0">Hoje</button><button class="iconbtn" data-calnav="1" aria-label="Próximo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 6l6 6-6 6"/></svg></button><h3>${title}</h3></div>
+    <div class="g"><div class="cseg">${['semana','mês'].map(m=>`<button data-calmode="${m==='mês'?'mes':m}" class="${CAL.mode===(m==='mês'?'mes':m)?'on':''}">${m[0].toUpperCase()+m.slice(1)}</button>`).join('')}</div><div class="cseg">${Object.entries(TZN).map(([z,n])=>`<button data-caltz="${z}" class="${CAL.tz===z?'on':''}">${n}</button>`).join('')}</div></div></div>
+    ${body}
+    <div class="legend"><span style="--c:#EDE6DA">Análise</span><span style="--c:#151412">Aula 1:1 / dupla</span><span style="--c:#4E6B4F">Aula em grupo</span>${CAL.mode==='semana'?'<span style="--c:transparent;outline:1px dashed #B5AEA2">Horário livre (análise)</span>':''}<span style="--c:transparent">Horários em: <b>${TZN[CAL.tz]}</b></span></div>`;
+}
+function evHtml(e){
+  const end = tzParts(new Date(e.d.getTime()+e.dur*60000)).time;
+  const attr = e.lead ? `data-id="${esc(e.lead)}"` : e.room ? `data-room="${esc(e.room)}"` : '';
+  return `<button class="ev ${e.type}" ${attr}><b>${e.time}–${end}</b>${esc(e.t)}<br><span style="opacity:.75;font-size:12px">${esc(e.sub)}</span></button>`;
+}
+
 function aluno(l){
   const ob = l.onboarding || {}, ppl = 1 + (l.socioNome ? 1 : 0), ans = Object.keys(ob).length;
   const ok = (on, t) => `<span class="chip" style="${on?'background:#E4EBE2;border-color:#C9D6C5;color:#3F5A40':''}">${on?'✓ ':''}${t}</span>`;
@@ -954,13 +1040,18 @@ async function start(){
 }
 
 document.addEventListener('click', e=>{
-  const v = e.target.closest('[data-view]'); if(v){ VIEW = v.dataset.view; store.set('os_crm_view', VIEW); render(); return; }
+  const v = e.target.closest('[data-view]'); if(v){ VIEW = v.dataset.view; store.set('os_crm_view', VIEW); if(VIEW==='cal') calLoad(true); render(); return; }
+  const cn = e.target.closest('[data-calnav]'); if(cn){ const n = +cn.dataset.calnav; if(!n) CAL.ref = new Date(); else if(CAL.mode==='semana') CAL.ref = new Date(CAL.ref.getFullYear(), CAL.ref.getMonth(), CAL.ref.getDate()+7*n); else CAL.ref = new Date(CAL.ref.getFullYear(), CAL.ref.getMonth()+n, 1); renderCal(); return; }
+  const cm = e.target.closest('[data-calmode]'); if(cm){ CAL.mode = cm.dataset.calmode; renderCal(); return; }
+  const ct = e.target.closest('[data-caltz]'); if(ct){ CAL.tz = ct.dataset.caltz; store.set('os_cal_tz', CAL.tz); renderCal(); return; }
+  const cd = e.target.closest('[data-calday]'); if(cd){ const [y,m,d] = cd.dataset.calday.split('-').map(Number); CAL.ref = new Date(y,m-1,d); CAL.mode = 'semana'; renderCal(); return; }
+  const rm = e.target.closest('[data-room]'); if(rm){ window.open('/aula/?s='+encodeURIComponent(rm.dataset.room)+'&m=1','_blank','noopener'); return; }
   const t = e.target.closest('[data-tab]'); if(t){ TAB = t.dataset.tab; render(); return; }
-  const c = e.target.closest('.lead, .next li'); if(c){ openLead(c.dataset.id); }
+  const c = e.target.closest('.lead, .next li, .ev[data-id]'); if(c){ openLead(c.dataset.id); }
 });
 $('#scrim').onclick = closeSheet;
 document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeSheet(); });
-$('#refresh').onclick = async()=>{ try{ await load(); toast('Atualizado'); }catch{} };
+$('#refresh').onclick = async()=>{ try{ await load(); if(VIEW==='cal') await calLoad(true); toast('Atualizado'); }catch{} };
 $('#fuBtn').onclick = openFollowup;
 $('#agBtn').onclick = () => openAgenda();
 $('#newBtn').onclick = newLead;
