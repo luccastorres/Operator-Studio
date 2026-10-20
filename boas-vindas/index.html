@@ -32,8 +32,8 @@ h1 em{font-weight:400;color:var(--taupe)}
 form{display:flex;flex-direction:column;gap:14px}
 .q{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:20px 18px;display:flex;flex-direction:column;gap:12px}
 .q label.t,.q .t{font-size:17px;font-weight:500;line-height:1.35;display:flex;gap:12px}
-.q .t b{font-family:var(--serif);font-weight:400;color:var(--taupe);font-size:18px;min-width:22px}
-.q .h{font-size:13px;color:var(--soft);margin:-4px 0 0 34px}
+
+.q .h{font-size:13px;color:var(--soft);margin:-4px 0 0}
 .in{width:100%;background:var(--linen);border:1px solid var(--line);border-radius:12px;padding:13px 14px;font-size:16px;outline:none}
 .in:focus{border-color:var(--taupe)}
 textarea.in{min-height:96px;resize:vertical;line-height:1.45}
@@ -80,37 +80,37 @@ textarea.in{min-height:96px;resize:vertical;line-height:1.45}
 
   <form id="f" hidden novalidate>
     <p class="sec">O seu <em>negócio</em></p>
-    <div class="q"><label class="t" for="nome"><b>1</b>Seu nome</label><input class="in" id="nome" name="nome" autocomplete="name" required></div>
-    <div class="q"><label class="t" for="negocio"><b>2</b>Nome do negócio e Instagram ou site</label><input class="in" id="negocio" name="negocio" placeholder="Ex.: Studio Bella · @studiobella"></div>
-    <div class="q"><label class="t" for="vende"><b>3</b>O que vocês vendem, para quem, e quanto custa em média?</label><textarea class="in" id="vende" name="vende" placeholder="Ex.: tratamentos de estética para mulheres de 30 a 50 anos, em média €80 por sessão"></textarea></div>
-    <div class="q"><span class="t"><b>4</b>Quantas pessoas trabalham no negócio?</span>
+    <div class="q"><label class="t" for="nome">Seu nome</label><input class="in" id="nome" name="nome" autocomplete="name" required></div>
+    <div class="q"><label class="t" for="negocio">Nome do negócio e Instagram ou site</label><input class="in" id="negocio" name="negocio" placeholder="Ex.: Studio Bella · @studiobella"></div>
+    <div class="q"><label class="t" for="vende">O que vocês vendem, para quem, e quanto custa em média?</label><textarea class="in" id="vende" name="vende" placeholder="Ex.: tratamentos de estética para mulheres de 30 a 50 anos, em média €80 por sessão"></textarea></div>
+    <div class="q"><span class="t">Quantas pessoas trabalham no negócio?</span>
       <div class="ch" data-name="equipe" data-type="radio">Só eu|2 a 5|6 a 15|Mais de 15</div>
       <textarea class="in" name="equipeQuem" style="min-height:70px" placeholder="Quem faz o quê? (opcional)"></textarea></div>
 
     <p class="sec">Onde <em>dói</em></p>
-    <div class="q"><label class="t" for="dor"><b>5</b>Qual é a maior dor do seu negócio hoje?</label><span class="h">O que, se fosse resolvido amanhã, mudaria a sua semana.</span><textarea class="in" id="dor" name="dor" required></textarea></div>
-    <div class="q"><span class="t"><b>6</b>Onde vai a maior parte do seu tempo?</span><span class="h">Pode marcar mais de uma.</span>
+    <div class="q"><label class="t" for="dor">Qual é a maior dor do seu negócio hoje?</label><span class="h">O que, se fosse resolvido amanhã, mudaria a sua semana.</span><textarea class="in" id="dor" name="dor" required></textarea></div>
+    <div class="q"><span class="t">Onde vai a maior parte do seu tempo?</span><span class="h">Pode marcar mais de uma.</span>
       <div class="ch" data-name="tempo" data-type="checkbox">Responder clientes no WhatsApp|Agenda e confirmações|Orçamentos e propostas|Vendas e follow-up|Criar conteúdo e posts|Financeiro e cobranças|Planilhas e controles|Atendimento pós-venda|Gestão da equipe|E-mails</div></div>
-    <div class="q"><label class="t" for="repetitivas"><b>7</b>Que tarefas você repete toda semana, sempre do mesmo jeito?</label><span class="h">Liste tudo, até as pequenas. Ex.: mandar lembrete, copiar dados para a planilha, responder as mesmas perguntas.</span><textarea class="in" id="repetitivas" name="repetitivas"></textarea></div>
-    <div class="q"><span class="t"><b>8</b>Quantas horas por semana vão nessas tarefas repetidas?</span>
+    <div class="q"><label class="t" for="repetitivas">Que tarefas você repete toda semana, sempre do mesmo jeito?</label><span class="h">Liste tudo, até as pequenas. Ex.: mandar lembrete, copiar dados para a planilha, responder as mesmas perguntas.</span><textarea class="in" id="repetitivas" name="repetitivas"></textarea></div>
+    <div class="q"><span class="t">Quantas horas por semana vão nessas tarefas repetidas?</span>
       <div class="ch" data-name="horas" data-type="radio">Menos de 5|5 a 10|11 a 20|Mais de 20|Não sei</div></div>
-    <div class="q"><label class="t" for="frustra"><b>9</b>O que mais te cansa ou frustra na rotina do negócio?</label><textarea class="in" id="frustra" name="frustra"></textarea></div>
-    <div class="q"><label class="t" for="tirar"><b>10</b>Se você pudesse tirar uma tarefa das suas mãos amanhã, qual seria?</label><textarea class="in" id="tirar" name="tirar"></textarea></div>
+    <div class="q"><label class="t" for="frustra">O que mais te cansa ou frustra na rotina do negócio?</label><textarea class="in" id="frustra" name="frustra"></textarea></div>
+    <div class="q"><label class="t" for="tirar">Se você pudesse tirar uma tarefa das suas mãos amanhã, qual seria?</label><textarea class="in" id="tirar" name="tirar"></textarea></div>
 
     <p class="sec">Ferramentas e <em>IA</em></p>
-    <div class="q"><span class="t"><b>11</b>Quais ferramentas vocês já usam?</span><span class="h">Pode marcar mais de uma.</span>
+    <div class="q"><span class="t">Quais ferramentas vocês já usam?</span><span class="h">Pode marcar mais de uma.</span>
       <div class="ch" data-name="ferramentas" data-type="checkbox">WhatsApp Business|Instagram|Google Agenda|Gmail|Canva|Planilhas (Excel ou Google)|Notion|CRM|Site próprio|Loja online|Agenda online|Make ou Zapier</div></div>
-    <div class="q"><span class="t"><b>12</b>Como está o seu uso de IA hoje?</span>
+    <div class="q"><span class="t">Como está o seu uso de IA hoje?</span>
       <div class="ch" data-name="ia" data-type="radio">Nunca usei|Uso de vez em quando|Uso todo dia|Já tenho automações</div></div>
-    <div class="q"><label class="t" for="ias"><b>13</b>Quais IAs você usa e se tem plano pago</label><input class="in" id="ias" name="ias" placeholder="Ex.: ChatGPT grátis, Claude Pro, Gemini…"></div>
-    <div class="q"><span class="t"><b>14</b>No que você trabalha mais?</span>
+    <div class="q"><label class="t" for="ias">Quais IAs você usa e se tem plano pago</label><input class="in" id="ias" name="ias" placeholder="Ex.: ChatGPT grátis, Claude Pro, Gemini…"></div>
+    <div class="q"><span class="t">No que você trabalha mais?</span>
       <div class="ch" data-name="computador" data-type="radio">Mac|Windows|Mais no celular</div></div>
 
     <p class="sec">A sua <em>mentoria</em></p>
-    <div class="q"><span class="t"><b>15</b>Toda semana a gente coloca um sistema novo para funcionar. Quais você mais quer ter?</span><span class="h">Pode marcar mais de um.</span>
+    <div class="q"><span class="t">Toda semana a gente coloca um sistema novo para funcionar. Quais você mais quer ter?</span><span class="h">Pode marcar mais de um.</span>
       <div class="ch" data-name="sistemas" data-type="checkbox">Assistente de IA do negócio|Respostas automáticas no WhatsApp|Agenda online com confirmação|CRM com todos os clientes|Orçamentos e propostas automáticos|Site ou página de vendas|Conteúdo e posts com IA|Financeiro e cobranças|Relatórios do negócio</div>
       <input class="in" name="oito" placeholder="Outro sistema que você quer? (opcional)"></div>
-    <div class="q"><label class="t" for="comecar"><b>16</b>Se pudesse escolher o primeiro, qual seria? Por quê?</label><textarea class="in" id="comecar" name="comecar" style="min-height:70px"></textarea>
+    <div class="q"><label class="t" for="comecar">Se pudesse escolher o primeiro, qual seria? Por quê?</label><textarea class="in" id="comecar" name="comecar" style="min-height:70px"></textarea>
       <textarea class="in" name="trazer" style="min-height:70px" placeholder="Algo que eu deva saber ou que você vai trazer (logo, acessos, materiais)? (opcional)"></textarea></div>
 
     <button class="btn" type="submit" id="send">Enviar respostas</button>
@@ -146,7 +146,7 @@ $('#f').onsubmit = async e=>{
   for(const k of ['nome','negocio','vende','equipeQuem','dor','repetitivas','frustra','tirar','ias','oito','comecar','trazer','equipe','horas','ia','computador']) a[k] = (fd.get(k)||'').toString();
   for(const k of ['tempo','ferramentas','sistemas']) a[k] = fd.getAll(k);
   $('#err').hidden = true;
-  if(!a.nome.trim() || !a.dor.trim()){ $('#err').textContent = 'Preencha pelo menos o seu nome e a maior dor (pergunta 5).'; $('#err').hidden = false; return; }
+  if(!a.nome.trim() || !a.dor.trim()){ $('#err').textContent = 'Preencha pelo menos o seu nome e a maior dor do negócio.'; $('#err').hidden = false; return; }
   $('#send').disabled = true; $('#send').textContent = 'Enviando…';
   try{
     const r = await fetch('/api/onboarding',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({t:T,answers:a})});
