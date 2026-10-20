@@ -49,6 +49,11 @@ header.top{position:sticky;top:0;z-index:5;background:rgba(243,241,236,.92);back
 .iconbtn svg{width:18px;height:18px}
 main{padding:20px 16px 40px;max-width:1440px;margin:0 auto}
 .hello{display:flex;flex-direction:column;gap:6px;margin-bottom:18px}
+.view{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;margin-bottom:18px;background:var(--card)}
+.view button{padding:9px 18px;font-size:14px;color:var(--soft)}.view button.on{background:var(--ink);color:var(--linen)}
+.view button i{font-style:normal;opacity:.6;margin-left:6px}
+.alunos{display:grid;grid-template-columns:1fr;gap:10px}
+@media (min-width:900px){.alunos{grid-template-columns:repeat(3,1fr)}}
 .hello h2{font-family:var(--serif);font-size:32px;line-height:1.05}
 .hello h2 em{color:var(--taupe);font-weight:400}
 .kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:22px}
@@ -176,7 +181,8 @@ main{padding:20px 16px 40px;max-width:1440px;margin:0 auto}
     </div>
   </header>
   <main>
-    <div class="hello"><span class="eyebrow">Pipeline</span><h2>Seus <em>leads.</em></h2></div>
+    <div class="hello"><span class="eyebrow" id="helloEy">Pipeline</span><h2 id="helloH">Seus <em>leads.</em></h2></div>
+    <nav class="view" id="view"></nav>
     <div class="kpis" id="kpis"></div>
     <div class="split">
       <div>
@@ -185,6 +191,7 @@ main{padding:20px 16px 40px;max-width:1440px;margin:0 auto}
       </div>
       <aside class="next" id="next"></aside>
     </div>
+    <div class="alunos" id="alunos" hidden></div>
   </main>
 </div>
 
@@ -197,11 +204,12 @@ const STAGE = {novo:'Novo',agendado:'Análise agendada',analise:'Análise feita'
 const ORDER = Object.keys(STAGE);
 const DOW = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const MON = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
-let KEY = '', LEADS = [], TAB = 'agendado', OPEN = null, INDIAG = false;
+let KEY = '', LEADS = [], TAB = 'agendado', VIEW = 'leads', OPEN = null, INDIAG = false;
 
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const store = {get(k){try{return localStorage.getItem(k)}catch{return null}},set(k,v){try{localStorage.setItem(k,v)}catch{}},del(k){try{localStorage.removeItem(k)}catch{}}};
+if(store.get('os_crm_view')==='alunos') VIEW = 'alunos';
 
 function romeOff(k){ const g = new Date(k+':00Z'); const p = new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Rome',hourCycle:'h23',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).formatToParts(g); const v = t => +p.find(x=>x.type===t).value; return (Date.UTC(v('year'),v('month')-1,v('day'),v('hour'),v('minute'))-g.getTime())/60000; }
 function slotDate(s){ if(!s) return null; const k = s.slice(0,16); const t = Date.parse(k+':00Z'); if(isNaN(t)) return null; return new Date(t - romeOff(k)*60000); }
@@ -224,18 +232,36 @@ async function load(){
   if(OPEN && !INDIAG){ const l = LEADS.find(x=>x.id===OPEN); if(l) openLead(l.id, true); }
 }
 
+const LORDER = ORDER.filter(s=>s!=='cliente');
 function render(){
   const c = s => LEADS.filter(l=>l.stage===s).length;
+  const alunos = LEADS.filter(l=>l.stage==='cliente');
+  $('#view').innerHTML = `<button data-view="leads" class="${VIEW==='leads'?'on':''}">Leads<i>${LEADS.filter(l=>!['cliente','perdido'].includes(l.stage)).length}</i></button><button data-view="alunos" class="${VIEW==='alunos'?'on':''}">Alunos<i>${alunos.length}</i></button>`;
+  const isA = VIEW==='alunos';
+  $('#helloEy').textContent = isA ? 'Mentoria' : 'Pipeline';
+  $('#helloH').innerHTML = isA ? 'Seus <em>alunos.</em>' : 'Seus <em>leads.</em>';
+  document.querySelector('.split').style.display = isA ? 'none' : '';
+  $('#alunos').hidden = !isA;
+  if(isA){
+    $('#kpis').innerHTML = [
+      [alunos.length,'Alunos'],
+      [alunos.filter(l=>l.hub).length,'Com acesso ao Hub'],
+      [alunos.filter(l=>l.welcome?.sentAt).length,'Boas-vindas enviadas'],
+      [alunos.filter(l=>l.waNew).length,'Mensagens novas']
+    ].map(([n,t])=>`<div class="kpi"><b>${n}</b><span>${t}</span></div>`).join('');
+    $('#alunos').innerHTML = alunos.length ? alunos.map(aluno).join('') : '<p class="empty">Nenhum aluno ainda. Quando um lead fechar, mude a etapa dele para "Cliente".</p>';
+    return;
+  }
   $('#kpis').innerHTML = [
-    [LEADS.filter(l=>l.stage!=='perdido').length,'Leads ativos'],
+    [LEADS.filter(l=>!['cliente','perdido'].includes(l.stage)).length,'Leads ativos'],
     [c('agendado'),'Análises agendadas'],
     [c('proposta'),'Propostas'],
-    [c('cliente'),'Clientes']
+    [c('perdido'),'Perdidos']
   ].map(([n,t])=>`<div class="kpi"><b>${n}</b><span>${t}</span></div>`).join('');
 
-  if(!LEADS.some(l=>l.stage===TAB)) TAB = ORDER.find(s=>c(s)) || 'agendado';
-  $('#tabs').innerHTML = ORDER.map(s=>`<button class="tab ${s===TAB?'on':''}" data-tab="${s}">${STAGE[s]}<i>${c(s)}</i></button>`).join('');
-  $('#board').innerHTML = ORDER.map(s=>{
+  if(!LORDER.includes(TAB) || !LEADS.some(l=>l.stage===TAB)) TAB = LORDER.find(s=>c(s)) || 'agendado';
+  $('#tabs').innerHTML = LORDER.map(s=>`<button class="tab ${s===TAB?'on':''}" data-tab="${s}">${STAGE[s]}<i>${c(s)}</i></button>`).join('');
+  $('#board').innerHTML = LORDER.map(s=>{
     const ls = LEADS.filter(l=>l.stage===s);
     return `<section class="col ${s===TAB?'on':''}"><h4><span>${STAGE[s]}</span><span>${ls.length}</span></h4>${ls.length?ls.map(card).join(''):'<p class="empty" style="padding:4px">Nada aqui ainda.</p>'}</section>`;
   }).join('');
@@ -244,7 +270,15 @@ function render(){
   const up = LEADS.filter(l=>l.stage==='agendado' && slotDate(l.slot) && slotDate(l.slot).getTime()>now).sort((a,b)=>a.slot.localeCompare(b.slot));
   $('#next').innerHTML = `<h3>Próximas análises</h3>${up.length?`<ul>${up.map(l=>`<li data-id="${esc(l.id)}"><span class="when">${esc(slotLabel(l.slot))}</span><span class="who">${esc(l.nome)}${l.negocio?' · '+esc(l.negocio):''}</span></li>`).join('')}</ul>`:'<p class="empty">Nenhuma análise marcada.</p>'}`;
 }
-
+function aluno(l){
+  const ob = l.onboarding || {}, ppl = 1 + (l.socioNome ? 1 : 0), ans = Object.keys(ob).length;
+  const ok = (on, t) => `<span class="chip" style="${on?'background:#E4EBE2;border-color:#C9D6C5;color:#3F5A40':''}">${on?'✓ ':''}${t}</span>`;
+  return `<button class="lead" data-id="${esc(l.id)}">
+    <span class="n">${esc(l.nome)}${l.socioNome?' e '+esc(first(l.socioNome)):''}</span>
+    ${l.negocio?`<span class="b">${esc(l.negocio)}${l.socioNome?' · Mentoria em dupla':''}</span>`:l.socioNome?'<span class="b">Mentoria em dupla</span>':''}
+    <span class="row">${l.waNew?`<span class="chip" style="background:#4E6B4F;color:#fff;border-color:#4E6B4F">Nova mensagem</span>`:''}${ok(!!l.hub,'Hub')}${ok(!!l.welcome?.sentAt,'Boas-vindas')}${ok(ans>=ppl,'Formulário'+(ppl>1?` ${ans}/${ppl}`:''))}${ok(!!l.plan1,'Plano 1ª aula')}</span>
+  </button>`;
+}
 function card(l){
   return `<button class="lead" data-id="${esc(l.id)}">
     <span class="n">${esc(l.nome)}</span>
@@ -710,7 +744,7 @@ function openLead(id, keep){
   const wa = waNumber(l.whatsapp), manual = l.source!=='site';
   const tpl = templates(l);
   $('#sheet').innerHTML = `<div class="grab"></div>
-    <div class="sh-head"><div><span class="eyebrow">${l.source==='site'?'Reserva pelo site':l.source==='waitlist'?'Lista de espera':'Lead manual'}</span><h3>${esc(l.nome)}</h3><p>${esc(l.negocio)}${l.negocio&&l.setor?' · ':''}${esc(l.setor)}</p></div>
+    <div class="sh-head"><div><span class="eyebrow">${l.stage==='cliente'?(l.socioNome?'Aluno · mentoria em dupla':'Aluno'):l.source==='site'?'Reserva pelo site':l.source==='waitlist'?'Lista de espera':'Lead manual'}</span><h3>${esc(l.nome)}</h3><p>${esc(l.negocio)}${l.negocio&&l.setor?' · ':''}${esc(l.setor)}</p></div>
       <button class="iconbtn" id="close" aria-label="Fechar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
     <div class="acts">
       <a class="act ${wa?'':'off'}" href="https://wa.me/${wa}" target="_blank" rel="noopener">${ICON.wa}WhatsApp</a>
@@ -751,7 +785,7 @@ function openLead(id, keep){
   $('#sheet').querySelectorAll('[data-stage]').forEach(b=>b.onclick = async()=>{
     const s = b.dataset.stage; l.stage = s;
     $('#sheet').querySelectorAll('[data-stage]').forEach(x=>x.classList.toggle('on', x===b));
-    TAB = s; render();
+    if(s==='cliente') VIEW = 'alunos'; else { VIEW = 'leads'; TAB = s; } store.set('os_crm_view', VIEW); render();
     try{ await api('POST',{action:'update',id:l.id,stage:s}); toast('Etapa: '+STAGE[s]); }catch{ toast('Erro ao salvar'); }
   });
   const ro = $('#rsOpen'); if(ro) ro.onclick = () => { $('#rsBox').hidden = !$('#rsBox').hidden; };
@@ -799,7 +833,7 @@ function newLead(){
   $('#nf').onsubmit = async e=>{
     e.preventDefault();
     const body = Object.fromEntries(new FormData(e.target)); body.action = 'create';
-    try{ await api('POST', body); closeSheet(); TAB = body.stage; await load(); toast('Lead adicionado'); }catch{ toast('Erro ao salvar'); }
+    try{ await api('POST', body); closeSheet(); if(body.stage==='cliente') VIEW='alunos'; else { VIEW='leads'; TAB = body.stage; } await load(); toast('Lead adicionado'); }catch{ toast('Erro ao salvar'); }
   };
 }
 
@@ -920,6 +954,7 @@ async function start(){
 }
 
 document.addEventListener('click', e=>{
+  const v = e.target.closest('[data-view]'); if(v){ VIEW = v.dataset.view; store.set('os_crm_view', VIEW); render(); return; }
   const t = e.target.closest('[data-tab]'); if(t){ TAB = t.dataset.tab; render(); return; }
   const c = e.target.closest('.lead, .next li'); if(c){ openLead(c.dataset.id); }
 });
