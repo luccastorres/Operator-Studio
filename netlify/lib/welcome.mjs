@@ -11,7 +11,7 @@ export function welcomeEmail({ person, partner, inviteUrl, formUrl, start, note 
   const n = esc(first(person.nome));
   const who = partner ? `você, ${esc(first(partner.nome))} e eu vamos construir` : "a gente vai construir junto";
   const inner = `<h1 style="margin:0 0 18px;font-family:Georgia,'Times New Roman',serif;font-size:30px;line-height:1.15;">Boas-vindas à mentoria, ${n}!</h1>
-${P(`Que bom ter você aqui. Nas próximas 8 semanas, ${who} o que faz o seu negócio ganhar tempo: IA no dia a dia, automações, sistemas, site e conteúdo.${start ? ` A nossa primeira aula é <b style="color:#151412;">${esc(start)}</b>.` : ""}`)}
+${P(`Que bom ter você aqui. Nas próximas 8 semanas, ${who} um sistema novo por semana para o seu negócio ganhar tempo: IA no dia a dia, automações, CRM, agenda, site e conteúdo.${start ? ` A nossa primeira aula é <b style="color:#151412;">${esc(start)}</b>.` : ""}`)}
 ${note ? P(esc(note)) : ""}
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:6px 0 22px;">
 ${step("1", "Responda antes da 1ª aula", "Umas perguntas rápidas sobre o seu negócio, onde vai o seu tempo e o que mais dói hoje. Leva uns 7 minutos e é com isso que eu preparo a nossa primeira aula.")}

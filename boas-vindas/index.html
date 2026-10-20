@@ -107,8 +107,10 @@ textarea.in{min-height:96px;resize:vertical;line-height:1.45}
       <div class="ch" data-name="computador" data-type="radio">Mac|Windows|Mais no celular</div></div>
 
     <p class="sec">A sua <em>mentoria</em></p>
-    <div class="q"><label class="t" for="oito"><b>15</b>Quais 3 coisas você quer ter funcionando no fim das 8 semanas?</label><textarea class="in" id="oito" name="oito" placeholder="1.&#10;2.&#10;3."></textarea></div>
-    <div class="q"><label class="t" for="comecar"><b>16</b>Por onde você quer começar na primeira aula?</label><textarea class="in" id="comecar" name="comecar" style="min-height:70px"></textarea>
+    <div class="q"><span class="t"><b>15</b>Toda semana a gente coloca um sistema novo para funcionar. Quais você mais quer ter?</span><span class="h">Pode marcar mais de um.</span>
+      <div class="ch" data-name="sistemas" data-type="checkbox">Assistente de IA do negócio|Respostas automáticas no WhatsApp|Agenda online com confirmação|CRM com todos os clientes|Orçamentos e propostas automáticos|Site ou página de vendas|Conteúdo e posts com IA|Financeiro e cobranças|Relatórios do negócio</div>
+      <input class="in" name="oito" placeholder="Outro sistema que você quer? (opcional)"></div>
+    <div class="q"><label class="t" for="comecar"><b>16</b>Se pudesse escolher o primeiro, qual seria? Por quê?</label><textarea class="in" id="comecar" name="comecar" style="min-height:70px"></textarea>
       <textarea class="in" name="trazer" style="min-height:70px" placeholder="Algo que eu deva saber ou que você vai trazer (logo, acessos, materiais)? (opcional)"></textarea></div>
 
     <button class="btn" type="submit" id="send">Enviar respostas</button>
@@ -142,7 +144,7 @@ $('#f').onsubmit = async e=>{
   e.preventDefault();
   const fd = new FormData(e.target), a = {};
   for(const k of ['nome','negocio','vende','equipeQuem','dor','repetitivas','frustra','tirar','ias','oito','comecar','trazer','equipe','horas','ia','computador']) a[k] = (fd.get(k)||'').toString();
-  for(const k of ['tempo','ferramentas']) a[k] = fd.getAll(k);
+  for(const k of ['tempo','ferramentas','sistemas']) a[k] = fd.getAll(k);
   $('#err').hidden = true;
   if(!a.nome.trim() || !a.dor.trim()){ $('#err').textContent = 'Preencha pelo menos o seu nome e a maior dor (pergunta 5).'; $('#err').hidden = false; return; }
   $('#send').disabled = true; $('#send').textContent = 'Enviando…';

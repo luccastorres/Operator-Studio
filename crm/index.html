@@ -591,7 +591,7 @@ function bindDuo(l){
 }
 
 /* ---------- Boas-vindas, onboarding e 1ª aula ---------- */
-const ONBQ = [['vende','O que vendem e para quem'],['equipe','Equipe'],['equipeQuem','Quem faz o quê'],['dor','Maior dor'],['tempo','Onde vai o tempo'],['repetitivas','Tarefas repetidas'],['horas','Horas por semana'],['frustra','O que cansa ou frustra'],['tirar','Tiraria das mãos amanhã'],['ferramentas','Ferramentas'],['ia','Uso de IA'],['ias','IAs e planos'],['computador','Trabalha mais no'],['oito','3 coisas em 8 semanas'],['comecar','Por onde começar'],['trazer','Vai trazer / saber']];
+const ONBQ = [['vende','O que vendem e para quem'],['equipe','Equipe'],['equipeQuem','Quem faz o quê'],['dor','Maior dor'],['tempo','Onde vai o tempo'],['repetitivas','Tarefas repetidas'],['horas','Horas por semana'],['frustra','O que cansa ou frustra'],['tirar','Tiraria das mãos amanhã'],['ferramentas','Ferramentas'],['ia','Uso de IA'],['ias','IAs e planos'],['computador','Trabalha mais no'],['sistemas','Sistemas que mais quer'],['oito','Outro sistema'],['comecar','O primeiro sistema e por quê'],['trazer','Vai trazer / saber']];
 function welcomeBlock(l){
   const w = l.welcome || {}, ob = l.onboarding || {};
   const people = [{ who:'a', nome:l.nome }, ...(l.socioNome ? [{ who:'b', nome:l.socioNome }] : [])];

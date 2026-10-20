@@ -7,7 +7,7 @@ const clip = (v, n) => String(v ?? "").trim().slice(0, n);
 const json = (d, s = 200) => Response.json(d, { status: s, headers: { "cache-control": "no-store" } });
 export const ONB_TEXT = ["nome", "negocio", "vende", "equipeQuem", "dor", "repetitivas", "frustra", "tirar", "ias", "oito", "comecar", "trazer"];
 export const ONB_ONE = ["equipe", "horas", "ia", "computador"];
-export const ONB_LISTS = ["tempo", "ferramentas"];
+export const ONB_LISTS = ["tempo", "ferramentas", "sistemas"];
 
 export default async (req) => {
   const url = new URL(req.url);
