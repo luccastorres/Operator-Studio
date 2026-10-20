@@ -4,6 +4,7 @@ import { followupEmail, sendFollowup } from "../lib/followup.mjs";
 import { reportEmail, sendReport } from "../lib/reportmail.mjs";
 import { welcomeEmail, sendWelcome, formUrlOf, inviteUrlOf } from "../lib/welcome.mjs";
 import { callTool } from "../lib/report.mjs";
+import { waReady, waTo, sendText, sendTemplate, needsTemplate } from "../lib/whatsapp.mjs";
 
 // Private CRM API for Operator Studio.
 // Leads = every booking from the site (store "bookings") + leads added by hand.
@@ -217,6 +218,29 @@ export default async (req) => {
     if (b.action === "transcript-get") {
       const t = await getStore({ name: "calls", consistency: "strong" }).get(clip(b.id, 60), { type: "json" });
       return json({ ok: true, text: t?.text || "" });
+    }
+
+    // WhatsApp sent by the CRM (Meta Cloud API). Free text works within 24 h of the client's last message;
+    // otherwise an approved template is needed (the test number has "hello_world").
+    if (b.action === "wa-status") return json({ ok: true, ready: waReady() });
+    if (b.action === "wa-send") {
+      if (!waReady()) return json({ error: "setup" }, 503);
+      const id = clip(b.id, 60), text = String(b.text ?? "").trim().slice(0, 4000);
+      const lead = id ? { ...((await bookings.get(id, { type: "json" })) || {}), ...((await crm.get(id, { type: "json" })) || {}) } : {};
+      const to = waTo(b.to || lead.whatsapp);
+      if (!to || to.length < 8) return json({ error: "number" }, 400);
+      try {
+        const r = b.template ? await sendTemplate(to, clip(b.template, 60), clip(b.lang, 10) || "pt_BR", Array.isArray(b.params) ? b.params.slice(0, 10) : [])
+          : await sendText(to, text);
+        if (id) {
+          const cur = (await crm.get(id, { type: "json" })) || {};
+          const log = [{ at: new Date().toISOString(), to, text: b.template ? `[modelo ${b.template}]` : text.slice(0, 300), mid: r.id }, ...(cur.waLog || [])].slice(0, 30);
+          await crm.setJSON(id, { ...cur, waLog: log });
+        }
+        return json({ ok: true, id: r.id });
+      } catch (e) {
+        return json({ error: needsTemplate(e) ? "window" : "meta", detail: String(e.message || e).slice(0, 300), code: e.code || null }, 400);
+      }
     }
 
     // Welcome e-mail for a new mentee (and partner): Student Hub invite + onboarding form link.

@@ -217,6 +217,7 @@ async function api(method, body){
 }
 
 async function load(){
+  await waStatus();
   const d = await api('GET');
   LEADS = d.leads.sort((a,b)=> (a.slot||'9') .localeCompare(b.slot||'9') || (b.createdAt||'').localeCompare(a.createdAt||''));
   render();
@@ -669,6 +670,37 @@ function openWelcome(l){
   };
 }
 
+/* ---------- WhatsApp pelo CRM (API da Meta) ---------- */
+let WA_READY = null;
+async function waStatus(){ if(WA_READY!==null) return WA_READY; try{ WA_READY = !!(await api('POST',{action:'wa-status'})).ready; }catch{ WA_READY = false; } return WA_READY; }
+function waBlock(l){
+  const tpl = templates(l), log = l.waLog || [];
+  return `<div class="blk" id="wab"><span class="eyebrow">WhatsApp pelo CRM</span>
+    <div class="field"><label>Mensagem</label><select class="in" id="waTpl"><option value="">Escrever do zero</option>${Object.keys(tpl).map(k=>`<option>${esc(k)}</option>`).join('')}</select></div>
+    <textarea class="in" id="waTxt" style="min-height:110px" placeholder="Escreva a mensagem…"></textarea>
+    <div class="dgrow"><button class="btn sm" id="waSend">Enviar pelo CRM</button><button class="btn ghost sm" id="waTest">Testar no meu celular</button><span class="dstat" id="waRes"></span></div>
+    <p class="dstat" style="font-size:12.5px">Texto livre só chega se a pessoa escreveu para o número do CRM nas últimas 24 horas. Fora disso, use o botão WhatsApp normal acima, ou um modelo aprovado pela Meta.</p>
+    ${log.length?`<div style="border-top:1px solid #D9D3C9;padding-top:8px">${log.slice(0,5).map(x=>`<p class="dstat" style="font-size:13px">${esc(new Date(x.at).toLocaleString('pt-BR',{timeZone:'Europe/Rome',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}))} · ${esc(x.text)}</p>`).join('')}</div>`:''}
+  </div>`;
+}
+function bindWa(l){
+  const sel = $('#waTpl'); if(!sel) return;
+  const tpl = templates(l);
+  sel.onchange = ()=>{ $('#waTxt').value = tpl[sel.value] || ''; };
+  const res = t => { $('#waRes').textContent = t; };
+  const go = async (body, btn, label) => {
+    btn.disabled = true; btn.textContent = 'Enviando…'; res('');
+    try{ const r = await fetch('/api/crm',{method:'POST',headers:{'x-crm-key':KEY,'content-type':'application/json'},body:JSON.stringify({action:'wa-send', id:l.id, ...body})}); const j = await r.json().catch(()=>({}));
+      if(r.ok){ res('Enviado ✓'); toast('WhatsApp enviado'); try{ await load(); }catch{} return; }
+      res(j.code===131030 ? 'Com o número de teste da Meta, só dá para enviar para os números cadastrados lá (até 5). Quando ligarmos o número de verdade, envia para qualquer cliente.' : j.error==='window' ? 'Não enviou: a pessoa ainda não escreveu para o número do CRM nas últimas 24h. Use o botão WhatsApp normal ou um modelo aprovado.' : j.error==='number' ? 'Número de WhatsApp inválido nesta ficha.' : j.error==='setup' ? 'WhatsApp ainda não configurado no servidor.' : 'Meta recusou: '+(j.detail||'erro'));
+    }catch{ res('Erro de conexão.'); }
+    btn.disabled = false; btn.textContent = label;
+  };
+  $('#waSend').onclick = ()=>{ const text = $('#waTxt').value.trim(); if(!text){ toast('Escreva a mensagem'); return; } go({ text }, $('#waSend'), 'Enviar pelo CRM'); };
+  $('#waTest').onclick = ()=>{ const mine = prompt('Seu WhatsApp (com +971…), o mesmo que você cadastrou na Meta:', store.get('os_wa_me')||'+971'); if(!mine) return; store.set('os_wa_me', mine);
+    go({ template:'hello_world', lang:'en_US', to:mine }, $('#waTest'), 'Testar no meu celular'); };
+}
+
 function openLead(id, keep){
   const l = LEADS.find(x=>x.id===id); if(!l) return;
   OPEN = id; INDIAG = false; $('#sheet').oninput = null;
@@ -701,6 +733,7 @@ function openLead(id, keep){
     ${callBlock(l)}
     ${filesBlock(l)}
     ${diagBlock(l)}
+    ${wa&&WA_READY?waBlock(l):''}
     ${wa?`<div class="blk"><span class="eyebrow">Mensagem rápida</span><div class="tpl">${Object.keys(tpl).map(k=>`<a class="btn ghost sm" target="_blank" rel="noopener" href="https://wa.me/${wa}?text=${encodeURIComponent(tpl[k])}">${k}</a>`).join('')}</div></div>`:''}
     <div class="blk">
       <div class="field"><label for="val">Valor do projeto (€)</label><input id="val" class="in" inputmode="decimal" value="${esc(l.value)}"></div>
@@ -711,7 +744,7 @@ function openLead(id, keep){
   if(!keep){ $('#sheet').scrollTop = 0; }
   $('#sheet').classList.add('on'); $('#scrim').classList.add('on');
   $('#close').onclick = closeSheet;
-  bindDiag(l); bindCall(l); bindFiles(l); bindDuo(l); bindWelcome(l);
+  bindDiag(l); bindCall(l); bindFiles(l); bindDuo(l); bindWelcome(l); bindWa(l);
   $('#sheet').querySelectorAll('[data-stage]').forEach(b=>b.onclick = async()=>{
     const s = b.dataset.stage; l.stage = s;
     $('#sheet').querySelectorAll('[data-stage]').forEach(x=>x.classList.toggle('on', x===b));
