@@ -344,6 +344,21 @@ export default async (req) => {
       }
       return json({ ok: true, added });
     }
+    // Mentor books a class for a student (or a duo) at any future time; takes the next free week number.
+    if (a === "assign" && method === "POST") {
+      const s = await store.get(`students/${clip(body.id, 40)}`, { type: "json" });
+      if (!s) return json({ error: "nf" }, 404);
+      const d = new Date(body.start); if (isNaN(d) || d < new Date()) return json({ error: "time" }, 400);
+      d.setSeconds(0, 0); const k = d.toISOString();
+      const ex = await store.get(`slots/${k}`, { type: "json" });
+      if (ex?.studentId) return json({ error: "taken" }, 409);
+      const mine = (await listJSON(store, "slots/")).filter((x) => x.studentId === s.id || (s.partnerId && x.studentId === s.partnerId));
+      const used = new Set(mine.map((x) => x.week));
+      let week = null; for (let w = 1; w <= WEEKS; w++) if (!used.has(w)) { week = w; break; }
+      if (!week) return json({ error: "done" }, 400);
+      await store.setJSON(`slots/${k}`, { start: k, dur: ex?.dur || DUR, studentId: s.id, week, bookedAt: now(), byMentor: true });
+      return json({ ok: true, start: k, week });
+    }
     // Test class: books a session for a student 5 minutes from now (no 2-hour rule, no e-mails).
     if (a === "test-class" && method === "POST") {
       const s = await store.get(`students/${clip(body.id, 40)}`, { type: "json" });

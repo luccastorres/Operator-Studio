@@ -4,7 +4,7 @@ import { followupEmail, sendFollowup } from "../lib/followup.mjs";
 import { reportEmail, sendReport } from "../lib/reportmail.mjs";
 import { welcomeEmail, sendWelcome, formUrlOf, inviteUrlOf } from "../lib/welcome.mjs";
 import { callTool } from "../lib/report.mjs";
-import { waReady, waTo, sendText, sendTemplate, needsTemplate } from "../lib/whatsapp.mjs";
+import { waReady, waTo, sendText, sendTemplate, needsTemplate, waProvider, waFrom, ycloudHook } from "../lib/whatsapp.mjs";
 
 // Private CRM API for Operator Studio.
 // Leads = every booking from the site (store "bookings") + leads added by hand.
@@ -222,7 +222,30 @@ export default async (req) => {
 
     // WhatsApp sent by the CRM (Meta Cloud API). Free text works within 24 h of the client's last message;
     // otherwise an approved template is needed (the test number has "hello_world").
-    if (b.action === "wa-status") return json({ ok: true, ready: waReady() });
+    if (b.action === "wa-status") {
+      // With YCloud, register the inbound webhook once so client replies show up in the CRM.
+      let inbound = false, hookErr = "";
+      if (waProvider() === "ycloud") {
+        const wa = getStore({ name: "wa", consistency: "strong" });
+        let cfg = (await wa.get("config", { type: "json" })) || {};
+        if (!cfg.hookId || b.rehook) {
+          try {
+            const k = randomBytes(18).toString("base64url");
+            const site = process.env.URL || "https://operator-studio.netlify.app";
+            const h = await ycloudHook(`${site}/api/wa-in?k=${k}`);
+            cfg = { hookKey: k, hookId: h.id, secret: h.secret, at: new Date().toISOString() };
+            await wa.setJSON("config", cfg);
+          } catch (e) { hookErr = String(e.message || e).slice(0, 200); }
+        }
+        inbound = !!cfg.hookId;
+      }
+      return json({ ok: true, ready: waReady(), provider: waProvider(), from: waFrom(), inbound, hookErr });
+    }
+    if (b.action === "wa-seen") {
+      const id = clip(b.id, 60); const cur = (await crm.get(id, { type: "json" })) || null;
+      if (cur?.waNew) { delete cur.waNew; await crm.setJSON(id, cur); }
+      return json({ ok: true });
+    }
     if (b.action === "wa-send") {
       if (!waReady()) return json({ error: "setup" }, 503);
       const id = clip(b.id, 60), text = String(b.text ?? "").trim().slice(0, 4000);
@@ -234,7 +257,7 @@ export default async (req) => {
           : await sendText(to, text);
         if (id) {
           const cur = (await crm.get(id, { type: "json" })) || {};
-          const log = [{ at: new Date().toISOString(), to, text: b.template ? `[modelo ${b.template}]` : text.slice(0, 300), mid: r.id }, ...(cur.waLog || [])].slice(0, 30);
+          const log = [{ at: new Date().toISOString(), dir: "out", to, text: b.template ? `[modelo ${b.template}]` : text.slice(0, 300), mid: r.id }, ...(cur.waLog || [])].slice(0, 60);
           await crm.setJSON(id, { ...cur, waLog: log });
         }
         return json({ ok: true, id: r.id });
