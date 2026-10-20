@@ -125,7 +125,9 @@ document.querySelectorAll('.ch').forEach(box=>{
   box.innerHTML = box.textContent.split('|').map(o=>`<label><input type="${type}" name="${name}" value="${esc(o)}"><span>${esc(o)}</span></label>`).join('');
 });
 function show(ids){ ['bad','ok','intro','f'].forEach(x=>$('#'+x).hidden = !ids.includes(x)); window.scrollTo(0,0); }
+const DEMO = new URLSearchParams(location.search).has('previa');
 (async()=>{
+  if(DEMO){ show(['intro','f']); $('#hiName').textContent = 'tudo pronto?'; $('#send').textContent = 'Prévia · o envio funciona só pelo link de cada cliente'; $('#send').disabled = true; return; }
   if(!T) return show(['bad']);
   try{
     const r = await fetch('/api/onboarding?t='+encodeURIComponent(T),{cache:'no-store'});
