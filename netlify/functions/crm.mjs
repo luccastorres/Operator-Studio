@@ -2,6 +2,8 @@ import { getStore } from "@netlify/blobs";
 import { createHash, randomBytes } from "node:crypto";
 import { followupEmail, sendFollowup } from "../lib/followup.mjs";
 import { reportEmail, sendReport } from "../lib/reportmail.mjs";
+import { welcomeEmail, sendWelcome, formUrlOf, inviteUrlOf } from "../lib/welcome.mjs";
+import { callTool } from "../lib/report.mjs";
 
 // Private CRM API for Operator Studio.
 // Leads = every booking from the site (store "bookings") + leads added by hand.
@@ -215,6 +217,60 @@ export default async (req) => {
     if (b.action === "transcript-get") {
       const t = await getStore({ name: "calls", consistency: "strong" }).get(clip(b.id, 60), { type: "json" });
       return json({ ok: true, text: t?.text || "" });
+    }
+
+    // Welcome e-mail for a new mentee (and partner): Student Hub invite + onboarding form link.
+    if (b.action === "welcome") {
+      const id = clip(b.id, 60);
+      const lead = { id, ...((await bookings.get(id, { type: "json" })) || {}), ...((await crm.get(id, { type: "json" })) || {}) };
+      const ob = getStore({ name: "onboard", consistency: "strong" });
+      const people = [{ who: "a", nome: lead.nome, email: lead.email }, ...(lead.socioNome ? [{ who: "b", nome: lead.socioNome, email: lead.socioEmail }] : [])];
+      const w = lead.welcome || { tokens: {} };
+      const tokens = { ...(w.tokens || {}) };
+      for (const p of people) if (!tokens[p.who]) { tokens[p.who] = randomBytes(15).toString("base64url"); await ob.setJSON(tokens[p.who], { id, who: p.who, nome: p.nome }); }
+      const inv = lead.hub?.invites || {}, ids = lead.hub?.ids || [];
+      const start = clip(b.start, 80), note = clip(b.note, 600);
+      const mailFor = (p, i) => welcomeEmail({ person: p, partner: people[1 - i] && people.length > 1 ? people[1 - i] : null, inviteUrl: inviteUrlOf(inv[ids[i]]), formUrl: formUrlOf(tokens[p.who]), start, note });
+      const save = async (extra) => { const cur = (await crm.get(id, { type: "json" })) || {}; await crm.setJSON(id, { ...cur, welcome: { ...(cur.welcome || {}), tokens, start, ...extra } }); };
+      if (b.preview) { await save({}); return json({ ok: true, ...mailFor(people[0], 0), links: people.map((p) => ({ nome: p.nome, url: formUrlOf(tokens[p.who]) })) }); }
+      const results = {};
+      for (const [i, p] of people.entries()) {
+        try { results[p.nome] = p.email ? await sendWelcome(p.email, p.nome, mailFor(p, i), `welcome-${id}-${p.who}`) : "no-email"; } catch { results[p.nome] = "error"; }
+      }
+      await save({ sentAt: new Date().toISOString(), results });
+      return json({ ok: true, results });
+    }
+
+    // Plan for the first class, from the onboarding answers (and anything else known about the lead).
+    if (b.action === "plan1") {
+      const id = clip(b.id, 60);
+      const lead = { id, ...((await bookings.get(id, { type: "json" })) || {}), ...((await crm.get(id, { type: "json" })) || {}) };
+      const answers = Object.values(lead.onboarding || {});
+      if (!answers.length && !lead.form) return json({ error: "noanswers" }, 400);
+      const TOOL = { name: "plano_primeira_aula", description: "Roteiro da primeira aula da mentoria.", input_schema: { type: "object", properties: {
+        retrato: { type: "string", description: "3 a 4 frases: quem são, o negócio, nível com IA e ferramentas." },
+        dores: { type: "array", items: { type: "string" }, description: "As dores e onde vai o tempo, em ordem de prioridade, com as palavras delas quando possível." },
+        horas: { type: "string", description: "Estimativa de horas por semana em tarefas repetitivas, se der para saber." },
+        objetivo_aula: { type: "string", description: "O que elas saem da 1ª aula tendo construído (uma coisa concreta)." },
+        roteiro: { type: "array", description: "Blocos da aula de 90 min.", items: { type: "object", properties: { min: { type: "string" }, bloco: { type: "string" }, detalhe: { type: "string" } }, required: ["min", "bloco"] } },
+        preparar: { type: "array", items: { type: "string" }, description: "O que o Luccas deve preparar antes (prompts, templates, contas, exemplos)." },
+        pedir: { type: "array", items: { type: "string" }, description: "O que pedir para elas trazerem ou deixarem pronto." },
+        oito_semanas: { type: "array", items: { type: "string" }, description: "Sugestão de foco por semana (1 a 8), ligada às dores." },
+        cuidado: { type: "array", items: { type: "string" }, description: "Pontos de atenção (nível técnico, expectativas, dinâmica da dupla)." },
+      }, required: ["retrato", "dores", "objetivo_aula", "roteiro", "preparar", "pedir", "oito_semanas"] } };
+      const ctx = JSON.stringify({ cliente: lead.nome, socio: lead.socioNome || null, negocio: lead.negocio, setor: lead.setor, desafio_na_reserva: lead.desafio,
+        pre_diagnostico: lead.form || null, ficha_analise: lead.diag || null, relatorio_call: lead.call?.report || null, onboarding: lead.onboarding || null, notas: lead.notes || "" });
+      try {
+        const out = await callTool(TOOL, `Você é o assistente do Luccas Torres, mentor da Operator Studio (mentoria individual ou em dupla de 8 semanas: IA no dia a dia, automações, sistemas como CRM e agenda, site e conteúdo). Com base nos dados abaixo (principalmente as respostas do onboarding), monte o plano da PRIMEIRA aula (90 minutos), focado nas dores e no que mais consome tempo. Português do Brasil, direto e prático, sem inventar nada que não esteja nos dados. Responda chamando a ferramenta plano_primeira_aula.
+
+<dados>
+${ctx}
+</dados>`, 3500);
+        const cur = (await crm.get(id, { type: "json" })) || {};
+        const plan1 = { ...out.report, at: new Date().toISOString() };
+        await crm.setJSON(id, { ...cur, plan1 });
+        return json({ ok: true, plan1 });
+      } catch (e) { return json({ error: "claude", detail: String(e.message || e).slice(0, 200) }, 502); }
     }
 
     // Send the meeting report to the client by e-mail (preview: true returns the e-mail without sending).

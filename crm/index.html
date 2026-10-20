@@ -590,6 +590,85 @@ function bindDuo(l){
   };
 }
 
+/* ---------- Boas-vindas, onboarding e 1ª aula ---------- */
+const ONBQ = [['vende','O que vendem e para quem'],['equipe','Equipe'],['equipeQuem','Quem faz o quê'],['dor','Maior dor'],['tempo','Onde vai o tempo'],['repetitivas','Tarefas repetidas'],['horas','Horas por semana'],['frustra','O que cansa ou frustra'],['tirar','Tiraria das mãos amanhã'],['ferramentas','Ferramentas'],['ia','Uso de IA'],['ias','IAs e planos'],['computador','Trabalha mais no'],['oito','3 coisas em 8 semanas'],['comecar','Por onde começar'],['trazer','Vai trazer / saber']];
+function welcomeBlock(l){
+  const w = l.welcome || {}, ob = l.onboarding || {};
+  const people = [{ who:'a', nome:l.nome }, ...(l.socioNome ? [{ who:'b', nome:l.socioNome }] : [])];
+  const answers = people.filter(p=>ob[p.who]);
+  const p1 = l.plan1;
+  const li = a => (a||[]).length ? `<ul>${a.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>` : '';
+  return `<div class="blk cr" id="wel"><span class="eyebrow">Boas-vindas e 1ª aula</span>
+    ${w.sentAt ? `<p class="dstat"><b>E-mail de boas-vindas enviado</b> · ${esc(new Date(w.sentAt).toLocaleString('pt-BR',{timeZone:'Europe/Rome',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}))}${w.start?' · 1ª aula: '+esc(w.start):''}</p>`
+      : `<p class="dstat">Um e-mail com boas-vindas, o convite do Student Hub${l.hub?'':' (crie o acesso acima antes)'} e o formulário "antes da 1ª aula": negócio, dores, onde vai o tempo, ferramentas e IA.</p>`}
+    <div class="dgrow"><button class="btn sm" id="welOpen">${w.sentAt?'Reenviar boas-vindas':'Enviar boas-vindas'}</button></div>
+    ${w.tokens ? `<div>${people.map(p=>`<div class="kv" style="align-items:center"><span>${esc(first(p.nome))}: ${ob[p.who]?'<b style="color:#4E6B4F">respondeu</b>':'aguardando resposta'}</span>${!ob[p.who]&&w.tokens[p.who]?`<button class="btn ghost sm" data-welcp="${esc(location.origin+'/boas-vindas/?t='+w.tokens[p.who])}">Copiar link</button>`:''}</div>`).join('')}</div>` : ''}
+    ${answers.map(p=>{ const a = ob[p.who]; return `<details style="border-top:1px solid #D9D3C9;padding-top:10px"><summary style="cursor:pointer;font-size:15px"><b>Respostas de ${esc(first(p.nome))}</b></summary>
+      <div class="ans" style="margin-top:10px">${ONBQ.map(([k,t])=>{ const v = Array.isArray(a[k])?a[k].join(', '):a[k]; return v?`<div><span>${t}</span><p>${esc(v)}</p></div>`:''; }).join('')}</div></details>`; }).join('')}
+    ${answers.length ? `<div class="dgrow"><button class="btn ${p1?'ghost ':''}sm" id="plan1">${p1?'Gerar o plano de novo':'Preparar 1ª aula'}</button><span class="dstat" id="plan1i"></span></div>` : ''}
+    ${p1 ? `<div style="border-top:1px solid #D9D3C9;padding-top:10px"><h4>Plano da 1ª aula</h4><p>${esc(p1.retrato)}</p>
+      <h4>Dores, em ordem</h4>${li(p1.dores)}${p1.horas?`<p class="dstat">${esc(p1.horas)}</p>`:''}
+      <h4>Objetivo da aula</h4><p><b>${esc(p1.objetivo_aula)}</b></p>
+      <h4>Roteiro · 90 min</h4><ol>${(p1.roteiro||[]).map(r=>`<li><b>${esc(r.min)}</b> · ${esc(r.bloco)}${r.detalhe?`<small>${esc(r.detalhe)}</small>`:''}</li>`).join('')}</ol>
+      <h4>Preparar antes</h4>${li(p1.preparar)}<h4>Pedir para trazer</h4>${li(p1.pedir)}
+      <h4>As 8 semanas</h4><ol>${(p1.oito_semanas||[]).map(x=>`<li>${esc(x)}</li>`).join('')}</ol>
+      ${(p1.cuidado||[]).length?`<h4>Atenção</h4>${li(p1.cuidado)}`:''}
+      <div class="dgrow"><button class="btn ghost sm" id="plan1cp">Copiar plano</button></div></div>` : ''}
+  </div>`;
+}
+function plan1Text(l){
+  const p = l.plan1||{}, L = [`Plano da 1ª aula · ${l.nome}${l.socioNome?' e '+l.socioNome:''}`, '', p.retrato||''];
+  const sec = (t,a)=>{ if(a?.length){ L.push('', t+':'); a.forEach(x=>L.push('• '+x)); } };
+  sec('Dores', p.dores); if(p.objetivo_aula) L.push('', 'Objetivo: '+p.objetivo_aula);
+  if(p.roteiro?.length){ L.push('', 'Roteiro:'); p.roteiro.forEach(r=>L.push(`• ${r.min} · ${r.bloco}${r.detalhe?' — '+r.detalhe:''}`)); }
+  sec('Preparar', p.preparar); sec('Pedir', p.pedir); sec('8 semanas', p.oito_semanas); sec('Atenção', p.cuidado);
+  return L.join('\n');
+}
+function bindWelcome(l){
+  const o = $('#welOpen'); if(o) o.onclick = ()=>openWelcome(l);
+  document.querySelectorAll('[data-welcp]').forEach(b=>b.onclick=async()=>{ try{ await navigator.clipboard.writeText(b.dataset.welcp); toast('Link copiado'); }catch{ prompt('Copie o link:', b.dataset.welcp); } });
+  const pb = $('#plan1'); if(pb) pb.onclick = async()=>{
+    pb.disabled = true; $('#plan1i').textContent = 'Lendo as respostas e montando o plano… (até 1 minuto)';
+    try{ const r = await api('POST',{action:'plan1', id:l.id}); l.plan1 = r.plan1; openLead(l.id, true); toast('Plano pronto'); }
+    catch{ pb.disabled = false; $('#plan1i').textContent = 'Não deu certo. Tente de novo.'; }
+  };
+  const pc = $('#plan1cp'); if(pc) pc.onclick = async()=>{ try{ await navigator.clipboard.writeText(plan1Text(l)); toast('Plano copiado'); }catch{ prompt('Copie:', plan1Text(l)); } };
+}
+function openWelcome(l){
+  INDIAG = true;
+  const w = l.welcome || {};
+  const to = [l.email && `${l.nome} <${l.email}>`, l.socioNome && `${l.socioNome} <${l.socioEmail||'sem e-mail'}>`].filter(Boolean).join(' · ');
+  $('#sheet').innerHTML = `<div class="grab"></div>
+    <div class="sh-head"><div><span class="eyebrow">E-mail de boas-vindas</span><h3>${esc(l.nome)}${l.socioNome?' e '+esc(first(l.socioNome)):''}</h3><p>${esc(to)}</p></div>
+      <button class="iconbtn" id="back" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M15 6l-6 6 6 6"/></svg></button></div>
+    <div class="blk">
+      <div class="field"><label>Quando é a 1ª aula (aparece no e-mail)</label><input class="in" id="wStart" value="${esc(w.start||'')}" placeholder="Ex.: amanhã, quarta-feira, 21 de outubro"></div>
+      <div class="field"><label>Mensagem extra (opcional)</label><textarea class="in" id="wNote" style="min-height:70px" placeholder="Ex.: Estou muito animado para começar com vocês duas!"></textarea></div>
+      ${l.hub?'':'<p class="dstat"><b>Dica:</b> crie o acesso ao Student Hub antes, para o convite já ir junto no e-mail.</p>'}
+      <div class="field"><label>Prévia · e-mail da ${esc(first(l.nome))}</label><iframe id="wFrame" style="width:100%;height:440px;border:1px solid #D9D3C9;border-radius:12px;background:#fff"></iframe></div>
+      <div class="dgrow"><button class="btn" id="wSend">Enviar e-mail${l.socioNome?' para as duas pessoas':''}</button><span class="dstat" id="wRes"></span></div>
+      <div id="wLinks"></div>
+    </div>`;
+  $('#sheet').scrollTop = 0;
+  let t; const prev = async()=>{ try{ const r = await api('POST',{action:'welcome', id:l.id, preview:true, start:$('#wStart').value, note:$('#wNote').value}); $('#wFrame').srcdoc = r.html;
+      $('#wLinks').innerHTML = `<p class="dstat" style="margin-top:10px">Links do formulário (para mandar também no WhatsApp):</p>` + r.links.map(x=>`<div class="kv" style="align-items:center"><span>${esc(first(x.nome))}</span><button class="btn ghost sm" data-welcp="${esc(x.url)}">Copiar link</button></div>`).join('');
+      document.querySelectorAll('#wLinks [data-welcp]').forEach(b=>b.onclick=async()=>{ try{ await navigator.clipboard.writeText(b.dataset.welcp); toast('Link copiado'); }catch{ prompt('Copie o link:', b.dataset.welcp); } });
+      l.welcome = { ...(l.welcome||{}), tokens: Object.fromEntries(r.links.map((x,i)=>[i?'b':'a', x.url.split('t=')[1]])) };
+    }catch{} };
+  prev();
+  $('#wStart').oninput = $('#wNote').oninput = ()=>{ clearTimeout(t); t = setTimeout(prev, 600); };
+  $('#back').onclick = ()=>openLead(l.id);
+  $('#wSend').onclick = async()=>{
+    if(!l.email){ toast('Falta o e-mail do cliente'); return; }
+    const b = $('#wSend'); b.disabled = true; b.textContent = 'Enviando…';
+    try{ const r = await api('POST',{action:'welcome', id:l.id, start:$('#wStart').value, note:$('#wNote').value});
+      const vals = Object.values(r.results||{});
+      $('#wRes').textContent = vals.every(v=>v==='sent') ? 'Enviado! Você recebe uma cópia.' : 'Resultado: ' + Object.entries(r.results).map(([k,v])=>`${first(k)}: ${v==='sent'?'enviado':v==='no-email'?'sem e-mail':v==='skipped'?'não enviado (teste)':'erro'}`).join(' · ');
+      l.welcome = { ...(l.welcome||{}), sentAt: new Date().toISOString(), start: $('#wStart').value }; b.textContent = 'Enviado';
+    }catch{ $('#wRes').textContent = 'Erro ao enviar. Tente de novo.'; b.disabled = false; b.textContent = 'Enviar e-mail'; }
+  };
+}
+
 function openLead(id, keep){
   const l = LEADS.find(x=>x.id===id); if(!l) return;
   OPEN = id; INDIAG = false; $('#sheet').oninput = null;
@@ -618,6 +697,7 @@ function openLead(id, keep){
     </div>
     <div class="blk"><span class="eyebrow">Etapa</span><div class="stages">${ORDER.map(s=>`<button class="st ${s===l.stage?'on':''}" data-stage="${s}">${STAGE[s]}</button>`).join('')}</div></div>
     ${duoBlock(l)}
+    ${['proposta','cliente'].includes(l.stage)||l.hub||l.welcome||l.socioNome?welcomeBlock(l):''}
     ${callBlock(l)}
     ${filesBlock(l)}
     ${diagBlock(l)}
@@ -631,7 +711,7 @@ function openLead(id, keep){
   if(!keep){ $('#sheet').scrollTop = 0; }
   $('#sheet').classList.add('on'); $('#scrim').classList.add('on');
   $('#close').onclick = closeSheet;
-  bindDiag(l); bindCall(l); bindFiles(l); bindDuo(l);
+  bindDiag(l); bindCall(l); bindFiles(l); bindDuo(l); bindWelcome(l);
   $('#sheet').querySelectorAll('[data-stage]').forEach(b=>b.onclick = async()=>{
     const s = b.dataset.stage; l.stage = s;
     $('#sheet').querySelectorAll('[data-stage]').forEach(x=>x.classList.toggle('on', x===b));
