@@ -16,7 +16,7 @@ ${note ? P(esc(note)) : ""}
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:6px 0 22px;">
 ${step("1", "Responda antes da 1ª aula", "Umas perguntas rápidas sobre o seu negócio, onde vai o seu tempo e o que mais dói hoje. Leva uns 7 minutos e é com isso que eu preparo a nossa primeira aula.")}
 ${step("2", "Crie a sua senha no Student Hub", "É o seu espaço da mentoria: materiais de cada semana, agenda das aulas, a sala ao vivo e a comunidade.")}
-${step("3", "Entre na aula pelo Hub", "A sala abre 15 minutos antes. Depois de cada aula, o resumo com as suas perguntas e tarefas aparece lá.")}
+${step("3", "Entre na aula pelo Hub", "A sala abre 10 minutos antes. Depois de cada aula, o resumo com as suas perguntas e tarefas aparece lá.")}
 </table>
 ${btn("Responder antes da 1ª aula", formUrl)}
 ${inviteUrl ? btn("Criar minha senha no Student Hub", inviteUrl, false) : ""}

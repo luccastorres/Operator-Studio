@@ -257,10 +257,10 @@ const cap = s => s.charAt(0).toUpperCase()+s.slice(1);
 const first = n => String(n||'').trim().split(/\s+/)[0];
 function ago(iso){ const m=Math.round((Date.now()-new Date(iso))/60000); if(m<1)return'agora'; if(m<60)return m+' min'; const h=Math.round(m/60); if(h<24)return h+' h'; const d=Math.round(h/24); return d<30?d+' d':fShort(iso); }
 const canChange = s => new Date(s.start) - Date.now() > 24*3600000;
-const liveOpen = s => { const t=new Date(s.start).getTime(); return Date.now() >= t-15*60000 && Date.now() <= t+(s.dur||90)*60000+60*60000; };
+const liveOpen = s => { const t=new Date(s.start).getTime(); return Date.now() >= t-10*60000 && Date.now() <= t+(s.dur||90)*60000+60*60000; };
 const aulaUrl = s => '/aula/?s='+encodeURIComponent(s.start);
 function joinBtn(s, label){
-  if(DATA.live) return liveOpen(s) ? `<a class="btn sm" href="${aulaUrl(s)}">${label||'Entrar na aula'}</a>` : `<span class="chip">A sala abre 15 min antes</span>`;
+  if(DATA.live) return liveOpen(s) ? `<a class="btn sm" href="${aulaUrl(s)}">${label||'Entrar na aula'}</a>` : `<span class="chip">A sala abre 10 min antes</span>`;
   return s.meet ? `<a class="btn sm" href="${esc(s.meet)}" target="_blank" rel="noopener">${label||'Entrar na videochamada'}</a>` : '';
 }
 function kindIcon(i){ const k=(i.kind||'').toLowerCase(), u=(i.url||'').toLowerCase(); if(k==='video'||/youtu|vimeo|loom|\.mp4/.test(u)) return I.video; if(k==='pdf'||k==='arquivo'||/\.pdf|\/api\/hub\/file\//.test(u)) return I.file; if(k==='aula'||k==='slides') return I.play; return I.link; }

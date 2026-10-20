@@ -173,7 +173,7 @@ async function notifyGroup(student, g) {
   const html = emailHtml({
     eyebrow: "Mentoria · Aula em grupo",
     title: `${esc(g.title)}.`,
-    intro: `Oi, ${esc(student.nome.split(" ")[0])}! Você está na aula em grupo. A sala abre 15 minutos antes, pelo seu Student Hub.`,
+    intro: `Oi, ${esc(student.nome.split(" ")[0])}! Você está na aula em grupo. A sala abre 10 minutos antes, pelo seu Student Hub.`,
     whenText: esc(fmtWhen(g.start, student.tz)),
     cta: "Abrir o Student Hub", ctaUrl: `${SITE}/hub/#agenda`,
     closing: "Até lá!",

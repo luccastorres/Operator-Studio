@@ -58,7 +58,7 @@ export default async (req) => {
     if (group) return joinGroup(group, admin, me, store);
     if (!slot?.studentId) return json({ error: "nf" }, 404);
     const t0 = new Date(slot.start).getTime(), now = Date.now();
-    const opensAt = t0 - (admin ? 60 : 15) * 60000, closesAt = t0 + (DUR + (admin ? 180 : 60)) * 60000;
+    const opensAt = t0 - (admin ? 24 * 60 : 10) * 60000, closesAt = t0 + (DUR + (admin ? 180 : 60)) * 60000;
     if (now < opensAt) return json({ error: "early", opensAt: new Date(opensAt).toISOString() }, 400);
     if (now > closesAt) return json({ error: "over" }, 400);
     if (!process.env.DAILY_API_KEY) return json({ error: "setup", meet: slot.meet || "" }, 503);
@@ -158,7 +158,7 @@ export default async (req) => {
 // Group class room: mentor + up to 3 students, one room for the whole class.
 async function joinGroup(g, admin, me, store) {
   const t0 = new Date(g.start).getTime(), now = Date.now(), dur = g.dur || DUR;
-  const opensAt = t0 - (admin ? 60 : 15) * 60000, closesAt = t0 + (dur + (admin ? 180 : 60)) * 60000;
+  const opensAt = t0 - (admin ? 24 * 60 : 10) * 60000, closesAt = t0 + (dur + (admin ? 180 : 60)) * 60000;
   if (now < opensAt) return json({ error: "early", opensAt: new Date(opensAt).toISOString() }, 400);
   if (now > closesAt) return json({ error: "over" }, 400);
   if (!process.env.DAILY_API_KEY) return json({ error: "setup" }, 503);
