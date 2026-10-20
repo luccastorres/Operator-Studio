@@ -146,7 +146,7 @@ function waNumber(raw){ let d=String(raw||'').replace(/[^\d+]/g,''); if(d.starts
 const inviteUrl = t => `${location.origin}/hub/?convite=${t}`;
 const inviteMsg = (s,t) => `Oi, ${first(s.nome)}! Bem-vindo à mentoria Operator Studio. Este é o seu Student Hub, onde ficam os materiais de cada semana, a agenda das sessões e a comunidade dos alunos. Crie sua senha por aqui: ${inviteUrl(t)}`;
 
-async function load(){ S = await api('state'); render(); }
+async function load(){ const [st, mp] = await Promise.all([api('state'), api('mentor').catch(()=>({}))]); S = { ...st, mentorPhoto: mp.photo||'' }; render(); }
 function render(){
   $('#tabs').innerHTML = TABS.map(([k,t])=>`<button class="tab ${k===TAB?'on':''}" data-tab="${k}">${t}</button>`).join('');
   const m=$('#main');
@@ -159,6 +159,9 @@ document.addEventListener('click',e=>{ const t=e.target.closest('[data-tab]'); i
 function vStudents(){
   const sl = S.slots;
   return `<div><span class="ey">Alunos</span><h1 class="h1">Sua <em>turma.</em></h1></div>
+  <div class="card" style="display:flex;flex-direction:row;gap:14px;align-items:center;flex-wrap:wrap"><span id="mPic" style="width:64px;height:64px;border-radius:50%;overflow:hidden;background:#EAE6DF;display:inline-flex;align-items:center;justify-content:center;font-family:Tinos,serif;font-size:24px;color:#7E7669;flex:none">${S.mentorPhoto?`<img src="${esc(S.mentorPhoto)}" alt="" style="width:100%;height:100%;object-fit:cover">`:'L'}</span>
+    <div style="flex:1;min-width:200px"><span class="ey">Sua foto</span><p class="muted" style="font-size:14px;line-height:1.5;margin-top:4px">Aparece para os alunos no Student Hub: no início, na agenda e na comunidade.</p></div>
+    <label class="btn ghost sm" style="cursor:pointer">${S.mentorPhoto?'Trocar foto':'Adicionar foto'}<input type="file" accept="image/*" id="mFile" hidden></label></div>
   <form class="card" id="fNew"><span class="ey">Novo aluno</span>
     <div class="g2"><div><label class="l">Nome</label><input class="in" name="nome" required></div><div><label class="l">E-mail (login)</label><input class="in" name="email" type="email" required></div></div>
     <div class="g2"><div><label class="l">WhatsApp</label><input class="in" name="whatsapp" inputmode="tel"></div><div><label class="l">Negócio</label><input class="in" name="negocio"></div></div>
@@ -340,6 +343,9 @@ function bind(){
       try{ await api('group',{start:dt.toISOString(),title:fd.get('title'),dur:+fd.get('dur')||90,studentIds:ids,notify:!!fd.get('notify')}); await load(); toast('Aula em grupo marcada'); }catch(x){ toast(x.code==='taken'?'Já tem aula individual nesse horário':'Erro ao marcar'); } };
   }
   document.querySelectorAll('[data-gdel]').forEach(b=>b.onclick=async()=>{ if(!confirm('Cancelar esta aula em grupo?')) return; try{ await api('group-delete',{start:b.dataset.gdel}); await load(); toast('Aula cancelada'); }catch{ toast('Erro'); } });
+  const mf=$('#mFile'); if(mf) mf.onchange=async()=>{ const file=mf.files[0]; if(!file) return;
+    try{ const url=URL.createObjectURL(file); const im=new Image(); im.src=url; await im.decode(); const n=320, c=document.createElement('canvas'); c.width=c.height=n; const sd=Math.min(im.naturalWidth,im.naturalHeight); c.getContext('2d').drawImage(im,(im.naturalWidth-sd)/2,(im.naturalHeight-sd)/2,sd,sd,0,0,n,n);
+      await api('mentor-photo',{photo:c.toDataURL('image/jpeg',.85)}); await load(); toast('Foto salva'); }catch{ toast('Não deu para salvar essa foto'); } };
   const fa=$('#fAssign'); if(fa) fa.onsubmit=async e=>{ e.preventDefault(); const fd=new FormData(fa); const [y,mo,d]=String(fd.get('date')).split('-').map(Number), [h,mi]=String(fd.get('time')).split(':').map(Number);
     const dt=new Date(y,mo-1,d,h,mi); if(!(dt>new Date())){ toast('Escolha um horário futuro'); return; }
     try{ const r=await api('assign',{id:fd.get('id'),start:dt.toISOString()}); await load(); toast(`Aula marcada · Semana ${r.week}`); }catch(x){ toast(x.code==='taken'?'Esse horário já está ocupado':x.code==='done'?'Esse aluno já tem as 8 aulas':'Erro ao marcar'); } };

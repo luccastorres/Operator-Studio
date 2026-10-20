@@ -306,6 +306,17 @@ export default async (req) => {
       await store.setJSON(`invite/${inviteToken}`, { id: sid });
       return json({ ok: true, student: publicStudent(s), invite: inviteToken });
     }
+    // Mentor's own photo (shown to students in the Hub).
+    if (a === "mentor-photo" && method === "POST") {
+      const photoAt = await savePhoto(store, "mentor", body.photo);
+      if (!photoAt) return json({ error: "photo" }, 400);
+      await store.setJSON("mentor/profile", { photoAt });
+      return json({ ok: true, photo: `/api/hub/avatar/mentor?v=${encodeURIComponent(photoAt)}` });
+    }
+    if (a === "mentor" && method === "GET") {
+      const mp = await store.get("mentor/profile", { type: "json" });
+      return json({ photo: mp?.photoAt ? `/api/hub/avatar/mentor?v=${encodeURIComponent(mp.photoAt)}` : "" });
+    }
     // Mentor opens the Student Hub as this student (no password needed). Session lasts 4 hours.
     if (a === "view-as" && method === "POST") {
       const s = await store.get(`students/${clip(body.id, 40)}`, { type: "json" });
@@ -484,7 +495,8 @@ export default async (req) => {
     const gl = (await listJSON(store, "groups/")).filter((g) => (g.studentIds || []).includes(me.id)).sort((a, b) => a.start.localeCompare(b.start));
     const greps = await Promise.all(gl.map((g) => store.get(`reports/${g.start}`, { type: "json" })));
     const groups = gl.map((g, i) => ({ start: g.start, dur: g.dur, title: g.title, group: true, report: !!(greps[i]?.shared && greps[i]?.status === "done") }));
-    return json({ mentorView: !!auth.mentor, me: { ...publicStudent(me), partner: partner ? { nome: partner.nome } : null }, weeks, setup: setupWeek(), sessions, groups, free, live: !!process.env.DAILY_API_KEY, rules: { cancelHours: 24, weeks: WEEKS } });
+    const mp = await store.get("mentor/profile", { type: "json" });
+    return json({ mentorView: !!auth.mentor, mentor: { nome: "Luccas", photo: mp?.photoAt ? `/api/hub/avatar/mentor?v=${encodeURIComponent(mp.photoAt)}` : "" }, me: { ...publicStudent(me), partner: partner ? { nome: partner.nome, photo: partner.photoAt ? `/api/hub/avatar/${partner.id}?v=${encodeURIComponent(partner.photoAt)}` : "" } : null }, weeks, setup: setupWeek(), sessions, groups, free, live: !!process.env.DAILY_API_KEY, rules: { cancelHours: 24, weeks: WEEKS } });
   }
 
   if (path === "content" && method === "GET") {
@@ -543,10 +555,22 @@ export default async (req) => {
 
   if (path === "forum" && method === "GET") {
     const threads = (await listJSON(store, "forum/")).sort((a, b) => (b.lastAt || b.createdAt).localeCompare(a.lastAt || a.createdAt));
-    return json({ threads, meId: me.id });
+    // People in the community: first name + photo only.
+    const [students, mp] = await Promise.all([listJSON(store, "students/"), store.get("mentor/profile", { type: "json" })]);
+    const people = { mentor: { nome: "Luccas", photo: mp?.photoAt ? `/api/hub/avatar/mentor?v=${encodeURIComponent(mp.photoAt)}` : "", mentor: true } };
+    for (const x of students) people[x.id] = { nome: String(x.nome || "").split(" ")[0], photo: x.photoAt ? `/api/hub/avatar/${x.id}?v=${encodeURIComponent(x.photoAt)}` : "", negocio: x.negocio || "", active: !!x.pwHash };
+    return json({ threads, meId: me.id, people });
   }
   if (path === "forum" && method === "POST") return forumWrite(store, body, me, false);
   if (path === "forum-delete" && method === "POST") return forumDelete(store, body, me, false);
+  if (path === "forum-like" && method === "POST") {
+    const t = await store.get(`forum/${clip(body.thread, 40)}`, { type: "json" });
+    if (!t) return json({ error: "nf" }, 404);
+    const likes = new Set(t.likes || []);
+    likes.has(me.id) ? likes.delete(me.id) : likes.add(me.id);
+    await store.setJSON(`forum/${t.id}`, { ...t, likes: [...likes] });
+    return json({ ok: true, likes: likes.size, liked: likes.has(me.id) });
+  }
 
   if (path === "profile" && method === "POST") {
     const prof = profileFrom(body);

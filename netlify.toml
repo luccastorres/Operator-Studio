@@ -9,3 +9,6 @@
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"
     Cache-Control = "public, max-age=3600"
+
+[images]
+  remote_images = ["https://d8j0ntlcm91z4\\.cloudfront\\.net/.*"]
