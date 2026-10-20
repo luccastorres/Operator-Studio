@@ -55,7 +55,14 @@ nav.tabs{display:none}
 .tab.on{background:var(--ink);color:var(--linen)}
 .tab svg{width:18px;height:18px}
 .me{display:flex;align-items:center;gap:10px}
-.av{width:36px;height:36px;border-radius:50%;background:var(--linen2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:16px}
+.av{width:36px;height:36px;border-radius:50%;background:var(--linen2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:16px;overflow:hidden}
+.av img{width:100%;height:100%;object-fit:cover}
+.ph{display:flex;align-items:center;gap:14px}
+.ph .pic{width:76px;height:76px;border-radius:50%;background:var(--linen2);border:1px solid var(--line);overflow:hidden;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:28px;color:var(--taupe);flex:none}
+.ph .pic img{width:100%;height:100%;object-fit:cover}
+.ph label.btn{cursor:pointer}
+.g2f{display:grid;grid-template-columns:1fr;gap:12px}
+@media (min-width:560px){.g2f{grid-template-columns:1fr 1fr}}
 main{max-width:1040px;margin:0 auto;padding:22px 18px calc(100px + env(safe-area-inset-bottom))}
 nav.bottom{position:fixed;left:0;right:0;bottom:0;z-index:6;background:rgba(251,250,247,.96);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);padding:8px 6px calc(8px + env(safe-area-inset-bottom))}
 nav.bottom a{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:var(--sand);text-decoration:none;padding:4px 0}
@@ -192,9 +199,10 @@ nav.bottom a.on{color:var(--ink)}
     <span class="logo"><b>Operator</b> <i>Studio</i></span>
     <div><span class="pill"><i></i>Student Hub</span></div>
     <h1 class="h1">Olá, <em id="invName">aluno.</em></h1>
-    <p class="muted" style="font-size:16px;line-height:1.5">Crie sua senha para entrar no seu Student Hub. Seu login é <b id="invEmail"></b>.</p>
+    <p class="muted" style="font-size:16px;line-height:1.5">Complete o seu perfil e crie sua senha. Seu login é <b id="invEmail"></b>.</p>
+    <div id="invProfile"></div>
     <div><label class="l" for="npw">Nova senha (mínimo 8 caracteres)</label><input class="in" id="npw" type="password" autocomplete="new-password" minlength="8" required></div>
-    <button class="btn" type="submit">Criar senha e entrar</button>
+    <button class="btn" type="submit" id="invGo">Criar senha e entrar</button>
     <p class="err" id="eInvite" hidden></p>
   </form>
 </section>
@@ -265,7 +273,7 @@ function shell(){
   const nav = TABS.map(([k,t,ic])=>`<a href="#${k}" class="tab ${k===VIEW?'on':''}" data-go="${k}">${ic}${t}</a>`).join('');
   $('#tabs').innerHTML = nav;
   $('#bottom').innerHTML = TABS.map(([k,t,ic])=>`<a href="#${k}" class="${k===VIEW?'on':''}" data-go="${k}">${ic}${t}</a>`).join('');
-  $('#av').textContent = first(DATA.me.nome).charAt(0).toUpperCase();
+  const au = avatarUrl(DATA.me); $('#av').innerHTML = au ? `<img src="${esc(au)}" alt="">` : esc(first(DATA.me.nome).charAt(0).toUpperCase());
 }
 document.addEventListener('click',e=>{ const g=e.target.closest('[data-go]'); if(g){ e.preventDefault(); go(g.dataset.go); } });
 
@@ -473,17 +481,49 @@ function newThread(){
 }
 $('#meBtn').onclick=()=>{
   sheet(`<span class="ey">Minha conta</span><h2 class="h1" style="font-size:32px;margin:8px 0 4px">${esc(DATA.me.nome)}</h2><p class="muted">${esc(DATA.me.email)}${DATA.me.negocio?' · '+esc(DATA.me.negocio):''}</p>
+  <form id="fProf" style="display:flex;flex-direction:column;gap:12px;margin-top:20px"><span class="ey">Meu perfil</span>${profileFields({...DATA.me, photo: avatarUrl(DATA.me)})}
+    <div><button class="btn sm" type="submit">Salvar perfil</button></div></form>
   <form id="fPw" style="display:flex;flex-direction:column;gap:12px;margin-top:20px"><span class="ey">Trocar senha</span>
     <input class="in" type="password" name="current" placeholder="Senha atual" autocomplete="current-password" required>
     <input class="in" type="password" name="password" placeholder="Nova senha (mín. 8)" minlength="8" autocomplete="new-password" required>
     <div><button class="btn ghost sm" type="submit">Salvar nova senha</button></div></form>
   <div class="row" style="margin-top:22px"><button class="btn" id="out">Sair</button><button class="btn ghost" id="cl">Fechar</button></div>`);
-  $('#cl').onclick=closeSheet; $('#out').onclick=()=>logout();
+  $('#cl').onclick=closeSheet; $('#out').onclick=()=>logout(); bindPhoto();
+  $('#fProf').onsubmit=async e=>{ e.preventDefault(); const b=e.target.querySelector('button[type=submit]'); b.disabled=true; b.textContent='Salvando…';
+    try{ const r=await api('profile',{...profileOf(e.target), ...(NEWPHOTO?{photo:NEWPHOTO}:{})}); DATA.me={...DATA.me,...r.me}; shell(); toast('Perfil salvo'); closeSheet(); }catch{ toast('Erro ao salvar'); b.disabled=false; b.textContent='Salvar perfil'; } };
   $('#fPw').onsubmit=async e=>{ e.preventDefault(); try{ await api('password',Object.fromEntries(new FormData(e.target))); toast('Senha alterada'); closeSheet(); }catch(x){ toast(x.code==='login'?'Senha atual incorreta':'Erro'); } };
 };
 
+/* ---------- perfil e foto ---------- */
+const avatarUrl = m => m && m.photoAt ? `/api/hub/avatar/${encodeURIComponent(m.id)}?v=${encodeURIComponent(m.photoAt)}` : '';
+function profileFields(p){
+  p = p || {};
+  return `<div style="display:flex;flex-direction:column;gap:14px">
+    <div class="ph"><span class="pic" id="pPic">${p.photo?`<img src="${esc(p.photo)}" alt="">`:esc(first(p.nome||'').charAt(0).toUpperCase())}</span>
+      <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-start"><label class="btn ghost sm">${p.photo?'Trocar foto':'Adicionar foto'}<input type="file" accept="image/*" id="pFile" hidden></label><span class="muted" style="font-size:13px">Aparece no seu perfil e para o mentor.</span></div></div>
+    <div><label class="l">Nome completo</label><input class="in" name="nome" value="${esc(p.nome||'')}" autocomplete="name" required></div>
+    <div class="g2f"><div><label class="l">WhatsApp</label><input class="in" name="whatsapp" type="tel" value="${esc(p.whatsapp||'')}" placeholder="+39 …" autocomplete="tel"></div>
+      <div><label class="l">Cidade e país</label><input class="in" name="cidade" value="${esc(p.cidade||'')}" placeholder="Milão, Itália"></div></div>
+    <div class="g2f"><div><label class="l">Data de nascimento (opcional)</label><input class="in" name="nascimento" type="date" value="${esc(p.nascimento||'')}"></div>
+      <div><label class="l">Instagram ou site do negócio</label><input class="in" name="instagram" value="${esc(p.instagram||'')}" placeholder="@seunegocio"></div></div>
+  </div>`;
+}
+let NEWPHOTO;
+function bindPhoto(){
+  NEWPHOTO = undefined;
+  const f = $('#pFile'); if(!f) return;
+  f.onchange = async()=>{ const file = f.files[0]; if(!file) return;
+    try{ const url = URL.createObjectURL(file); const img = new Image(); img.src = url; await img.decode();
+      const n = 320, c = document.createElement('canvas'); c.width = c.height = n; const x = c.getContext('2d');
+      const sd = Math.min(img.naturalWidth, img.naturalHeight); x.drawImage(img, (img.naturalWidth-sd)/2, (img.naturalHeight-sd)/2, sd, sd, 0, 0, n, n);
+      NEWPHOTO = c.toDataURL('image/jpeg', .85); URL.revokeObjectURL(url);
+      $('#pPic').innerHTML = `<img src="${NEWPHOTO}" alt="">`;
+    }catch{ toast('Não deu para abrir essa foto. Tente outra.'); } };
+}
+function profileOf(form){ const fd = new FormData(form), p = { tz: TZ }; ['nome','whatsapp','cidade','nascimento','instagram'].forEach(k=>p[k]=String(fd.get(k)||'').trim()); return p; }
+
 /* ---------- auth ---------- */
-async function load(){ DATA = await api('me'); render(); }
+async function load(){ DATA = await api('me?tz='+encodeURIComponent(TZ)); render(); }
 function showApp(){ $('#vLogin').hidden=true; $('#vInvite').hidden=true; $('#app').hidden=false; const v=location.hash.slice(1); VIEW = TABS.some(t=>t[0]===v)?v:'inicio'; }
 async function logout(silent){ if(!silent){ try{ await api('logout',{}); }catch{} } TOKEN=''; store.del('os_hub_token'); DATA=null; FORUM=null; closeSheet(); $('#app').hidden=true; $('#vLogin').hidden=false; }
 $('#fLogin').onsubmit=async e=>{ e.preventDefault(); $('#eLogin').hidden=true;
@@ -495,9 +535,9 @@ $('#fLogin').onsubmit=async e=>{ e.preventDefault(); $('#eLogin').hidden=true;
   const inv = new URLSearchParams(location.search).get('convite');
   if(inv){
     try{ const r=await fetch('/api/hub/invite?t='+encodeURIComponent(inv)); const j=await r.json(); if(!r.ok) throw 0;
-      $('#invName').textContent=j.nome+'.'; $('#invEmail').textContent=j.email; $('#vInvite').hidden=false;
+      $('#invName').textContent=j.nome+'.'; $('#invEmail').textContent=j.email; $('#invProfile').innerHTML=profileFields({nome:j.fullName||j.nome, whatsapp:j.whatsapp}); bindPhoto(); $('#vInvite').hidden=false;
       $('#fInvite').onsubmit=async e=>{ e.preventDefault(); $('#eInvite').hidden=true;
-        const r2=await fetch('/api/hub/invite',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({t:inv,password:$('#npw').value})}); const j2=await r2.json().catch(()=>({}));
+        const r2=await fetch('/api/hub/invite',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({t:inv,password:$('#npw').value,profile:profileOf($('#fInvite')),photo:NEWPHOTO||undefined})}); const j2=await r2.json().catch(()=>({}));
         if(!r2.ok){ $('#eInvite').textContent=j2.error==='short'?'A senha precisa ter pelo menos 8 caracteres.':'Convite inválido ou já usado.'; $('#eInvite').hidden=false; return; }
         TOKEN=j2.token; store.set('os_hub_token',TOKEN); history.replaceState(null,'','/hub/#inicio'); showApp(); await load(); };
       return;

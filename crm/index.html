@@ -71,6 +71,8 @@ main{padding:20px 16px 40px;max-width:1440px;margin:0 auto}
 .ev.grupo{background:#4E6B4F;color:#fff;border-color:#4E6B4F}
 .ev.analise{background:#EDE6DA;border-color:#CDBFA8}
 .ev.livre{background:transparent;border-style:dashed;color:var(--taupe)}
+.ev.pag{background:#F5EBD9;border-color:#E3CFA8;color:#7A5520}
+.md i.pag{background:#F5EBD9;color:#7A5520}
 .mo{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
 .mo .h{font-size:11px;text-align:center;color:var(--taupe);letter-spacing:.1em;text-transform:uppercase;padding:4px 0}
 .md{background:var(--card);border:1px solid var(--line);border-radius:10px;min-height:64px;padding:5px;text-align:left;display:flex;flex-direction:column;gap:3px;overflow:hidden}
@@ -252,9 +254,11 @@ async function api(method, body){
   return r.json();
 }
 
+let HUB = null;
+async function hubLoad(){ try{ const r = await fetch('/api/hub/admin/state',{headers:{'x-crm-key':KEY},cache:'no-store'}); if(r.ok){ HUB = await r.json(); CAL.hub = HUB; } }catch{} }
 async function load(){
   await waStatus();
-  const d = await api('GET');
+  const [d] = await Promise.all([api('GET'), hubLoad()]);
   LEADS = d.leads.sort((a,b)=> (a.slot||'9') .localeCompare(b.slot||'9') || (b.createdAt||'').localeCompare(a.createdAt||''));
   render();
   if(OPEN && !INDIAG){ const l = LEADS.find(x=>x.id===OPEN); if(l) openLead(l.id, true); }
@@ -275,8 +279,8 @@ function render(){
   if(isA){
     $('#kpis').innerHTML = [
       [alunos.length,'Alunos'],
-      [alunos.filter(l=>l.hub).length,'Com acesso ao Hub'],
-      [alunos.filter(l=>l.welcome?.sentAt).length,'Boas-vindas enviadas'],
+      [eur(alunos.reduce((a,l)=>a+(payInfo(l)?.paid||0),0)),'Recebido'],
+      [eur(alunos.reduce((a,l)=>a+(payInfo(l)?.due||0),0)),'A receber'],
       [alunos.filter(l=>l.waNew).length,'Mensagens novas']
     ].map(([n,t])=>`<div class="kpi"><b>${n}</b><span>${t}</span></div>`).join('');
     $('#alunos').innerHTML = alunos.length ? alunos.map(aluno).join('') : '<p class="empty">Nenhum aluno ainda. Quando um lead fechar, mude a etapa dele para "Cliente".</p>';
@@ -322,8 +326,9 @@ function calEvents(){
   LEADS.filter(l=>l.slot && l.stage!=='perdido').forEach(l=>{ const d = slotDate(l.slot); if(d) ev.push({ d, dur:30, type:'analise', t:l.nome, sub:'Análise 30 min', lead:l.id }); });
   (ag.slots||[]).forEach(k=>{ if(ag.booked?.[k]) return; const d = slotDate(k); if(d && d > Date.now()) ev.push({ d, dur:30, type:'livre', t:'Livre', sub:'Análise' }); });
   (hub.slots||[]).filter(x=>x.studentId).forEach(x=>{ const l = leadOf(x.studentId); ev.push({ d:new Date(x.start), dur:x.dur||90, type:'aula', t:first(sName(x.studentId))+(l?.socioNome?' e '+first(l.socioNome):''), sub:`Aula · Semana ${x.week||'?'}`, lead:l?.id, room:x.start }); });
+  LEADS.forEach(l=>(l.pay?.items||[]).filter(x=>x.due && !x.paid).forEach(x=>ev.push({ d:new Date(x.due+'T08:00:00+04:00'), dur:0, type:'pag', allDay:x.due, t:`${eur(x.amount)} · ${first(l.nome)}`, sub:'Pagamento da mentoria', lead:l.id })));
   (hub.groups||[]).forEach(g=>ev.push({ d:new Date(g.start), dur:g.dur||90, type:'grupo', t:g.title||'Aula em grupo', sub:(g.studentIds||[]).map(id=>first(sName(id))).join(', '), room:g.start, group:true }));
-  return ev.map(e=>({ ...e, ...tzParts(e.d) })).sort((a,b)=>a.d-b.d);
+  return ev.map(e=>({ ...e, ...tzParts(e.d), ...(e.allDay?{ day:e.allDay, time:'' }:{}) })).sort((a,b)=>(a.allDay?0:1)-(b.allDay?0:1) || a.d-b.d);
 }
 const ymd = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 function renderCal(){
@@ -343,26 +348,94 @@ function renderCal(){
     const f = new Date(r.getFullYear(), r.getMonth(), 1), start = new Date(f); start.setDate(1 - ((f.getDay()+6)%7));
     title = `${['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'][r.getMonth()]} ${r.getFullYear()}`;
     body = `<div class="mo">${DOWL.map(x=>`<div class="h">${x}</div>`).join('')}${[...Array(42)].map((_,i)=>{ const d = new Date(start); d.setDate(start.getDate()+i); const k = ymd(d), es = (by[k]||[]).filter(e=>e.type!=='livre');
-      return `<button class="md ${d.getMonth()!==r.getMonth()?'out':''} ${k===today?'today':''}" data-calday="${k}"><span>${d.getDate()}</span>${es.slice(0,3).map(e=>`<i class="${e.type}">${e.time} ${esc(e.group?e.t:first(e.t))}</i>`).join('')}${es.length>3?`<span>+${es.length-3}</span>`:''}</button>`; }).join('')}</div>`;
+      return `<button class="md ${d.getMonth()!==r.getMonth()?'out':''} ${k===today?'today':''}" data-calday="${k}"><span>${d.getDate()}</span>${es.slice(0,3).map(e=>`<i class="${e.type}">${e.allDay?esc(e.t):`${e.time} ${esc(e.group?e.t:first(e.t))}`}</i>`).join('')}${es.length>3?`<span>+${es.length-3}</span>`:''}</button>`; }).join('')}</div>`;
   }
   $('#cal').innerHTML = `<div class="calbar"><div class="g"><button class="iconbtn" data-calnav="-1" aria-label="Anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M15 6l-6 6 6 6"/></svg></button><button class="btn ghost sm" data-calnav="0">Hoje</button><button class="iconbtn" data-calnav="1" aria-label="Próximo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 6l6 6-6 6"/></svg></button><h3>${title}</h3></div>
     <div class="g"><div class="cseg">${['semana','mês'].map(m=>`<button data-calmode="${m==='mês'?'mes':m}" class="${CAL.mode===(m==='mês'?'mes':m)?'on':''}">${m[0].toUpperCase()+m.slice(1)}</button>`).join('')}</div><div class="cseg">${Object.entries(TZN).map(([z,n])=>`<button data-caltz="${z}" class="${CAL.tz===z?'on':''}">${n}</button>`).join('')}</div></div></div>
     ${body}
-    <div class="legend"><span style="--c:#EDE6DA">Análise</span><span style="--c:#151412">Aula 1:1 / dupla</span><span style="--c:#4E6B4F">Aula em grupo</span>${CAL.mode==='semana'?'<span style="--c:transparent;outline:1px dashed #B5AEA2">Horário livre (análise)</span>':''}<span style="--c:transparent">Horários em: <b>${TZN[CAL.tz]}</b></span></div>`;
+    <div class="legend"><span style="--c:#EDE6DA">Análise</span><span style="--c:#151412">Aula 1:1 / dupla</span><span style="--c:#4E6B4F">Aula em grupo</span><span style="--c:#F5EBD9">Pagamento</span>${CAL.mode==='semana'?'<span style="--c:transparent;outline:1px dashed #B5AEA2">Horário livre (análise)</span>':''}<span style="--c:transparent">Horários em: <b>${TZN[CAL.tz]}</b></span></div>`;
 }
 function evHtml(e){
+  if(e.allDay) return `<button class="ev pag" data-id="${esc(e.lead)}"><b>${esc(e.t)}</b><span style="opacity:.75;font-size:12px">${esc(e.sub)}</span></button>`;
   const end = tzParts(new Date(e.d.getTime()+e.dur*60000)).time;
   const attr = e.lead ? `data-id="${esc(e.lead)}"` : e.room ? `data-room="${esc(e.room)}"` : '';
   return `<button class="ev ${e.type}" ${attr}><b>${e.time}–${end}</b>${esc(e.t)}<br><span style="opacity:.75;font-size:12px">${esc(e.sub)}</span></button>`;
 }
 
+/* ---------- Pagamentos da mentoria ---------- */
+const eur = n => '€ ' + Number(n||0).toLocaleString('pt-BR',{minimumFractionDigits:n%1?2:0,maximumFractionDigits:2});
+const todayDxb = () => new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Dubai'}).format(new Date());
+const fDue = d => { const [y,m,dd] = d.split('-').map(Number); return `${dd} ${MON[m-1]}${y!==new Date().getFullYear()?' '+y:''}`; };
+function payInfo(l){
+  const p = l.pay; if(!p || !(p.items||[]).length) return null;
+  const paid = p.items.filter(x=>x.paid).reduce((a,x)=>a+x.amount,0);
+  const open = p.items.filter(x=>!x.paid).sort((a,b)=>(a.due||'9').localeCompare(b.due||'9'));
+  const next = open[0] || null, t = todayDxb();
+  const days = next?.due ? Math.round((Date.parse(next.due)-Date.parse(t))/86400000) : null;
+  return { paid, due: open.reduce((a,x)=>a+x.amount,0), next, days, late: days!==null && days<0, soon: days!==null && days>=0 && days<=7 };
+}
+function payChip(l){
+  const i = payInfo(l); if(!i) return '';
+  if(!i.next) return `<span class="chip" style="background:#E4EBE2;border-color:#C9D6C5;color:#3F5A40">✓ Pago ${eur(i.paid)}</span>`;
+  const st = i.late ? 'background:#F3E1DC;border-color:#E2BFB5;color:#8A3B2A' : i.soon ? 'background:#F5EBD9;border-color:#E3CFA8;color:#7A5520' : '';
+  return `<span class="chip" style="${st}">${i.late?'Atrasado · ':''}${eur(i.next.amount)}${i.next.due?' · '+fDue(i.next.due):''}</span>`;
+}
+function payBlock(l){
+  const p = l.pay || { total: '', items: [] };
+  const i = payInfo(l);
+  const row = (x,k) => `<div class="prow" data-k="${k}" style="display:grid;grid-template-columns:1fr 1.3fr auto auto;gap:8px;align-items:center">
+      <input class="in" data-pf="amount" inputmode="decimal" value="${esc(x.amount||'')}" placeholder="500">
+      <input class="in" data-pf="due" type="date" value="${esc(x.due||'')}">
+      <button type="button" class="st ${x.paid?'on':''}" data-pf="paid" style="white-space:nowrap">${x.paid?'Pago':'A pagar'}</button>
+      <button type="button" data-prm aria-label="Remover" style="color:#7E7669;font-size:20px;padding:0 4px">×</button>
+      <input type="hidden" data-pf="id" value="${esc(x.id||'')}"><input type="hidden" data-pf="paidAt" value="${esc(x.paidAt||'')}"><input type="hidden" data-pf="reminded" value="${esc((x.reminded||[]).join(','))}"></div>`;
+  return `<div class="blk" id="payb"><span class="eyebrow">Pagamento da mentoria</span>
+    ${i?`<p class="dstat"><b>Recebido ${eur(i.paid)}</b>${p.total?' de '+eur(p.total):''}${i.next?` · próxima: <b style="${i.late?'color:#8A3B2A':''}">${eur(i.next.amount)}${i.next.due?' em '+fDue(i.next.due):''}${i.late?' (atrasada)':''}</b>`:' · tudo pago'}</p>`:''}
+    <div class="field"><label>Valor total (€)</label><input class="in" id="payTotal" inputmode="decimal" value="${esc(p.total||'')}" placeholder="1000"></div>
+    <label style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#7E7669">Parcelas · valor, vencimento, status</label>
+    <div id="prows" style="display:flex;flex-direction:column;gap:8px">${(p.items.length?p.items:[{}]).map(row).join('')}</div>
+    <div class="dgrow"><button class="btn ghost sm" id="payAdd">+ Parcela</button><button class="btn sm" id="paySave">Salvar pagamentos</button></div>
+    <p class="dstat" style="font-size:12.5px">Você recebe um e-mail 3 dias antes, no dia e 3 dias depois do vencimento de cada parcela que não estiver marcada como paga. O vencimento aparece no Calendário.</p>
+  </div>`;
+}
+function bindPay(l){
+  if(!$('#payb')) return;
+  const wire = () => {
+    document.querySelectorAll('#prows [data-pf="paid"]').forEach(b=>b.onclick=()=>{ const on = !b.classList.contains('on'); b.classList.toggle('on', on); b.textContent = on?'Pago':'A pagar'; const pa = b.parentElement.querySelector('[data-pf="paidAt"]'); pa.value = on ? todayDxb() : ''; });
+    document.querySelectorAll('#prows [data-prm]').forEach(b=>b.onclick=()=>b.parentElement.remove());
+  };
+  wire();
+  $('#payAdd').onclick = ()=>{ const last = [...document.querySelectorAll('#prows .prow')].pop(); const d = last?.querySelector('[data-pf="due"]').value; let nd = '';
+    if(d){ const [y,m,dd] = d.split('-').map(Number); const x = new Date(Date.UTC(y,m,dd)); nd = x.toISOString().slice(0,10); }
+    $('#prows').insertAdjacentHTML('beforeend', payBlock({pay:{items:[{due:nd}]}}).match(/<div class="prow"[\s\S]*?<\/div>/)[0]); wire(); };
+  $('#paySave').onclick = async()=>{
+    const items = [...document.querySelectorAll('#prows .prow')].map(r=>{ const g = f => r.querySelector(`[data-pf="${f}"]`); return { id:g('id').value, amount:g('amount').value, due:g('due').value, paid:g('paid').classList.contains('on'), paidAt:g('paidAt').value, reminded:g('reminded').value?g('reminded').value.split(','):[] }; }).filter(x=>String(x.amount).trim());
+    const pay = { total: $('#payTotal').value, items };
+    const b = $('#paySave'); b.disabled = true; b.textContent = 'Salvando…';
+    try{ await api('POST',{action:'update', id:l.id, pay}); await load(); openLead(l.id, true); toast('Pagamentos salvos'); }catch{ toast('Erro ao salvar'); b.disabled = false; b.textContent = 'Salvar pagamentos'; }
+  };
+}
+
+/* ---------- Perfil do aluno (Student Hub) ---------- */
+const hubStudents = l => (l.hub?.ids||[]).map(id=>(HUB?.students||[]).find(s=>s.id===id)).filter(Boolean);
+const avUrl = s => s?.photoAt ? `/api/hub/avatar/${encodeURIComponent(s.id)}?v=${encodeURIComponent(s.photoAt)}` : '';
+const avHtml = (s, n=40) => `<span style="width:${n}px;height:${n}px;border-radius:50%;overflow:hidden;background:#EAE6DF;border:2px solid #FBFAF7;display:inline-flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:${Math.round(n*.42)}px;color:#7E7669;flex:none">${avUrl(s)?`<img src="${esc(avUrl(s))}" alt="" style="width:100%;height:100%;object-fit:cover">`:esc(first(s?.nome||'?').charAt(0).toUpperCase())}</span>`;
+function hubProfileBlock(l){
+  const ss = hubStudents(l); if(!ss.length) return '';
+  const age = d => { if(!d) return ''; const [y,m,dd] = d.split('-').map(Number); return `${dd} ${MON[m-1]}`; };
+  return `<div class="blk"><span class="eyebrow">Perfil no Student Hub</span>${ss.map(s=>`<div style="display:flex;gap:12px;align-items:flex-start;padding:6px 0">${avHtml(s,56)}<div style="display:flex;flex-direction:column;gap:3px;font-size:14px"><b style="font-size:16px">${esc(s.nome)}</b>
+    ${s.active?`<span class="dstat" style="font-size:13px">Acesso ativo${s.activatedAt?' desde '+esc(new Date(s.activatedAt).toLocaleDateString('pt-BR',{day:'numeric',month:'short'})):''}</span>`:'<span class="dstat" style="font-size:13px">Ainda não criou a senha</span>'}
+    ${s.whatsapp?`<span>WhatsApp: ${esc(s.whatsapp)}</span>`:''}${s.cidade?`<span>${esc(s.cidade)}${s.tz?` · <span style="color:#7E7669">${esc(s.tz.split('/').pop().replace(/_/g,' '))}</span>`:''}</span>`:''}${s.nascimento?`<span>Aniversário: ${esc(age(s.nascimento))}</span>`:''}${s.instagram?`<span>${esc(s.instagram)}</span>`:''}</div></div>`).join('')}</div>`;
+}
+
 function aluno(l){
   const ob = l.onboarding || {}, ppl = 1 + (l.socioNome ? 1 : 0), ans = Object.keys(ob).length;
   const ok = (on, t) => `<span class="chip" style="${on?'background:#E4EBE2;border-color:#C9D6C5;color:#3F5A40':''}">${on?'✓ ':''}${t}</span>`;
+  const ss = hubStudents(l);
   return `<button class="lead" data-id="${esc(l.id)}">
-    <span class="n">${esc(l.nome)}${l.socioNome?' e '+esc(first(l.socioNome)):''}</span>
+    <span style="display:flex;align-items:center;gap:10px">${ss.length?`<span style="display:flex">${ss.map((x,i)=>`<span style="margin-left:${i?-12:0}px">${avHtml(x,40)}</span>`).join('')}</span>`:''}<span class="n">${esc(l.nome)}${l.socioNome?' e '+esc(first(l.socioNome)):''}</span></span>
     ${l.negocio?`<span class="b">${esc(l.negocio)}${l.socioNome?' · Mentoria em dupla':''}</span>`:l.socioNome?'<span class="b">Mentoria em dupla</span>':''}
-    <span class="row">${l.waNew?`<span class="chip" style="background:#4E6B4F;color:#fff;border-color:#4E6B4F">Nova mensagem</span>`:''}${ok(!!l.hub,'Hub')}${ok(!!l.welcome?.sentAt,'Boas-vindas')}${ok(ans>=ppl,'Formulário'+(ppl>1?` ${ans}/${ppl}`:''))}${ok(!!l.plan1,'Plano 1ª aula')}</span>
+    <span class="row">${l.waNew?`<span class="chip" style="background:#4E6B4F;color:#fff;border-color:#4E6B4F">Nova mensagem</span>`:''}${payChip(l)}${ok(!!l.hub,'Hub')}${ok(!!l.welcome?.sentAt,'Boas-vindas')}${ok(ans>=ppl,'Formulário'+(ppl>1?` ${ans}/${ppl}`:''))}${ok(!!l.plan1,'Plano 1ª aula')}</span>
   </button>`;
 }
 function card(l){
@@ -851,6 +924,8 @@ function openLead(id, keep){
       ${l.desafio?`<span class="eyebrow" style="margin-top:4px">O que mais toma o tempo</span><p class="quote">“${esc(l.desafio)}”</p>`:''}
     </div>
     <div class="blk"><span class="eyebrow">Etapa</span><div class="stages">${ORDER.map(s=>`<button class="st ${s===l.stage?'on':''}" data-stage="${s}">${STAGE[s]}</button>`).join('')}</div></div>
+    ${hubProfileBlock(l)}
+    ${['proposta','cliente'].includes(l.stage)||l.pay?payBlock(l):''}
     ${duoBlock(l)}
     ${['proposta','cliente'].includes(l.stage)||l.hub||l.welcome||l.socioNome?welcomeBlock(l):''}
     ${callBlock(l)}
@@ -867,7 +942,7 @@ function openLead(id, keep){
   if(!keep){ $('#sheet').scrollTop = 0; }
   $('#sheet').classList.add('on'); $('#scrim').classList.add('on');
   $('#close').onclick = closeSheet;
-  bindDiag(l); bindCall(l); bindFiles(l); bindDuo(l); bindWelcome(l); bindWa(l);
+  bindDiag(l); bindCall(l); bindFiles(l); bindDuo(l); bindWelcome(l); bindWa(l); bindPay(l);
   $('#sheet').querySelectorAll('[data-stage]').forEach(b=>b.onclick = async()=>{
     const s = b.dataset.stage; l.stage = s;
     $('#sheet').querySelectorAll('[data-stage]').forEach(x=>x.classList.toggle('on', x===b));

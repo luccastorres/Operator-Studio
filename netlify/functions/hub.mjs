@@ -96,10 +96,29 @@ function openWeeks(me, slots) {
   return set;
 }
 
-function fmtWhen(iso) {
+// In the student's own time zone (saved from their browser); Milan when unknown.
+function fmtWhen(iso, tz) {
   const d = new Date(iso);
-  const f = new Intl.DateTimeFormat("pt-BR", { timeZone: "Europe/Rome", weekday: "long", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" });
-  return f.format(d) + " (horário de Milão)";
+  let zone = "Europe/Rome";
+  try { if (tz) { new Intl.DateTimeFormat("en", { timeZone: tz }); zone = tz; } } catch {}
+  const f = new Intl.DateTimeFormat("pt-BR", { timeZone: zone, weekday: "long", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" });
+  const city = zone === "Europe/Rome" ? "Milão" : zone.split("/").pop().replace(/_/g, " ");
+  return f.format(d) + ` (horário de ${city})`;
+}
+
+// Profile the student fills in (on first access or in "Minha conta"), plus an optional photo.
+const PROFILE = { nome: 120, whatsapp: 40, cidade: 80, nascimento: 10, instagram: 120, negocio: 160, tz: 60 };
+function profileFrom(b) {
+  const out = {};
+  for (const [k, n] of Object.entries(PROFILE)) if (typeof b?.[k] === "string" && b[k].trim()) out[k] = clip(b[k], n);
+  if (out.nascimento && !/^\d{4}-\d{2}-\d{2}$/.test(out.nascimento)) delete out.nascimento;
+  return out;
+}
+async function savePhoto(store, id, photo) {
+  const v = String(photo || "");
+  if (!/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(v) || v.length > 450000) return null;
+  await store.set(`avatars/${id}`, v);
+  return new Date().toISOString();
 }
 
 function emailHtml({ eyebrow, title, intro, whenText, cta, ctaUrl, closing }) {
@@ -128,7 +147,7 @@ async function notifyBooked(student, slot) {
     eyebrow: `Mentoria · Semana ${slot.week}`,
     title: `Sessão marcada, ${esc(student.nome.split(" ")[0])}.`,
     intro: `Sua sessão individual da semana ${slot.week} está confirmada. Os materiais ficam no seu Student Hub depois da aula.`,
-    whenText: esc(fmtWhen(slot.start)),
+    whenText: esc(fmtWhen(slot.start, student.tz)),
     ...(process.env.DAILY_API_KEY
       ? { cta: "Entrar na aula", ctaUrl: `${SITE}/aula/?s=${encodeURIComponent(slot.start)}` }
       : { cta: "Entrar na videochamada", ctaUrl: "__MEET__" }),
@@ -139,7 +158,7 @@ async function notifyBooked(student, slot) {
       method: "POST", headers: { "content-type": "application/json" }, signal: AbortSignal.timeout(25000),
       body: JSON.stringify({
         type: "confirmation", id: "hub-" + slot.start, to: student.email, toName: student.nome, bcc: OWNER,
-        subject: `Sessão confirmada · Semana ${slot.week} · ${fmtWhen(slot.start)}`, html, meet: "",
+        subject: `Sessão confirmada · Semana ${slot.week} · ${fmtWhen(slot.start, student.tz)}`, html, meet: "",
         event: { summary: `Mentoria · Semana ${slot.week} · ${student.nome}`, start: start.toISOString(), end: end.toISOString(),
           description: `Mentoria individual Operator Studio\nAluno: ${authorName(student)}\nE-mail: ${student.email}\n${process.env.DAILY_API_KEY ? `Sala da aula: ${SITE}/aula/?s=${encodeURIComponent(slot.start)}&m=1\n` : ""}Hub: ${SITE}/hub/admin/` },
       }),
@@ -155,14 +174,14 @@ async function notifyGroup(student, g) {
     eyebrow: "Mentoria · Aula em grupo",
     title: `${esc(g.title)}.`,
     intro: `Oi, ${esc(student.nome.split(" ")[0])}! Você está na aula em grupo. A sala abre 15 minutos antes, pelo seu Student Hub.`,
-    whenText: esc(fmtWhen(g.start)),
+    whenText: esc(fmtWhen(g.start, student.tz)),
     cta: "Abrir o Student Hub", ctaUrl: `${SITE}/hub/#agenda`,
     closing: "Até lá!",
   });
   await fetch(HOOK, {
     method: "POST", headers: { "content-type": "application/json" }, signal: AbortSignal.timeout(25000),
     body: JSON.stringify({ type: "reminder", id: "group-" + g.start + "-" + student.id, to: student.email, toName: student.nome, bcc: OWNER,
-      subject: `Aula em grupo · ${g.title} · ${fmtWhen(g.start)}`, html, meet: "", event: null }),
+      subject: `Aula em grupo · ${g.title} · ${fmtWhen(g.start, student.tz)}`, html, meet: "", event: null }),
   });
 }
 
@@ -170,7 +189,7 @@ async function notifyCancelled(student, slot) {
   if (quiet(student)) return;
   const html = emailHtml({
     eyebrow: "Sessão desmarcada", title: "Horário liberado.",
-    intro: `A sessão de ${esc(fmtWhen(slot.start))} foi desmarcada. Escolha um novo horário no seu Student Hub.`,
+    intro: `A sessão de ${esc(fmtWhen(slot.start, student.tz))} foi desmarcada. Escolha um novo horário no seu Student Hub.`,
     cta: "Escolher novo horário", ctaUrl: `${SITE}/hub/#agenda`,
     closing: "Mentor: lembre de apagar o evento antigo da agenda.",
   });
@@ -178,7 +197,7 @@ async function notifyCancelled(student, slot) {
     await fetch(HOOK, {
       method: "POST", headers: { "content-type": "application/json" }, signal: AbortSignal.timeout(20000),
       body: JSON.stringify({ type: "reminder", id: "hub-cancel-" + slot.start, to: student.email, toName: student.nome, bcc: OWNER,
-        subject: `Sessão desmarcada · ${fmtWhen(slot.start)}`, html, meet: "", event: null }),
+        subject: `Sessão desmarcada · ${fmtWhen(slot.start, student.tz)}`, html, meet: "", event: null }),
     });
   } catch {}
 }
@@ -204,12 +223,19 @@ export default async (req) => {
     await store.setJSON(`auth/${token}`, { id: s.id, exp: Date.now() + 30 * 86400000 });
     return json({ ok: true, token });
   }
+  // Profile photo (public by id; ids are random).
+  if (path.startsWith("avatar/") && method === "GET") {
+    const v = await store.get(`avatars/${clip(path.slice(7), 40)}`);
+    const m = /^data:(image\/[a-z]+);base64,(.+)$/.exec(String(v || ""));
+    if (!m) return new Response("", { status: 404 });
+    return new Response(Buffer.from(m[2], "base64"), { headers: { "content-type": m[1], "cache-control": "public, max-age=86400" } });
+  }
   if (path === "invite" && method === "GET") {
     const t = clip(url.searchParams.get("t"), 60);
     const inv = t ? await store.get(`invite/${t}`, { type: "json" }) : null;
     const s = inv ? await store.get(`students/${inv.id}`, { type: "json" }) : null;
     if (!s) return json({ error: "invite" }, 404);
-    return json({ ok: true, nome: s.nome.split(" ")[0], email: s.email });
+    return json({ ok: true, nome: s.nome.split(" ")[0], fullName: s.nome, email: s.email, whatsapp: s.whatsapp || "", negocio: s.negocio || "" });
   }
   if (path === "invite" && method === "POST") {
     const t = clip(body.t, 60), pw = String(body.password || "");
@@ -218,7 +244,9 @@ export default async (req) => {
     const s = inv ? await store.get(`students/${inv.id}`, { type: "json" }) : null;
     if (!s) return json({ error: "invite" }, 404);
     const { salt, hash } = hashPw(pw);
-    await store.setJSON(`students/${s.id}`, { ...s, salt, pwHash: hash, inviteToken: null, activatedAt: s.activatedAt || now() });
+    const prof = profileFrom(body.profile);
+    const photoAt = body.photo ? await savePhoto(store, s.id, body.photo) : null;
+    await store.setJSON(`students/${s.id}`, { ...s, ...prof, ...(photoAt ? { photoAt } : {}), ...(Object.keys(prof).length ? { profileAt: now() } : {}), salt, pwHash: hash, inviteToken: null, activatedAt: s.activatedAt || now() });
     await store.delete(`invite/${t}`);
     const token = rid(24);
     await store.setJSON(`auth/${token}`, { id: s.id, exp: Date.now() + 30 * 86400000 });
@@ -431,6 +459,8 @@ export default async (req) => {
   }
 
   if (path === "me" && method === "GET") {
+    const tzq = clip(url.searchParams.get("tz"), 60);
+    if (tzq && tzq !== me.tz) { try { new Intl.DateTimeFormat("en", { timeZone: tzq }); me.tz = tzq; await store.setJSON(`students/${me.id}`, me); } catch {} }
     const [mats, slots] = await Promise.all([materials(store), listJSON(store, "slots/")]);
     const released = openWeeks(me, slots);
     const weeks = mats.map((m) => released.has(m.week)
@@ -510,6 +540,15 @@ export default async (req) => {
   if (path === "forum" && method === "POST") return forumWrite(store, body, me, false);
   if (path === "forum-delete" && method === "POST") return forumDelete(store, body, me, false);
 
+  if (path === "profile" && method === "POST") {
+    const prof = profileFrom(body);
+    let photoAt = me.photoAt;
+    if (body.photo === null) { await store.delete(`avatars/${me.id}`); photoAt = null; }
+    else if (body.photo) { photoAt = (await savePhoto(store, me.id, body.photo)) || photoAt; }
+    const next = { ...me, ...prof, photoAt, profileAt: now() };
+    await store.setJSON(`students/${me.id}`, next);
+    return json({ ok: true, me: publicStudent(next) });
+  }
   if (path === "password" && method === "POST") {
     if (!checkPw(String(body.current || ""), me)) return json({ error: "login" }, 401);
     const pw = String(body.password || "");

@@ -88,6 +88,19 @@ export default async (req) => {
       // partner (duo mentoring) — any lead
       for (const f of ["socioNome", "socioEmail", "socioWhats"]) if (b[f] !== undefined) next[f] = clip(b[f], 160);
       if (b.hub && typeof b.hub === "object") next.hub = { ids: (b.hub.ids || []).slice(0, 2).map((x) => clip(x, 40)), invites: Object.fromEntries(Object.entries(b.hub.invites || {}).slice(0, 2).map(([k, v]) => [clip(k, 40), clip(v, 60)])), at: new Date().toISOString() };
+      // payments (mentoria): total + installments with due dates
+      if (b.pay && typeof b.pay === "object") {
+        const num = (v) => Math.max(0, Math.round(Number(String(v ?? "").replace(",", ".")) * 100) / 100 || 0);
+        next.pay = {
+          total: num(b.pay.total), currency: "EUR", note: clip(b.pay.note, 300),
+          items: (Array.isArray(b.pay.items) ? b.pay.items : []).slice(0, 24).map((x, i) => ({
+            id: clip(x.id, 20) || `p${Date.now().toString(36)}${i}`, amount: num(x.amount),
+            due: /^\d{4}-\d{2}-\d{2}$/.test(String(x.due || "")) ? x.due : "",
+            paid: !!x.paid, paidAt: x.paid ? clip(x.paidAt, 30) || new Date().toISOString().slice(0, 10) : "",
+            reminded: x.paid ? [] : (Array.isArray(x.reminded) ? x.reminded.slice(0, 5).map((r) => clip(r, 20)) : []),
+          })).filter((x) => x.amount > 0),
+        };
+      }
       // manual leads can edit their contact fields too
       for (const f of ["nome", "whatsapp", "email", "negocio", "setor", "desafio", "slot"]) {
         if (b[f] !== undefined && cur.nome) next[f] = clip(b[f], f === "desafio" ? 1000 : 160);
