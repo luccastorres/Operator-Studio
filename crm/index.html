@@ -12,7 +12,7 @@
 <title>Operator Studio · CRM</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600&family=Tinos:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500&family=Fraunces:ital,opsz,wght@0,9..144,300..500;1,9..144,300..400&family=Hanken+Grotesk:wght@400;500;600&family=Tinos:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 <style>
 :root{--ink:#151412;--linen:#F3F1EC;--linen2:#EAE6DF;--card:#FBFAF7;--line:#D9D3C9;--taupe:#7E7669;--soft:#5F594F;--sand:#B5AEA2;--ok:#4E6B4F;--warn:#9A6B3C;
 --serif:'Tinos','Times New Roman',serif;--sans:'Hanken Grotesk',-apple-system,Helvetica,Arial,sans-serif}
@@ -185,14 +185,162 @@ main{padding:20px 16px 40px;max-width:1440px;margin:0 auto}
 .sum span{font-size:12px;color:var(--soft)}
 .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--linen);padding:10px 16px;border-radius:999px;font-size:14px;opacity:0;transition:.2s;z-index:30;pointer-events:none}
 .toast.on{opacity:1;transform:translateX(-50%)}
+
+/* ===== v2: Operator Studio look ===== */
+:root{--ink:#1C1A17;--linen:#F4F1EB;--linen2:#ECE6DD;--panel:#EFEAE2;--card:#FBF9F5;--line:#E0D9CE;--line2:#D3CABD;--taupe:#857B6E;--soft:#5F584F;--sand:#B7AEA1;
+--terra:#A65E40;--terra-d:#8E4D33;--terra-s:#F3E4DA;--ok:#5E7A5C;
+--serif:'Fraunces','Tinos','Times New Roman',serif;--hand:'Caveat',cursive;--sh:0 1px 0 rgba(28,26,23,.02),0 10px 30px -18px rgba(60,45,30,.18)}
+.logo{font-family:var(--serif);font-weight:400;font-size:23px}
+.logo small{display:block;font-family:var(--sans);font-size:9.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--taupe);margin-top:8px}
+.btn{background:var(--terra);color:#FFF8F2;border-radius:12px}
+.btn:hover{background:var(--terra-d)}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line2)}
+.btn.ghost:hover{background:var(--card)}
+.btn.sm{border-radius:10px}
+.in:focus{border-color:var(--terra)}
+.st.on{background:var(--terra);border-color:var(--terra);color:#fff}
+.cseg button.on{background:var(--linen2);color:var(--ink)}
+.tab.on{background:var(--terra);border-color:var(--terra);color:#fff}
+.chip.slot{background:var(--terra-s);color:var(--terra-d)}
+.iconbtn{border-color:var(--line2)}
+.blk,.kpi,.lead,.next,.wd,.md{border-color:var(--line);box-shadow:var(--sh)}
+.blk{border-radius:18px;padding:16px 18px}
+.lead{border-radius:18px;padding:16px 18px}
+.lead .n{font-weight:400;font-size:21px}
+.hello h2,.ph1{font-family:var(--serif);font-weight:400;font-size:38px;line-height:1.04;letter-spacing:-.02em}
+.hello h2 em{font-style:italic}
+.hello p.lead2{font-size:16px;color:var(--soft);line-height:1.55;max-width:640px}
+.kpi{border-radius:18px;padding:16px 18px;display:flex;gap:14px;align-items:center}
+.kpi .ki{width:42px;height:42px;border-radius:50%;background:var(--linen2);display:flex;align-items:center;justify-content:center;flex:none;color:var(--soft)}
+.kpi .ki svg{width:20px;height:20px}
+.kpi b{font-weight:400;font-size:30px}
+.view{display:none}
+.sheet{background:var(--linen)}
+.sh-head h3{font-weight:400}
+.ev.aula{background:#2B2723;border-color:#2B2723}
+.ev.grupo{background:var(--ok);border-color:var(--ok)}
+.ev.analise{background:var(--terra-s);border-color:#E6CDBE;color:var(--terra-d)}
+.ev.livre{border-color:var(--line2)}
+.md i{background:var(--terra-s);color:var(--terra-d)}
+.md i.aula{background:#2B2723}
+.legend span[style*="EDE6DA"]{--c:var(--terra-s)!important}
+
+/* avatar */
+.av{border-radius:50%;background:var(--linen2);border:2px solid var(--card);display:inline-flex;align-items:center;justify-content:center;font-family:var(--serif);color:var(--taupe);overflow:hidden;flex:none}
+.av img{width:100%;height:100%;object-fit:cover}
+
+/* shell */
+.side{display:none}
+nav.bottom{position:fixed;left:0;right:0;bottom:0;z-index:6;background:rgba(251,249,245,.97);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);padding:8px 6px calc(8px + env(safe-area-inset-bottom))}
+nav.bottom a{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:var(--sand);text-decoration:none;padding:4px 0}
+nav.bottom a svg{width:22px;height:22px}
+nav.bottom a.on{color:var(--terra)}
+main{padding-bottom:110px}
+.toast{bottom:calc(90px + env(safe-area-inset-bottom))}
+@media(min-width:1000px){
+  #app:not([hidden]){display:grid;grid-template-columns:248px minmax(0,1fr);background:linear-gradient(to right,var(--panel) 248px,var(--linen) 248px);min-height:100vh}
+  .side{display:flex;flex-direction:column;position:sticky;top:0;height:100vh;border-right:1px solid var(--line);padding:34px 18px 20px}
+  .side .logo{padding:0 12px 30px}
+  .side nav{display:flex;flex-direction:column;gap:3px}
+  .side nav a,.side nav button{display:flex;align-items:center;gap:13px;padding:11px 14px;border-radius:12px;font-size:15px;color:var(--soft);text-decoration:none;position:relative;width:100%;text-align:left}
+  .side nav svg{width:19px;height:19px;flex:none}
+  .side nav a:hover,.side nav button:hover{background:rgba(255,255,255,.45)}
+  .side nav a.on{background:var(--linen2);color:var(--ink)}
+  .side nav a.on::before{content:'';position:absolute;left:-18px;top:8px;bottom:8px;width:3px;border-radius:0 3px 3px 0;background:var(--terra)}
+  .side nav a.on svg{color:var(--terra)}
+  .side nav a i{font-style:normal;margin-left:auto;font-size:12px;color:var(--taupe)}
+  .side nav a i.new{background:var(--terra);color:#fff;border-radius:999px;padding:1px 7px}
+  .side .sep{height:1px;background:var(--line);margin:14px 10px}
+  .side .sp{flex:1}
+  .side .who{display:flex;align-items:center;gap:12px;padding:14px 10px 10px;border-top:1px solid var(--line)}
+  .side .who b{display:block;font-weight:500;font-size:15px}.side .who span.r{font-size:13px;color:var(--taupe)}
+  header.top{display:none}
+  nav.bottom{display:none}
+  main{padding:40px 44px 64px;max-width:none;margin:0}
+  .hello h2,.ph1{font-size:54px}
+  .toast{bottom:28px}
+  .sheet{width:540px;box-shadow:-30px 0 60px -30px rgba(40,30,20,.25)}
+}
+
+/* painel */
+.hgrid{display:grid;gap:18px;grid-template-columns:minmax(0,1fr)}
+@media(min-width:1100px){.hgrid.c3{grid-template-columns:1.1fr 1fr 1fr}.hgrid.c2{grid-template-columns:1.6fr 1fr}}
+.pc{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px 22px;box-shadow:var(--sh);min-width:0}
+.pc-h{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}
+.pc-h h3{font-family:var(--serif);font-weight:400;font-size:22px}
+.pc-h a,.pc-h button{color:var(--terra);font-size:13.5px;text-decoration:none;white-space:nowrap}
+.tl{display:flex;flex-direction:column}
+.tl button{display:grid;grid-template-columns:58px 14px 1fr auto;gap:10px;align-items:start;text-align:left;padding:11px 0;border-top:1px solid var(--line);width:100%}
+.tl button:first-child{border-top:0}
+.tl .t{font-size:14px;color:var(--soft);padding-top:1px}
+.tl .d{width:10px;height:10px;border-radius:50%;border:2px solid var(--terra);margin-top:4px}
+.tl .d.f{background:var(--terra)}
+.tl b{font-weight:500;font-size:15px;display:block}.tl span.s{font-size:13px;color:var(--taupe)}
+.tl .m{font-size:12.5px;color:var(--taupe);padding-top:2px}
+.acts2{display:flex;flex-direction:column}
+.acts2 button{display:flex;align-items:center;gap:12px;padding:11px 0;border-top:1px solid var(--line);text-align:left;width:100%}
+.acts2 button:first-child{border-top:0}
+.acts2 .bx{width:20px;height:20px;border:1.5px solid var(--line2);border-radius:6px;flex:none}
+.acts2 .atx{flex:1;font-size:14.5px;line-height:1.35}
+.acts2 .tgc{font-size:11.5px;border-radius:999px;padding:3px 9px;background:var(--linen2);color:var(--soft);white-space:nowrap}
+.acts2 .wh{font-size:12.5px;color:var(--terra);white-space:nowrap;min-width:56px;text-align:right}
+.acts2 .wh.late{color:#9A3B2E;font-weight:600}
+.funnel{display:flex;flex-direction:column}
+.funnel div{display:grid;grid-template-columns:118px 30px 1fr;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--line);font-size:14.5px}
+.funnel div:first-child{border-top:0}
+.funnel b{font-weight:500;text-align:right}
+.funnel i{display:block;height:9px;border-radius:9px;background:var(--linen2);overflow:hidden}
+.funnel i em{display:block;height:100%;background:#C9A58F;border-radius:9px}
+.stars{display:grid;gap:12px}
+.stars button{display:flex;gap:14px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:16px;text-align:left;background:var(--linen);width:100%}
+.stars .atx{flex:1;min-width:0}
+.stars b{font-family:var(--serif);font-weight:400;font-size:18px;display:block}
+.stars span.s{font-size:13px;color:var(--taupe)}
+/* alunos cards */
+.alunos{gap:18px}
+.acard{background:var(--card);border:1px solid var(--line);border-radius:20px;overflow:hidden;box-shadow:var(--sh);display:flex;flex-direction:column;text-align:left;width:100%;cursor:pointer}
+.acard .cv{position:relative;aspect-ratio:16/9;background:var(--linen2) center/cover}
+.acard .cv .pp{position:absolute;left:18px;bottom:-26px;display:flex}
+.acard .cv .pp .av+.av{margin-left:-14px}
+.acard .cv .badge{position:absolute;right:14px;top:14px;font-size:12px;background:rgba(251,249,245,.92);border-radius:999px;padding:4px 10px}
+.acard .bd{padding:36px 18px 18px;display:flex;flex-direction:column;gap:8px}
+.acard .bd b.n{font-family:var(--serif);font-weight:400;font-size:24px;line-height:1.1}
+.acard .bd .b{font-size:14px;color:var(--soft)}
+.acard .ft{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding:12px 18px;font-size:13.5px;color:var(--soft)}
+.acard .ft span.go{color:var(--terra)}
+/* lead cards */
+.lead .hd{display:flex;gap:12px;align-items:center}
+/* week grid */
+.tg{display:none}
+@media(min-width:1000px){
+  .tg{display:grid;grid-template-columns:56px repeat(7,minmax(0,1fr));background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--sh)}
+  .tg .hd{padding:12px 6px;text-align:center;border-bottom:1px solid var(--line);font-size:13px;color:var(--soft)}
+  .tg .hd b{font-family:var(--serif);font-weight:400;font-size:20px;color:var(--ink);margin-left:4px}
+  .tg .hd.today b{color:var(--terra)}
+  .tg .ad{grid-column:1/-1;display:grid;grid-template-columns:56px repeat(7,minmax(0,1fr));border-bottom:1px solid var(--line)}
+  .tg .ad>div{padding:4px;min-height:8px}
+  .tg .hrs{position:relative}
+  .tg .hrs span{position:absolute;right:8px;font-size:11.5px;color:var(--taupe);transform:translateY(-50%)}
+  .tg .col2{position:relative;border-left:1px solid var(--line);background-image:linear-gradient(var(--line) 1px,transparent 1px);background-size:100% 56px}
+  .tg .col2.today{background-color:rgba(166,94,64,.03)}
+  .tg .ad .ev{position:static;margin-top:4px;font-size:12px;padding:5px 7px}
+  .tg .col2 .ev{position:absolute;left:4px;right:4px;margin:0;overflow:hidden;font-size:12.5px;box-shadow:0 4px 12px -8px rgba(40,30,20,.35);border-left-width:3px}
+  .tg .ev.analise{border-left-color:var(--terra)}
+  .tg .ev.sm{padding:3px 7px;white-space:nowrap;text-overflow:ellipsis;line-height:1.4}
+  .tg .ev.sm b{display:inline;margin-right:4px}
+  .tg .ev.livre{box-shadow:none}
+  .tg .now{position:absolute;left:0;right:0;height:2px;background:var(--terra);z-index:2}
+  .tg .now::before{content:'';position:absolute;left:-4px;top:-3px;width:8px;height:8px;border-radius:50%;background:var(--terra)}
+  .wk.mob{display:none}
+}
 </style>
 </head>
 <body>
 
 <section id="login">
   <form id="loginForm">
-    <span class="logo"><b>Operator</b> <i>Studio</i></span>
-    <h1>CRM <em>privado.</em></h1>
+    <span class="logo">Operator Studio<small>CRM e mentoria</small></span>
+    <h1 style="font-family:var(--serif);font-weight:400">Bem-vindo <em style="font-style:italic">de volta.</em></h1>
     <div class="field"><label for="key">Senha</label><input id="key" class="in" type="password" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="current-password" required></div>
     <button class="btn" type="submit">Entrar</button>
     <p class="err" id="loginErr" hidden>Senha incorreta.</p>
@@ -200,8 +348,16 @@ main{padding:20px 16px 40px;max-width:1440px;margin:0 auto}
 </section>
 
 <div id="app" hidden>
+  <aside class="side">
+    <span class="logo">Operator Studio<small>CRM e mentoria</small></span>
+    <nav id="snav"></nav>
+    <div class="sp"></div>
+    <div class="who"><span id="meAv"></span><span><b>Luccas</b><span class="r">Mentor · Admin</span></span></div>
+    <nav><button data-act="out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 4h5v16h-5M10 8l-4 4 4 4M6 12h10"/></svg>Sair</button></nav>
+  </aside>
+  <div style="min-width:0">
   <header class="top">
-    <span class="logo"><b>Operator</b> <i>Studio</i></span>
+    <span class="logo">Operator Studio</span>
     <div class="r">
       <button class="iconbtn" id="refresh" aria-label="Atualizar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5"/></svg></button>
       <button class="btn ghost sm" id="agBtn">Horários</button>
@@ -222,7 +378,10 @@ main{padding:20px 16px 40px;max-width:1440px;margin:0 auto}
     </div>
     <div class="alunos" id="alunos" hidden></div>
     <div id="cal" hidden></div>
+    <div id="home" hidden></div>
   </main>
+  </div>
+  <nav class="bottom" id="bnav"></nav>
 </div>
 
 <div class="scrim" id="scrim"></div>
@@ -234,12 +393,12 @@ const STAGE = {novo:'Novo',agendado:'Análise agendada',analise:'Análise feita'
 const ORDER = Object.keys(STAGE);
 const DOW = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const MON = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
-let KEY = '', LEADS = [], TAB = 'agendado', VIEW = 'leads', OPEN = null, INDIAG = false;
+let KEY = '', LEADS = [], TAB = 'agendado', VIEW = 'home', OPEN = null, INDIAG = false;
 
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const store = {get(k){try{return localStorage.getItem(k)}catch{return null}},set(k,v){try{localStorage.setItem(k,v)}catch{}},del(k){try{localStorage.removeItem(k)}catch{}}};
-{ const v = store.get('os_crm_view'); if(v==='alunos'||v==='cal') VIEW = v; }
+{ const v = store.get('os_crm_view'); if(['home','leads','alunos','cal'].includes(v)) VIEW = v; }
 
 function romeOff(k){ const g = new Date(k+':00Z'); const p = new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Rome',hourCycle:'h23',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).formatToParts(g); const v = t => +p.find(x=>x.type===t).value; return (Date.UTC(v('year'),v('month')-1,v('day'),v('hour'),v('minute'))-g.getTime())/60000; }
 function slotDate(s){ if(!s) return null; const k = s.slice(0,16); const t = Date.parse(k+':00Z'); if(isNaN(t)) return null; return new Date(t - romeOff(k)*60000); }
@@ -258,7 +417,7 @@ let HUB = null;
 async function hubLoad(){ try{ const r = await fetch('/api/hub/admin/state',{headers:{'x-crm-key':KEY},cache:'no-store'}); if(r.ok){ HUB = await r.json(); CAL.hub = HUB; } }catch{} }
 async function load(){
   await waStatus();
-  const [d] = await Promise.all([api('GET'), hubLoad()]);
+  const [d] = await Promise.all([api('GET'), hubLoad(), MENTOR_PHOTO?null:mentorLoad()]);
   LEADS = d.leads.sort((a,b)=> (a.slot||'9') .localeCompare(b.slot||'9') || (b.createdAt||'').localeCompare(a.createdAt||''));
   render();
   if(OPEN && !INDIAG){ const l = LEADS.find(x=>x.id===OPEN); if(l) openLead(l.id, true); }
@@ -266,14 +425,18 @@ async function load(){
 
 const LORDER = ORDER.filter(s=>s!=='cliente');
 function render(){
+  navRender();
   const c = s => LEADS.filter(l=>l.stage===s).length;
+  const isH = VIEW==='home';
+  $('#home').hidden = !isH; document.querySelector('.hello').style.display = isH ? 'none' : '';
+  if(isH){ $('#kpis').style.display='none'; document.querySelector('.split').style.display='none'; $('#alunos').hidden=true; $('#cal').hidden=true; $('#home').innerHTML = home(); if(!CAL.ag) calLoad(); return; }
   const alunos = LEADS.filter(l=>l.stage==='cliente');
   $('#view').innerHTML = `<button data-view="leads" class="${VIEW==='leads'?'on':''}">Leads<i>${LEADS.filter(l=>!['cliente','perdido'].includes(l.stage)).length}</i></button><button data-view="alunos" class="${VIEW==='alunos'?'on':''}">Alunos<i>${alunos.length}</i></button><button data-view="cal" class="${VIEW==='cal'?'on':''}">Calendário</button>`;
   const isA = VIEW==='alunos', isC = VIEW==='cal';
   $('#cal').hidden = !isC; $('#kpis').style.display = isC ? 'none' : '';
-  if(isC){ $('#helloEy').textContent = 'Agenda'; $('#helloH').innerHTML = 'Seu <em>calendário.</em>'; document.querySelector('.split').style.display = 'none'; $('#alunos').hidden = true; renderCal(); return; }
-  $('#helloEy').textContent = isA ? 'Mentoria' : 'Pipeline';
-  $('#helloH').innerHTML = isA ? 'Seus <em>alunos.</em>' : 'Seus <em>leads.</em>';
+  if(isC){ $('#helloEy').textContent = 'Agenda'; $('#helloH').innerHTML = 'O ritmo <em>da semana.</em>'; document.querySelector('.split').style.display = 'none'; $('#alunos').hidden = true; renderCal(); return; }
+  $('#helloEy').textContent = isA ? 'Mentoria' : 'CRM · Pipeline comercial';
+  $('#helloH').innerHTML = isA ? 'Pessoas que constroem <em>com você.</em>' : 'Novas <em>possibilidades.</em>';
   document.querySelector('.split').style.display = isA ? 'none' : '';
   $('#alunos').hidden = !isA;
   if(isA){
@@ -282,7 +445,7 @@ function render(){
       [eur(alunos.reduce((a,l)=>a+(payInfo(l)?.paid||0),0)),'Recebido'],
       [eur(alunos.reduce((a,l)=>a+(payInfo(l)?.due||0),0)),'A receber'],
       [alunos.filter(l=>l.waNew).length,'Mensagens novas']
-    ].map(([n,t])=>`<div class="kpi"><b>${n}</b><span>${t}</span></div>`).join('');
+    ].map(([n,t],i)=>`<div class="kpi"><span class="ki">${[NI.alunos,NI.euro,NI.euro,NI.chat][i]}</span><span><b>${n}</b><span>${t}</span></span></div>`).join('');
     $('#alunos').innerHTML = alunos.length ? alunos.map(aluno).join('') : '<p class="empty">Nenhum aluno ainda. Quando um lead fechar, mude a etapa dele para "Cliente".</p>';
     return;
   }
@@ -291,7 +454,7 @@ function render(){
     [c('agendado'),'Análises agendadas'],
     [c('proposta'),'Propostas'],
     [c('perdido'),'Perdidos']
-  ].map(([n,t])=>`<div class="kpi"><b>${n}</b><span>${t}</span></div>`).join('');
+  ].map(([n,t],i)=>`<div class="kpi"><span class="ki">${[NI.leads,NI.cal,NI.mail,NI.out][i]}</span><span><b>${n}</b><span>${t}</span></span></div>`).join('');
 
   if(!LORDER.includes(TAB) || !LEADS.some(l=>l.stage===TAB)) TAB = LORDER.find(s=>c(s)) || 'agendado';
   $('#tabs').innerHTML = LORDER.map(s=>`<button class="tab ${s===TAB?'on':''}" data-tab="${s}">${STAGE[s]}<i>${c(s)}</i></button>`).join('');
@@ -304,6 +467,106 @@ function render(){
   const up = LEADS.filter(l=>l.stage==='agendado' && slotDate(l.slot) && slotDate(l.slot).getTime()>now).sort((a,b)=>a.slot.localeCompare(b.slot));
   $('#next').innerHTML = `<h3>Próximas análises</h3>${up.length?`<ul>${up.map(l=>`<li data-id="${esc(l.id)}"><span class="when">${esc(slotLabel(l.slot))}</span><span class="who">${esc(l.nome)}${l.negocio?' · '+esc(l.negocio):''}</span></li>`).join('')}</ul>`:'<p class="empty">Nenhuma análise marcada.</p>'}`;
 }
+/* ---------- v2: ícones, imagens, avatar ---------- */
+const NI = {
+  home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>',
+  leads:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c.8-3.2 3-5 5.5-5s4.7 1.8 5.5 5"/><circle cx="17" cy="9" r="2.4"/><path d="M15.5 14.2c2.4-.5 4.4 1 5 3.8"/></svg>',
+  alunos:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 9l9-4 9 4-9 4z"/><path d="M7 11v4.5c0 1.4 2.2 2.5 5 2.5s5-1.1 5-2.5V11"/></svg>',
+  cal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>',
+  clock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+  mail:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>',
+  hub:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19V5"/></svg>',
+  plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 5v14M5 12h14"/></svg>',
+  ref:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5"/></svg>',
+  out:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 4h5v16h-5M10 8l-4 4 4 4M6 12h10"/></svg>',
+  euro:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M17 6.5A7 7 0 1 0 17 17.5M4 10h9M4 14h9"/></svg>',
+  chat:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 5h16v11H9l-5 4z"/></svg>'
+};
+const HF = 'https://d8j0ntlcm91z4.cloudfront.net/user_3DMJVscwQvFTrMP11mO9Sz1Jsdw/';
+const SRC = { setup:'hf_20261020_211552_59ec0a41-59ce-4447-a9d1-797f6a7f4703', w3:'hf_20261020_211646_ee58139d-e357-4c1e-a19a-28b63480bbee', w2:'hf_20261020_211644_e9a24ec1-48b9-4be6-8511-96ef55fcf227', w4:'hf_20261020_211645_57f4077d-c510-423e-a61f-f42f378153b4', w6:'hf_20261020_211645_b75447d1-9419-49b4-a2e7-6ae82022f375', mug:'hf_20261020_211643_44851e6b-8158-4e8d-8cf1-cb1708c65068', branch:'hf_20261020_211644_01ff29ea-a819-470c-91ae-ba2623859681', seed:'hf_20261020_211645_7ffa384a-ef5d-4093-8eb6-3b786e9589b5', cups:'hf_20261020_211646_751dce11-c4c0-475d-8af4-ac564ab7d1e6', w1:'hf_20261020_211645_d639074d-2289-400d-9047-10744776ac86', w8:'hf_20261020_211644_38d35765-97f1-4c9d-a045-2869c15d7124' };
+const LOCALIMG = /^(localhost|127\.)/.test(location.hostname);
+const img = (k, w=900) => { const u = HF+SRC[k]+'.png'; return LOCALIMG ? u : `/.netlify/images?url=${encodeURIComponent(u)}&w=${w}&fm=webp&q=72`; };
+const COVERS = ['w3','w2','w4','w6','mug','setup','w1','cups'];
+const coverOf = id => COVERS[[...String(id)].reduce((a,c)=>a+c.charCodeAt(0),0)%COVERS.length];
+function avP(p, n=40){ const ph = p && p.photo; return `<span class="av" style="width:${n}px;height:${n}px;font-size:${Math.round(n*.42)}px">${ph?`<img src="${esc(ph)}" alt="">`:esc(first(p&&p.nome||'?').charAt(0).toUpperCase())}</span>`; }
+let MENTOR_PHOTO = '';
+async function mentorLoad(){ try{ const r = await fetch('/api/hub/admin/mentor',{headers:{'x-crm-key':KEY},cache:'no-store'}); if(r.ok) MENTOR_PHOTO = (await r.json()).photo||''; }catch{} }
+
+/* ---------- v2: navegação ---------- */
+const NAV = [['home','Início',NI.home],['leads','Leads',NI.leads],['alunos','Alunos',NI.alunos],['cal','Calendário',NI.cal]];
+function navRender(){
+  const leadsN = LEADS.filter(l=>!['cliente','perdido'].includes(l.stage)).length, alunosN = LEADS.filter(l=>l.stage==='cliente').length, newMsg = LEADS.filter(l=>l.waNew).length;
+  const cnt = { leads: leadsN, alunos: alunosN };
+  $('#snav').innerHTML = NAV.map(([k,t,ic])=>`<a href="#" data-view="${k}" class="${VIEW===k?'on':''}">${ic}${t}${k==='alunos'&&newMsg?`<i class="new">${newMsg}</i>`:cnt[k]!==undefined?`<i>${cnt[k]}</i>`:''}</a>`).join('')
+    + `<div class="sep"></div><button data-act="new">${NI.plus}Novo lead</button><button data-act="ag">${NI.clock}Horários de análise</button><button data-act="fu">${NI.mail}Follow-up por e-mail</button><a href="/hub/admin/" target="_blank" rel="noopener">${NI.hub}Admin do Student Hub</a><button data-act="ref">${NI.ref}Atualizar</button>`;
+  $('#bnav').innerHTML = NAV.map(([k,t,ic])=>`<a href="#" data-view="${k}" class="${VIEW===k?'on':''}">${ic}${t}</a>`).join('');
+  $('#meAv').innerHTML = avP({nome:'Luccas', photo:MENTOR_PHOTO}, 44);
+}
+
+/* ---------- v2: painel ---------- */
+function home(){
+  const ev = (CAL.hub ? calEvents() : []), today = tzParts(new Date()).day;
+  const tomorrow = tzParts(new Date(Date.now()+86400000)).day;
+  let dayList = ev.filter(e=>e.day===today && e.type!=='livre'), dayLbl = 'Agenda de hoje';
+  if(!dayList.length){ dayList = ev.filter(e=>e.day===tomorrow && e.type!=='livre'); if(dayList.length) dayLbl = 'Agenda de amanhã'; }
+  const now = Date.now();
+  const leadsA = LEADS.filter(l=>!['cliente','perdido'].includes(l.stage)), alunos = LEADS.filter(l=>l.stage==='cliente');
+  const weekEnd = now + 7*86400000;
+  const anWeek = LEADS.filter(l=>l.slot && slotDate(l.slot) && slotDate(l.slot).getTime()>now-3600000 && slotDate(l.slot).getTime()<weekEnd).length;
+  const aReceber = alunos.reduce((a,l)=>a+(payInfo(l)?.due||0),0);
+  const kpi = (ic,n,t,v) => `<button class="kpi" data-view="${v}" style="text-align:left;cursor:pointer"><span class="ki">${ic}</span><span><b>${n}</b><span>${t}</span></span></button>`;
+  // ações derivadas dos dados reais
+  const A = [];
+  const days = iso => Math.floor((now - new Date(iso).getTime())/86400000);
+  LEADS.filter(l=>l.waNew).forEach(l=>A.push({ id:l.id, t:`Responder WhatsApp de ${first(l.nome)}`, tag:'Mensagem', w:'Agora', o:0 }));
+  alunos.forEach(l=>{ const i = payInfo(l); if(i?.next && (i.late || i.soon)) A.push({ id:l.id, t:`Receber ${eur(i.next.amount)} de ${first(l.nome)}`, tag:'Financeiro', w:i.late?`Atrasado ${-i.days}d`:i.days===0?'Hoje':fDue(i.next.due), late:i.late, o:i.late?1:2+i.days/10 }); });
+  LEADS.filter(l=>l.slot && slotDate(l.slot)).forEach(l=>{ const t = slotDate(l.slot).getTime(); if(t>now-1800000 && t<now+36*3600000 && l.stage!=='perdido') A.push({ id:l.id, t:`Análise com ${first(l.nome)} · ${slotLabel(l.slot).split('·').pop().trim()}`, tag:'Análise', w:tzParts(new Date(t)).day===today?'Hoje':'Amanhã', o:1.5 }); });
+  alunos.forEach(l=>{
+    if(!l.hub) A.push({ id:l.id, t:`Criar acesso ao Hub · ${first(l.nome)}`, tag:'Aluno', w:'', o:3 });
+    else if(!l.welcome?.sentAt) A.push({ id:l.id, t:`Enviar boas-vindas · ${first(l.nome)}`, tag:'Aluno', w:'', o:3 });
+    else if(Object.keys(l.onboarding||{}).length && !l.plan1) A.push({ id:l.id, t:`Preparar a 1ª aula · ${first(l.nome)}`, tag:'Aluno', w:'', o:3.5 });
+  });
+  LEADS.filter(l=>l.stage==='analise').forEach(l=>A.push({ id:l.id, t:`Enviar proposta para ${first(l.nome)}`, tag:'Comercial', w:'', o:4 }));
+  LEADS.filter(l=>l.stage==='proposta' && l.updatedAt && days(l.updatedAt)>=3).forEach(l=>A.push({ id:l.id, t:`Follow-up da proposta · ${first(l.nome)}`, tag:'Comercial', w:`há ${days(l.updatedAt)}d`, o:4.5 }));
+  LEADS.filter(l=>l.stage==='novo' && !l.slot).forEach(l=>A.push({ id:l.id, t:`Marcar análise com ${first(l.nome)}`, tag:'Comercial', w:'', o:5 }));
+  A.sort((a,b)=>a.o-b.o);
+  const F = [['novo','Novos'],['agendado','Análise agendada'],['analise','Análise feita'],['proposta','Proposta'],['cliente','Clientes']].map(([s,t])=>[t, LEADS.filter(l=>l.stage===s).length]);
+  const fmax = Math.max(1, ...F.map(x=>x[1]));
+  const hora = +new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Dubai',hour:'2-digit',hourCycle:'h23'}).format(new Date());
+  const hi = hora<12?'Bom dia':hora<18?'Boa tarde':'Boa noite';
+  return `<div class="hello" style="margin-bottom:22px"><span class="eyebrow">${esc(cap(new Intl.DateTimeFormat('pt-BR',{timeZone:'Asia/Dubai',weekday:'long',day:'numeric',month:'long'}).format(new Date())))}</span><h2 class="ph1">${hi}, <em>Luccas.</em></h2><p class="lead2">O que pede a sua atenção hoje: agenda, próximas ações, funil e alunos.</p></div>
+  <div class="kpis">${kpi(NI.leads,leadsA.length,'Leads ativos','leads')}${kpi(NI.alunos,alunos.length,'Alunos','alunos')}${kpi(NI.cal,anWeek,'Análises nos próximos 7 dias','cal')}${kpi(NI.euro,eur(aReceber),'A receber','alunos')}</div>
+  <div class="hgrid c3">
+    <div class="pc"><div class="pc-h"><h3>${dayLbl}</h3><button data-view="cal">Ver calendário →</button></div>
+      ${dayList.length ? `<div class="tl">${dayList.map(e=>`<button ${e.lead?`data-id="${esc(e.lead)}" class="lead-x"`:e.room?`data-room="${esc(e.room)}"`:''}><span class="t">${e.allDay?'Dia todo':e.time}</span><span class="d ${e.type==='aula'||e.type==='grupo'?'f':''}"></span><span><b>${esc(e.t)}</b><span class="s">${esc(e.sub)}</span></span><span class="m">${e.dur?e.dur+' min':''}</span></button>`).join('')}</div>`
+        : '<p class="empty">Nada marcado para hoje nem amanhã.</p>'}</div>
+    <div class="pc"><div class="pc-h"><h3>Próximas ações</h3><span class="eyebrow">${A.length}</span></div>
+      ${A.length ? `<div class="acts2">${A.slice(0,8).map(a=>`<button data-id="${esc(a.id)}" class="lead-x"><span class="bx"></span><span class="atx">${esc(a.t)}</span><span class="tgc">${esc(a.tag)}</span><span class="wh ${a.late?'late':''}">${esc(a.w)}</span></button>`).join('')}</div>` : '<p class="empty">Tudo em dia.</p>'}</div>
+    <div class="pc"><div class="pc-h"><h3>Funil comercial</h3><button data-view="leads">Ver leads →</button></div>
+      <div class="funnel">${F.map(([t,n])=>`<div><span>${t}</span><b>${n}</b><i><em style="width:${Math.round(n/fmax*100)}%"></em></i></div>`).join('')}</div></div>
+  </div>
+  <div class="pc" style="margin-top:18px"><div class="pc-h"><h3>Alunos</h3><button data-view="alunos">Ver todos →</button></div>
+    ${alunos.length ? `<div class="alunos">${alunos.slice(0,3).map(aluno).join('')}</div>` : '<p class="empty">Quando um lead fechar, mude a etapa dele para "Cliente".</p>'}</div>`;
+}
+const cap = s => s ? s.charAt(0).toUpperCase()+s.slice(1) : s;
+
+/* ---------- v2: semana em grade de horas ---------- */
+function weekGrid(days, by, today){
+  const H0 = 8, H1 = 21, PX = 56;
+  const all = days.flatMap(d=>by[ymd(d)]||[]).filter(e=>!e.allDay);
+  let h0 = H0, h1 = H1;
+  all.forEach(e=>{ const h = +e.time.slice(0,2); if(h<h0) h0 = h; if(h+2>h1) h1 = Math.min(24, h+2); });
+  const hrs = [...Array(h1-h0)].map((_,i)=>h0+i), DOWL = ['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'];
+  const nowP = tzParts(new Date()), nowMin = +nowP.time.slice(0,2)*60 + +nowP.time.slice(3);
+  const top = t => ((+t.slice(0,2)-h0)*60 + +t.slice(3))/60*PX;
+  return `<div class="tg"><div class="hd"></div>${days.map((d,i)=>`<div class="hd ${ymd(d)===today?'today':''}">${DOWL[i]}<b>${d.getDate()}</b></div>`).join('')}
+    <div class="ad"><div style="font-size:11px;color:var(--taupe);padding:8px 6px;text-align:right">dia</div>${days.map(d=>`<div>${(by[ymd(d)]||[]).filter(e=>e.allDay).map(evHtml).join('')}</div>`).join('')}</div>
+    <div class="hrs" style="height:${hrs.length*PX}px">${hrs.map((h,i)=>i?`<span style="top:${i*PX}px">${String(h).padStart(2,'0')}:00</span>`:'').join('')}</div>
+    ${days.map(d=>{ const k = ymd(d); const es = (by[k]||[]).filter(e=>!e.allDay);
+      return `<div class="col2 ${k===today?'today':''}" style="height:${hrs.length*PX}px">${k===today&&nowMin>=h0*60&&nowMin<=h1*60?`<span class="now" style="top:${(nowMin-h0*60)/60*PX}px"></span>`:''}${es.map(e=>{ const tp = top(e.time), ht = Math.max(24, (e.dur||30)/60*PX-3); const attr = e.lead ? `data-id="${esc(e.lead)}"` : e.room ? `data-room="${esc(e.room)}"` : ''; return (e.dur||30) <= 45 ? `<button class="ev sm ${e.type}" ${attr} style="top:${tp}px;height:${ht}px" title="${esc(e.t+' · '+e.sub)}"><b>${e.time}</b>${esc(e.type==='livre'?'Livre':first(e.t))}</button>` : evHtml(e).replace('<button class="ev', `<button style="top:${tp}px;height:${ht}px" class="ev`); }).join('')}</div>`; }).join('')}
+  </div>`;
+}
+
 /* ---------- Calendário (análises + aulas do Student Hub) ---------- */
 const CAL = { mode: innerWidth>=900?'semana':'semana', tz: store.get('os_cal_tz')||'Europe/Rome', ref: new Date(), hub: null, ag: null, loading: false };
 const TZN = { 'Europe/Rome':'Itália', 'Asia/Dubai':'Dubai' };
@@ -317,7 +580,7 @@ async function calLoad(force){
       api('POST',{action:'agenda-get'}).catch(()=>null)]);
     CAL.hub = h || { slots:[], groups:[], students:[] }; CAL.ag = a || { slots:[], booked:{} };
   } finally { CAL.loading = false; }
-  if(VIEW==='cal') renderCal();
+  if(VIEW==='cal') renderCal(); else if(VIEW==='home') render();
 }
 function calEvents(){
   const ev = [], hub = CAL.hub || {}, ag = CAL.ag || {};
@@ -342,7 +605,7 @@ function renderCal(){
     const mon = new Date(r); mon.setDate(r.getDate() - ((r.getDay()+6)%7));
     const days = [...Array(7)].map((_,i)=>{ const d = new Date(mon); d.setDate(mon.getDate()+i); return d; });
     title = `${days[0].getDate()} ${MON[days[0].getMonth()]} – ${days[6].getDate()} ${MON[days[6].getMonth()]}`;
-    body = `<div class="wk">${days.map((d,i)=>{ const k = ymd(d), es = by[k]||[];
+    body = weekGrid(days, by, today) + `<div class="wk mob">${days.map((d,i)=>{ const k = ymd(d), es = by[k]||[];
       return `<div class="wd ${k===today?'today':''}"><h5><span>${DOWL[i]}</span><b>${d.getDate()}</b></h5>${es.length?es.map(evHtml).join(''):'<p class="dstat" style="font-size:12px;opacity:.6">—</p>'}</div>`; }).join('')}</div>`;
   } else {
     const f = new Date(r.getFullYear(), r.getMonth(), 1), start = new Date(f); start.setDate(1 - ((f.getDay()+6)%7));
@@ -353,7 +616,7 @@ function renderCal(){
   $('#cal').innerHTML = `<div class="calbar"><div class="g"><button class="iconbtn" data-calnav="-1" aria-label="Anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M15 6l-6 6 6 6"/></svg></button><button class="btn ghost sm" data-calnav="0">Hoje</button><button class="iconbtn" data-calnav="1" aria-label="Próximo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 6l6 6-6 6"/></svg></button><h3>${title}</h3></div>
     <div class="g"><div class="cseg">${['semana','mês'].map(m=>`<button data-calmode="${m==='mês'?'mes':m}" class="${CAL.mode===(m==='mês'?'mes':m)?'on':''}">${m[0].toUpperCase()+m.slice(1)}</button>`).join('')}</div><div class="cseg">${Object.entries(TZN).map(([z,n])=>`<button data-caltz="${z}" class="${CAL.tz===z?'on':''}">${n}</button>`).join('')}</div></div></div>
     ${body}
-    <div class="legend"><span style="--c:#EDE6DA">Análise</span><span style="--c:#151412">Aula 1:1 / dupla</span><span style="--c:#4E6B4F">Aula em grupo</span><span style="--c:#F5EBD9">Pagamento</span>${CAL.mode==='semana'?'<span style="--c:transparent;outline:1px dashed #B5AEA2">Horário livre (análise)</span>':''}<span style="--c:transparent">Horários em: <b>${TZN[CAL.tz]}</b></span></div>`;
+    <div class="legend"><span style="--c:#EDE6DA">Análise</span><span style="--c:#2B2723">Aula 1:1 / dupla</span><span style="--c:#5E7A5C">Aula em grupo</span><span style="--c:#F5EBD9">Pagamento</span>${CAL.mode==='semana'?'<span style="--c:transparent;outline:1px dashed #B5AEA2">Horário livre (análise)</span>':''}<span style="--c:transparent">Horários em: <b>${TZN[CAL.tz]}</b></span></div>`;
 }
 function evHtml(e){
   if(e.allDay) return `<button class="ev pag" data-id="${esc(e.lead)}"><b>${esc(e.t)}</b><span style="opacity:.75;font-size:12px">${esc(e.sub)}</span></button>`;
@@ -431,16 +694,21 @@ function hubProfileBlock(l){
 function aluno(l){
   const ob = l.onboarding || {}, ppl = 1 + (l.socioNome ? 1 : 0), ans = Object.keys(ob).length;
   const ok = (on, t) => `<span class="chip" style="${on?'background:#E4EBE2;border-color:#C9D6C5;color:#3F5A40':''}">${on?'✓ ':''}${t}</span>`;
-  const ss = hubStudents(l);
-  return `<button class="lead" data-id="${esc(l.id)}">
-    <span style="display:flex;align-items:center;gap:10px">${ss.length?`<span style="display:flex">${ss.map((x,i)=>`<span style="margin-left:${i?-12:0}px">${avHtml(x,40)}</span>`).join('')}</span>`:''}<span class="n">${esc(l.nome)}${l.socioNome?' e '+esc(first(l.socioNome)):''}</span></span>
-    ${l.negocio?`<span class="b">${esc(l.negocio)}${l.socioNome?' · Mentoria em dupla':''}</span>`:l.socioNome?'<span class="b">Mentoria em dupla</span>':''}
-    <span class="row">${l.waNew?`<span class="chip" style="background:#4E6B4F;color:#fff;border-color:#4E6B4F">Nova mensagem</span>`:''}${payChip(l)}${ok(!!l.hub,'Hub')}${ok(!!l.welcome?.sentAt,'Boas-vindas')}${ok(ans>=ppl,'Formulário'+(ppl>1?` ${ans}/${ppl}`:''))}${ok(!!l.plan1,'Plano 1ª aula')}</span>
-  </button>`;
+  const ss = hubStudents(l), ids = l.hub?.ids || [];
+  const ppl2 = ss.length ? ss.map(x=>({nome:x.nome, photo:avUrl(x)})) : [{nome:l.nome}, ...(l.socioNome?[{nome:l.socioNome}]:[])];
+  const nx = (HUB?.slots||[]).filter(x=>ids.includes(x.studentId) && new Date(x.start).getTime()>Date.now()-3600000).sort((a,b)=>a.start.localeCompare(b.start))[0];
+  const city = ss.find(x=>x.cidade)?.cidade;
+  return `<div class="acard" data-id="${esc(l.id)}" role="button" tabindex="0">
+    <div class="cv" style="background-image:url('${img(coverOf(l.id),720)}')"><span class="pp">${ppl2.map(p=>avP(p,58)).join('')}</span><span class="badge">${l.waNew?'💬 Nova mensagem':l.socioNome?'Dupla':'Individual'}</span></div>
+    <div class="bd"><b class="n">${esc(l.nome)}${l.socioNome?' e '+esc(first(l.socioNome)):''}</b>
+      <span class="b">${esc(l.negocio||'')}${l.negocio&&city?' · ':''}${esc(city||'')}</span>
+      <span class="row" style="display:flex;gap:6px;flex-wrap:wrap">${payChip(l)}${ok(!!l.hub,'Hub')}${ok(!!l.welcome?.sentAt,'Boas-vindas')}${ok(ans>=ppl,'Formulário'+(ppl>1?` ${ans}/${ppl}`:''))}${ok(!!l.plan1,'Plano 1ª aula')}</span></div>
+    <div class="ft"><span>${nx?`Próxima aula · ${esc(new Intl.DateTimeFormat('pt-BR',{timeZone:CAL.tz,day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}).format(new Date(nx.start)))} · S${nx.week}`:'Sem aula marcada'}</span><span class="go">Abrir →</span></div>
+  </div>`;
 }
 function card(l){
   return `<button class="lead" data-id="${esc(l.id)}">
-    <span class="n">${esc(l.nome)}</span>
+    <span class="hd">${avP({nome:l.nome},40)}<span class="n">${esc(l.nome)}</span></span>
     ${l.negocio||l.setor?`<span class="b">${esc(l.negocio)}${l.negocio&&l.setor?' · ':''}${esc(l.setor)}</span>`:''}
     <span class="row">${l.waNew?`<span class="chip" style="background:#4E6B4F;color:#fff;border-color:#4E6B4F">Nova mensagem</span>`:''}${l.slot?`<span class="chip slot">${esc(slotLabel(l.slot))}</span>`:''}${l.value?`<span class="chip">€ ${esc(l.value)}</span>`:''}<span class="chip src">${l.source==='site'?'Site':l.source==='waitlist'?'Lista de espera':'Manual'}</span></span>
     ${l.desafio?`<span class="d">${esc(l.desafio)}</span>`:''}
@@ -903,7 +1171,7 @@ function openLead(id, keep){
   const wa = waNumber(l.whatsapp), manual = l.source!=='site';
   const tpl = templates(l);
   $('#sheet').innerHTML = `<div class="grab"></div>
-    <div class="sh-head"><div><span class="eyebrow">${l.stage==='cliente'?(l.socioNome?'Aluno · mentoria em dupla':'Aluno'):l.source==='site'?'Reserva pelo site':l.source==='waitlist'?'Lista de espera':'Lead manual'}</span><h3>${esc(l.nome)}</h3><p>${esc(l.negocio)}${l.negocio&&l.setor?' · ':''}${esc(l.setor)}</p></div>
+    <div class="sh-head"><div style="display:flex;gap:14px;align-items:center">${(()=>{ const ss = hubStudents(l); return ss.length ? `<span style="display:flex">${ss.map((x,i)=>`<span style="margin-left:${i?-14:0}px">${avP({nome:x.nome,photo:avUrl(x)},56)}</span>`).join('')}</span>` : avP({nome:l.nome},56); })()}<div><span class="eyebrow">${l.stage==='cliente'?(l.socioNome?'Aluno · mentoria em dupla':'Aluno'):l.source==='site'?'Reserva pelo site':l.source==='waitlist'?'Lista de espera':'Lead manual'}</span><h3>${esc(l.nome)}</h3><p>${esc(l.negocio)}${l.negocio&&l.setor?' · ':''}${esc(l.setor)}</p></div></div>
       <button class="iconbtn" id="close" aria-label="Fechar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
     <div class="acts">
       <a class="act ${wa?'':'off'}" href="https://wa.me/${wa}" target="_blank" rel="noopener">${ICON.wa}WhatsApp</a>
@@ -1115,14 +1383,15 @@ async function start(){
 }
 
 document.addEventListener('click', e=>{
-  const v = e.target.closest('[data-view]'); if(v){ VIEW = v.dataset.view; store.set('os_crm_view', VIEW); if(VIEW==='cal') calLoad(true); render(); return; }
+  const v = e.target.closest('[data-view]'); if(v){ e.preventDefault(); VIEW = v.dataset.view; window.scrollTo(0,0); store.set('os_crm_view', VIEW); if(VIEW==='cal') calLoad(true); render(); return; }
   const cn = e.target.closest('[data-calnav]'); if(cn){ const n = +cn.dataset.calnav; if(!n) CAL.ref = new Date(); else if(CAL.mode==='semana') CAL.ref = new Date(CAL.ref.getFullYear(), CAL.ref.getMonth(), CAL.ref.getDate()+7*n); else CAL.ref = new Date(CAL.ref.getFullYear(), CAL.ref.getMonth()+n, 1); renderCal(); return; }
   const cm = e.target.closest('[data-calmode]'); if(cm){ CAL.mode = cm.dataset.calmode; renderCal(); return; }
   const ct = e.target.closest('[data-caltz]'); if(ct){ CAL.tz = ct.dataset.caltz; store.set('os_cal_tz', CAL.tz); renderCal(); return; }
   const cd = e.target.closest('[data-calday]'); if(cd){ const [y,m,d] = cd.dataset.calday.split('-').map(Number); CAL.ref = new Date(y,m-1,d); CAL.mode = 'semana'; renderCal(); return; }
   const rm = e.target.closest('[data-room]'); if(rm){ window.open('/aula/?s='+encodeURIComponent(rm.dataset.room)+'&m=1','_blank','noopener'); return; }
   const t = e.target.closest('[data-tab]'); if(t){ TAB = t.dataset.tab; render(); return; }
-  const c = e.target.closest('.lead, .next li, .ev[data-id]'); if(c){ openLead(c.dataset.id); }
+  const ac = e.target.closest('[data-act]'); if(ac){ e.preventDefault(); const k = ac.dataset.act; if(k==='new') newLead(); else if(k==='ag') openAgenda(); else if(k==='fu') openFollowup(); else if(k==='out') logout(); else if(k==='ref') $('#refresh').click(); return; }
+  const c = e.target.closest('.lead, .acard, .lead-x, .next li, .ev[data-id]'); if(c && c.dataset.id){ openLead(c.dataset.id); }
 });
 $('#scrim').onclick = closeSheet;
 document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeSheet(); });
