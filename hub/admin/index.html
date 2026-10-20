@@ -344,8 +344,8 @@ function bind(){
   }
   document.querySelectorAll('[data-gdel]').forEach(b=>b.onclick=async()=>{ if(!confirm('Cancelar esta aula em grupo?')) return; try{ await api('group-delete',{start:b.dataset.gdel}); await load(); toast('Aula cancelada'); }catch{ toast('Erro'); } });
   const mf=$('#mFile'); if(mf) mf.onchange=async()=>{ const file=mf.files[0]; if(!file) return;
-    try{ const url=URL.createObjectURL(file); const im=new Image(); im.src=url; await im.decode(); const n=320, c=document.createElement('canvas'); c.width=c.height=n; const sd=Math.min(im.naturalWidth,im.naturalHeight); c.getContext('2d').drawImage(im,(im.naturalWidth-sd)/2,(im.naturalHeight-sd)/2,sd,sd,0,0,n,n);
-      await api('mentor-photo',{photo:c.toDataURL('image/jpeg',.85)}); await load(); toast('Foto salva'); }catch{ toast('Não deu para salvar essa foto'); } };
+    mf.value=''; const d=await cropPhoto(file); if(!d) return;
+    try{ await api('mentor-photo',{photo:d}); await load(); toast('Foto salva'); }catch{ toast('Não deu para salvar essa foto'); } };
   const fa=$('#fAssign'); if(fa) fa.onsubmit=async e=>{ e.preventDefault(); const fd=new FormData(fa); const [y,mo,d]=String(fd.get('date')).split('-').map(Number), [h,mi]=String(fd.get('time')).split(':').map(Number);
     const dt=new Date(y,mo-1,d,h,mi); if(!(dt>new Date())){ toast('Escolha um horário futuro'); return; }
     try{ const r=await api('assign',{id:fd.get('id'),start:dt.toISOString()}); await load(); toast(`Aula marcada · Semana ${r.week}`); }catch(x){ toast(x.code==='taken'?'Esse horário já está ocupado':x.code==='done'?'Esse aluno já tem as 8 aulas':'Erro ao marcar'); } };
@@ -361,6 +361,57 @@ function rmItem(e){ const b=e.target.closest('[data-rmitem]'); if(b){ b.closest(
 function logout(){ store.del('os_crm_key'); KEY=''; $('#app').hidden=true; $('#vLogin').hidden=false; }
 $('#fL').onsubmit=async e=>{ e.preventDefault(); KEY=$('#k').value.trim(); try{ await load(); store.set('os_crm_key',KEY); $('#vLogin').hidden=true; $('#app').hidden=false; }catch{ $('#eL').hidden=false; } };
 (async()=>{ if(KEY){ try{ await load(); $('#app').hidden=false; return; }catch{} } $('#vLogin').hidden=false; })();
+/* ---------- ajustar foto (arrastar + zoom) ---------- */
+function cropPhoto(file){
+  return new Promise((resolve) => {
+    const url = URL.createObjectURL(file), im = new Image();
+    im.onerror = () => { URL.revokeObjectURL(url); resolve(null); };
+    im.onload = () => {
+      const V = Math.min(300, innerWidth - 80), OUT = 360;
+      const base = Math.max(V / im.naturalWidth, V / im.naturalHeight);
+      let z = 1, x = 0, y = 0;
+      const wrap = document.createElement('div');
+      wrap.style.cssText = 'position:fixed;inset:0;z-index:60;background:rgba(28,26,23,.55);display:flex;align-items:center;justify-content:center;padding:20px';
+      wrap.innerHTML = `<div style="background:#F4F1EB;border-radius:22px;padding:24px;width:100%;max-width:380px;display:flex;flex-direction:column;gap:16px;align-items:center;font-family:'Hanken Grotesk',Helvetica,Arial,sans-serif;color:#1C1A17">
+        <p style="font-family:Fraunces,Tinos,serif;font-size:24px">Ajuste a sua foto</p>
+        <p style="font-size:13.5px;color:#5F584F;text-align:center;margin-top:-8px">Arraste para posicionar e use o zoom.</p>
+        <div data-v style="position:relative;width:${V}px;height:${V}px;overflow:hidden;border-radius:14px;background:#ECE6DD;touch-action:none;cursor:grab">
+          <img data-i src="${url}" draggable="false" style="position:absolute;left:50%;top:50%;max-width:none;user-select:none;pointer-events:none">
+          <div style="position:absolute;inset:0;pointer-events:none;border-radius:50%;box-shadow:0 0 0 9999px rgba(244,241,235,.72);outline:2px solid #fff;outline-offset:-2px"></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;width:${V}px"><span style="font-size:13px;color:#857B6E">−</span><input data-z type="range" min="1" max="4" step="0.01" value="1" style="flex:1;accent-color:#A65E40"><span style="font-size:15px;color:#857B6E">+</span></div>
+        <div style="display:flex;gap:10px"><button data-ok style="background:#A65E40;color:#fff;border-radius:12px;padding:12px 20px;font-size:15px;font-weight:500">Usar esta foto</button><button data-no style="border:1px solid #D3CABD;border-radius:12px;padding:12px 18px;font-size:15px">Cancelar</button></div>
+      </div>`;
+      document.body.append(wrap);
+      const v = wrap.querySelector('[data-v]'), pic = wrap.querySelector('[data-i]'), zr = wrap.querySelector('[data-z]');
+      const clamp = () => { const s = base * z, w = im.naturalWidth * s, h = im.naturalHeight * s; const mx = (w - V) / 2, my = (h - V) / 2; x = Math.max(-mx, Math.min(mx, x)); y = Math.max(-my, Math.min(my, y)); };
+      const draw = () => { clamp(); const s = base * z; pic.style.width = im.naturalWidth * s + 'px'; pic.style.height = im.naturalHeight * s + 'px'; pic.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`; };
+      draw();
+      const pts = new Map(); let last = null, pinch = null;
+      v.addEventListener('pointerdown', e => { v.setPointerCapture(e.pointerId); pts.set(e.pointerId, [e.clientX, e.clientY]); last = [e.clientX, e.clientY]; v.style.cursor = 'grabbing'; });
+      v.addEventListener('pointermove', e => {
+        if (!pts.has(e.pointerId)) return;
+        pts.set(e.pointerId, [e.clientX, e.clientY]);
+        if (pts.size === 2) { const [a, b] = [...pts.values()]; const d = Math.hypot(a[0] - b[0], a[1] - b[1]); if (pinch) { z = Math.max(1, Math.min(4, z * d / pinch)); zr.value = z; } pinch = d; draw(); return; }
+        if (last) { x += e.clientX - last[0]; y += e.clientY - last[1]; last = [e.clientX, e.clientY]; draw(); }
+      });
+      const up = e => { pts.delete(e.pointerId); pinch = null; last = pts.size ? [...pts.values()][0] : null; v.style.cursor = 'grab'; };
+      v.addEventListener('pointerup', up); v.addEventListener('pointercancel', up);
+      v.addEventListener('wheel', e => { e.preventDefault(); z = Math.max(1, Math.min(4, z * (e.deltaY < 0 ? 1.06 : 1 / 1.06))); zr.value = z; draw(); }, { passive: false });
+      zr.oninput = () => { z = +zr.value; draw(); };
+      const done = val => { URL.revokeObjectURL(url); wrap.remove(); resolve(val); };
+      wrap.querySelector('[data-no]').onclick = () => done(null);
+      wrap.querySelector('[data-ok]').onclick = () => {
+        const s = base * z, c = document.createElement('canvas'); c.width = c.height = OUT;
+        const sx = (im.naturalWidth * s / 2 - x - V / 2) / s, sy = (im.naturalHeight * s / 2 - y - V / 2) / s, sw = V / s;
+        c.getContext('2d').drawImage(im, sx, sy, sw, sw, 0, 0, OUT, OUT);
+        done(c.toDataURL('image/jpeg', .86));
+      };
+    };
+    im.src = url;
+  });
+}
+
 </script>
 </body>
 </html>
