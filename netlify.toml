@@ -12,3 +12,67 @@
 
 [images]
   remote_images = ["https://d8j0ntlcm91z4\\.cloudfront\\.net/.*"]
+
+# Internal pages (CRM, student hub, classroom, onboarding, diagnostic, deck):
+# keep them out of search engines at the header level as well.
+[[headers]]
+  for = "/crm/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/hub/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/aula/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/boas-vindas/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/diagnostico/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/analise/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+# The site publishes the repo root, so hide repo-only files from the public.
+# force = true is required because these files exist in the deploy.
+[[redirects]]
+  from = "/netlify/*"
+  to = "/404-not-found"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/README.md"
+  to = "/404-not-found"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/package.json"
+  to = "/404-not-found"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/package-lock.json"
+  to = "/404-not-found"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/netlify.toml"
+  to = "/404-not-found"
+  status = 404
+  force = true

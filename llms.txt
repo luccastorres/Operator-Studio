@@ -1,0 +1,23 @@
+# Operator Studio
+
+> Operator Studio, founded by Luccas Torres and based in Dubai, offers an 8-week one-to-one AI mentorship for small-business owners — mainly Brazilian entrepreneurs, salons, mentors and consultants — who want to use Claude and AI to save time and money. It also builds AI systems for businesses that prefer a done-for-you service. Sessions are in Portuguese, online by video call.
+
+## The mentorship (8 weeks, 1:1, live)
+1. AI basics and a business assistant that knows the business
+2. Brand: a one-page Brand Kit and Canva templates
+3. Website: a professional page that takes enquiries or bookings on its own
+4. Content and Instagram: refreshed profile, 9 ready posts and a 30-day calendar
+5. Sales, CRM and automatic lead capture with follow-ups
+6. Processes and an internal system
+7. AI agents and integrations: an agent that answers clients and logs everything in the CRM
+8. ROI measured in time and money, plus a 90-day plan
+
+## How to start
+Book a free 30-minute business diagnostic on https://operator-studio.netlify.app/#contato
+
+## Also available
+Done-for-you systems: CRM, automations, AI agents, websites, brand and content.
+
+## Contact
+- Instagram: @luccastorres
+- Website: https://operator-studio.netlify.app/

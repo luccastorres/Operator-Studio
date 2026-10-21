@@ -3,11 +3,55 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="description" content="Operator Studio: sistemas, sites, marca e conteúdo com IA para o seu negócio.">
-<meta property="og:title" content="Operator Studio">
-<meta property="og:description" content="Sua empresa, operada com IA.">
+<meta name="description" content="Mentoria individual de 8 semanas para donos de pequenos negócios aprenderem a usar o Claude e a IA para ganhar tempo e dinheiro: marca, site, CRM, automações e agente de atendimento. Comece com um diagnóstico gratuito de 30 minutos.">
+<link rel="canonical" href="https://operator-studio.netlify.app/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Operator Studio">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:url" content="https://operator-studio.netlify.app/">
+<meta property="og:title" content="Mentoria de IA para o seu negócio | Operator Studio">
+<meta property="og:description" content="Em 8 semanas, você aprende a usar o Claude para ganhar tempo e dinheiro no seu negócio. Mentoria 1:1 com Luccas Torres.">
+<meta property="og:image" content="https://operator-studio.netlify.app/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="favicon.png">
-<title>Operator Studio</title>
+<title>Mentoria de IA para pequenos negócios | Operator Studio</title>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://operator-studio.netlify.app/#org",
+      "name": "Operator Studio",
+      "url": "https://operator-studio.netlify.app/",
+      "logo": "https://operator-studio.netlify.app/favicon.png",
+      "description": "Mentoria e sistemas de IA para pequenos negócios: marca, site, CRM, automações e agentes de atendimento com o Claude.",
+      "founder": { "@id": "https://operator-studio.netlify.app/#luccas" },
+      "areaServed": "Worldwide",
+      "address": { "@type": "PostalAddress", "addressLocality": "Dubai", "addressCountry": "AE" },
+      "sameAs": ["https://www.instagram.com/luccastorres"]
+    },
+    {
+      "@type": "Person",
+      "@id": "https://operator-studio.netlify.app/#luccas",
+      "name": "Luccas Torres",
+      "jobTitle": "Fundador e mentor",
+      "worksFor": { "@id": "https://operator-studio.netlify.app/#org" },
+      "sameAs": ["https://www.instagram.com/luccastorres"]
+    },
+    {
+      "@type": "Course",
+      "name": "Mentoria Operator — IA para o seu negócio em 8 semanas",
+      "description": "Mentoria individual e ao vivo em que o dono do negócio aprende a usar o Claude para construir marca, site, CRM, automações, processos internos e um agente de atendimento, terminando com o ROI medido e um plano de 90 dias.",
+      "inLanguage": "pt-BR",
+      "provider": { "@id": "https://operator-studio.netlify.app/#org" },
+      "hasCourseInstance": { "@type": "CourseInstance", "courseMode": "online", "instructor": { "@id": "https://operator-studio.netlify.app/#luccas" } }
+    }
+  ]
+}
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400&family=Hanken+Grotesk:wght@300;400;500;600&display=swap">
 <style>
@@ -415,6 +459,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
   <div class="wrap">
     <a class="logo" href="#top" aria-label="Operator Studio"><b>Operator</b> <i>Studio</i></a>
     <nav class="nav-links" aria-label="Menu">
+      <a href="#mentoria" data-i="nav0">Mentoria</a>
       <a href="#sobre" data-i="nav1">Quem somos</a>
       <a href="#sistema" data-i="nav2">O sistema</a>
       <a href="#servicos" data-i="nav3">Serviços</a>
@@ -432,6 +477,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
 
 <nav class="sidenav" aria-label="Seções">
   <a href="#top" data-s="story" title="Início" aria-label="Início"><span data-i="sn1">Início</span><i></i></a>
+  <a href="#mentoria" data-s="mentoria" title="Mentoria" aria-label="Mentoria"><span data-i="sn0">Mentoria</span><i></i></a>
   <a href="#sistema" data-s="sistema" title="O sistema" aria-label="O sistema"><span data-i="sn2">O sistema</span><i></i></a>
   <a href="#servicos" data-s="servicos" title="Serviços" aria-label="Serviços"><span data-i="sn3">Serviços</span><i></i></a>
   <a href="#para-quem" data-s="para-quem" title="Para quem" aria-label="Para quem"><span data-i="sn4">Para quem</span><i></i></a>
@@ -443,8 +489,8 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
 <section class="story" id="story" aria-label="Operator Studio">
   <div class="pin">
     <div class="story-top" id="story-top">
-      <p class="sub" data-i="heroEy">Sistemas · Sites · Marca · Conteúdo</p>
-      <h1><span data-i="heroH1a">Sua empresa,</span> <em data-i="heroH1b">operada com IA.</em></h1>
+      <p class="sub" data-i="heroEy">Mentoria de IA · 8 semanas · 1:1</p>
+      <h1><span data-i="heroH1a">Aprenda a operar</span> <em data-i="heroH1b">sua empresa com IA.</em></h1>
     </div>
     <div class="stage">
       <p class="word l" id="wl"></p>
@@ -459,6 +505,27 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
       <div class="counter"><b id="cnt">01 / 05</b><div class="prog"><i id="prog"></i></div><span class="hint" data-i="hint">Role para descobrir</span></div>
       <p class="cap" id="cap"></p>
     </div>
+  </div>
+</section>
+
+<!-- MENTORSHIP -->
+<section id="mentoria">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><p class="eyebrow" data-i="mtEy">A Mentoria Operator</p><h2 style="margin-top:18px"><span data-i="mtH2a">Em 8 semanas, você aprende a usar o Claude</span> <em data-i="mtH2b">para ganhar tempo e dinheiro.</em></h2></div>
+      <p data-i="mtP" style="max-width:52ch">Mentoria individual, ao vivo e por videochamada. A cada semana você constrói uma peça real do seu negócio comigo e sai sabendo operar tudo sozinho. Para donos de pequenos negócios, salões, mentores e consultores.</p>
+    </div>
+    <div class="services">
+      <div class="svc"><p class="eyebrow" data-i="mw1e">Semana 1</p><h3 data-i="mw1h">Fundamentos e assistente do negócio</h3><p data-i="mw1p" style="margin-top:10px">Um assistente que conhece o seu negócio, respostas prontas no WhatsApp e um modelo de proposta.</p></div>
+      <div class="svc"><p class="eyebrow" data-i="mw2e">Semana 2</p><h3 data-i="mw2h">Marca</h3><p data-i="mw2p" style="margin-top:10px">Uma marca clara, um Brand Kit de uma página e templates no Canva.</p></div>
+      <div class="svc"><p class="eyebrow" data-i="mw3e">Semana 3</p><h3 data-i="mw3h">Website</h3><p data-i="mw3p" style="margin-top:10px">Uma página profissional no ar que recebe contatos ou agendamentos sozinha.</p></div>
+      <div class="svc"><p class="eyebrow" data-i="mw4e">Semana 4</p><h3 data-i="mw4h">Conteúdo e Instagram</h3><p data-i="mw4p" style="margin-top:10px">Perfil reformulado, 9 posts prontos e um calendário de 30 dias.</p></div>
+      <div class="svc"><p class="eyebrow" data-i="mw5e">Semana 5</p><h3 data-i="mw5h">Vendas, CRM e captação</h3><p data-i="mw5p" style="margin-top:10px">Um CRM com seus clientes e cada novo contato entrando sozinho, com follow-up automático.</p></div>
+      <div class="svc"><p class="eyebrow" data-i="mw6e">Semana 6</p><h3 data-i="mw6h">Processos e sistema interno</h3><p data-i="mw6p" style="margin-top:10px">Um processo crítico mapeado, documentado e rodando num sistema interno.</p></div>
+      <div class="svc"><p class="eyebrow" data-i="mw7e">Semana 7</p><h3 data-i="mw7h">Agentes de IA e integrações</h3><p data-i="mw7p" style="margin-top:10px">Um agente que responde clientes com base no seu negócio e registra tudo no CRM.</p></div>
+      <div class="svc"><p class="eyebrow" data-i="mw8e">Semana 8</p><h3 data-i="mw8h">ROI e plano de 90 dias</h3><p data-i="mw8p" style="margin-top:10px">Quanto tempo e dinheiro a IA liberou, medido em números, e o plano dos próximos 90 dias.</p></div>
+    </div>
+    <p style="margin-top:32px;display:flex;flex-wrap:wrap;gap:12px;align-items:center"><a class="btn" href="#contato" data-i="mtCta">Agendar meu diagnóstico gratuito</a> <a href="#servicos" data-i="mtAlt" style="text-decoration:underline">Prefere que a gente construa para você?</a></p>
   </div>
 </section>
 
@@ -547,7 +614,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
 <section id="servicos">
   <div class="wrap">
     <div class="sec-head">
-      <div><p class="eyebrow" data-i="svEy">Serviços</p><h2 style="margin-top:18px"><span data-i="svH2a">O que</span> <em data-i="svH2b">construímos.</em></h2></div>
+      <div><p class="eyebrow" data-i="svEy">Também fazemos por você</p><h2 style="margin-top:18px"><span data-i="svH2a">Prefere que a gente</span> <em data-i="svH2b">construa?</em></h2></div>
     </div>
     <div class="services">
       <div class="svc"><p class="eyebrow" data-i="s1e">Sistemas e automações</p><h3 data-i="s1h">A operação trabalhando sozinha</h3><ul><li data-i="s1z">CRM de vendas</li><li data-i="s1a">Orçamentos automáticos</li><li data-i="s1b">Agentes de IA</li><li data-i="s1c">Apps internos</li><li data-i="s1d">Automações</li></ul></div>
@@ -604,7 +671,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
   <div class="wrap">
     <div class="box">
       <div class="side">
-        <p class="eyebrow" data-i="ctEy">Brasileiros Inspiradores · Milano</p>
+        <p class="eyebrow" data-i="ctEy">Diagnóstico gratuito · Online</p>
         <h2 style="margin-top:18px"><span data-i="ctH2a">Análise gratuita</span> <em data-i="ctH2b">de 30 minutos.</em></h2>
         <p data-i="ctP">Escolha um horário e reserve sua análise gratuita de 30 minutos. Vamos mostrar onde o seu negócio pode economizar tempo e dinheiro.</p>
         <div class="copyline"><span data-i="ctOr">Ou fale direto:</span><a href="https://www.instagram.com/luccastorres/" target="_blank" rel="noopener"><code id="handle">@luccastorres</code></a><button type="button" id="copy" data-i="ctCopy">Copiar</button></div>
@@ -628,14 +695,14 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
 </section>
 </main>
 
-<footer><div class="wrap"><span><b style="font-family:var(--serif)">Operator</b> <i style="font-family:var(--serif);color:var(--taupe)">Studio</i> · Dubai</span><span data-i="foot">Sistemas · Sites · Marca · Conteúdo — by Luccas Torres</span></div></footer>
+<footer><div class="wrap"><span><b style="font-family:var(--serif)">Operator</b> <i style="font-family:var(--serif);color:var(--taupe)">Studio</i> · Dubai</span><span data-i="foot">Mentoria de IA e sistemas para pequenos negócios — by Luccas Torres</span></div></footer>
 
 <script>
 (function(){
 let lang='pt';
 const EN={
-nav1:'About',nav2:'The system',nav3:'Services',nav4:'Who we help',navcta:'Free audit',
-heroEy:'Systems · Websites · Brand · Content',heroH1a:'Your business,',heroH1b:'operated with AI.',
+nav0:'Mentorship',sn0:'Mentorship',nav1:'About',nav2:'The system',nav3:'Services',nav4:'Who we help',navcta:'Free audit',
+heroEy:'AI mentorship · 8 weeks · 1:1',heroH1a:'Learn to run',heroH1b:'your business with AI.',
 heroLede:'We build the digital structure of your business, with artificial intelligence working as part of the team. Made by people who run four companies this way every day.',
 heroC1:'Look inside the system',hint:'Scroll to discover',heroC2:'Book a free audit',heroMeta:'by Luccas Torres',
 conLive:'Running now',conEx:'Example',conFoot:'Tasks delivered today',
@@ -653,7 +720,7 @@ orcH:'Build a budget',exTag:'Sample figures',orcL1:'Rooms',orcL2:'Finish',sh1:'S
 orcNote:'In the real system, every line comes from the project measurements and your own price list.',
 visH:'Handover inspection',exTag2:'Illustrative example',ageH:'Pick an agent and give it a task',exTag3:'Demo',
 marH:'Type your brand name',exTag4:'Live',marL1:'Name',marL2:'Style',marL3:'Palette',marSub:'By Operator Studio',
-svEy:'Services',svH2a:'What we',svH2b:'build.',svP:'Every project starts with your real problem and ends with something your team uses the next day.',
+mtEy:'The Operator Mentorship',mtH2a:'In 8 weeks, you learn to use Claude',mtH2b:'to save time and money.',mtP:'One-to-one, live, by video call. Each week you build a real piece of your business with me and leave knowing how to run it yourself. For small-business owners, salons, mentors and consultants.',mtCta:'Book my free audit',mtAlt:'Rather have us build it for you?',mw1e:'Week 1',mw1h:'AI basics and your business assistant',mw1p:'An assistant that knows your business, ready-made WhatsApp replies and a proposal template.',mw2e:'Week 2',mw2h:'Brand',mw2p:'A clear brand, a one-page Brand Kit and Canva templates.',mw3e:'Week 3',mw3h:'Website',mw3p:'A professional page that takes enquiries or bookings on its own.',mw4e:'Week 4',mw4h:'Content and Instagram',mw4p:'A refreshed profile, 9 posts ready to go and a 30-day calendar.',mw5e:'Week 5',mw5h:'Sales, CRM and lead capture',mw5p:'A CRM with your clients and every new lead flowing in automatically, with follow-ups.',mw6e:'Week 6',mw6h:'Processes and internal system',mw6p:'One critical process mapped, documented and running in an internal system.',mw7e:'Week 7',mw7h:'AI agents and integrations',mw7p:'An agent that answers clients from your business knowledge and logs everything in the CRM.',mw8e:'Week 8',mw8h:'ROI and 90-day plan',mw8p:'How much time and money AI freed up, in real numbers, plus your next 90 days.',svEy:'We can also do it for you',svH2a:'Rather have us',svH2b:'build it?',svP:'Every project starts with your real problem and ends with something your team uses the next day.',
 s1e:'Systems & automation',s1h:'Operations that run themselves',s1p:'Sales CRM, budgets, reports, proposals and AI agents that take care of the repetitive work in your business.',s1z:'Sales CRM',s1a:'Automatic budgets',s1b:'AI agents',s1c:'Internal apps',s1d:'Automations',
 s2e:'Websites & landing pages',s2h:'A website that sells for you',s2p:'Company websites and sales pages with lead capture, ready for campaigns and for mobile.',s2a:'Company website',s2b:'Sales page',s2c:'Lead capture',
 s3e:'Brand',s3h:'An identity with presence',s3p:'Name, positioning, logo, palette, typography and brand book, so the brand is born strong and consistent.',s3a:'Positioning',s3b:'Logo & identity',s3c:'Brand book',
@@ -663,8 +730,8 @@ w1h:'Architecture & interiors',w1p:'Budgets, schedules, inspections and client p
 dgEy:'20-second audit',dgH:'What would we build for you?',dgL1:'1 · Your sector',dgL2:'2 · Where most of your time goes',
 prEy:'How it works',prH2a:'Four steps,',prH2b:'in weeks.',prP:'You follow every stage and receive everything ready to use, with training.',
 p1h:'Audit',p1p:'30 minutes to find where the business gains the most time and money.',p2h:'Proposal',p2p:'Scope, timeline and investment agreed in writing.',p3h:'Build',p3p:'You watch the system take shape and adjust with us.',p4h:'Handover',p4p:'Everything running, with training for your team.',
-ctEy:'Brasileiros Inspiradores · Milano',ctH2a:'Free analysis',ctH2b:'in 30 minutes.',ctP:'Pick a time and book your free 30-minute analysis. We will show you where your business can save time and money.',ctOr:'Or reach us directly:',fName:'Name',fWa:'WhatsApp',fMail:'Email',fBiz:'Business name',fSec:'Sector',o1:'Hair & beauty salon',o2:'Beauty & wellness',o3:'Restaurant & café',o4:'Property',o5:'Shop & e-commerce',o6:'Services & consulting',o7:'Other',fMsg:'What takes most of your time today?',fSend:'Book my analysis',fPick:'Pick a day and time',fTz:'Milan time · 30 minutes · video call',ctCopy:'Copy',
-sn1:'Home',sn2:'The system',sn3:'Services',sn4:'Who we help',sn5:'Free analysis',mc1:'See the system',mc2:'Free analysis',foot:'Systems · Websites · Brand · Content — by Luccas Torres'
+ctEy:'Free audit · Online',ctH2a:'Free analysis',ctH2b:'in 30 minutes.',ctP:'Pick a time and book your free 30-minute analysis. We will show you where your business can save time and money.',ctOr:'Or reach us directly:',fName:'Name',fWa:'WhatsApp',fMail:'Email',fBiz:'Business name',fSec:'Sector',o1:'Hair & beauty salon',o2:'Beauty & wellness',o3:'Restaurant & café',o4:'Property',o5:'Shop & e-commerce',o6:'Services & consulting',o7:'Other',fMsg:'What takes most of your time today?',fSend:'Book my analysis',fPick:'Pick a day and time',fTz:'Milan time · 30 minutes · video call',ctCopy:'Copy',
+sn1:'Home',sn2:'The system',sn3:'Services',sn4:'Who we help',sn5:'Free analysis',mc1:'See the system',mc2:'Free analysis',foot:'AI mentorship and systems for small businesses — by Luccas Torres'
 };
 const PT={};
 document.querySelectorAll('[data-i]').forEach(el=>{PT[el.dataset.i]=el.textContent});
