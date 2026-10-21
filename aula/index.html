@@ -80,6 +80,47 @@ a{color:inherit}
 .stabs button{flex:1;padding:9px;border-radius:999px;font-size:13px;color:var(--soft)}
 .stabs button.on{background:var(--ink);color:var(--linen)}
 .spane{flex:1;overflow-y:auto;padding:16px}
+@media(min-width:1000px){.body.panel.wide{grid-template-columns:1fr 470px}}
+.cb{position:relative}
+.cb .bd{position:absolute;top:-3px;right:-3px;min-width:19px;height:19px;border-radius:999px;background:var(--red);color:#fff;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;padding:0 5px;border:2px solid var(--linen)}
+.spane.chatp{display:flex;flex-direction:column;padding:0}
+.chatl{flex:1;overflow-y:auto;padding:14px 14px 6px;display:flex;flex-direction:column;gap:8px}
+.cm{max-width:86%;align-self:flex-start;background:var(--linen);border:1px solid var(--line);border-radius:14px 14px 14px 4px;padding:8px 11px;font-size:14px;line-height:1.45;word-break:break-word}
+.cm.me{align-self:flex-end;background:var(--ink);color:var(--linen);border-color:var(--ink);border-radius:14px 14px 4px 14px}
+.cm small{display:block;font-size:11px;color:var(--taupe);margin-bottom:2px;letter-spacing:.02em}.cm.me small{color:#BDB5A8}
+.cm a{color:inherit;text-decoration:underline;text-underline-offset:2px}
+.chatf{display:flex;gap:8px;padding:10px;border-top:1px solid var(--line);background:var(--card)}
+.chatf textarea{flex:1;resize:none;border:1px solid var(--line);border-radius:14px;background:var(--linen);padding:10px 12px;font:inherit;font-size:15px;line-height:1.35;max-height:120px;outline:none}
+.chatf textarea:focus{border-color:var(--taupe)}
+.chatf button{width:44px;height:44px;border-radius:50%;background:var(--ink);color:var(--linen);flex:none;align-self:flex-end;display:flex;align-items:center;justify-content:center}
+.chatf button svg{width:18px;height:18px}
+.mtop{display:flex;gap:8px;align-items:center;margin-bottom:10px}
+.mtop select{flex:1;border:1px solid var(--line);border-radius:10px;background:var(--linen);padding:8px 10px;font:inherit;font-size:14px}
+.mtoc{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:2px 0 10px;position:sticky;top:-16px;background:var(--card);z-index:2;margin:0 -2px}
+.mtoc button{flex:none;font-size:12.5px;padding:6px 11px;border:1px solid var(--line);border-radius:999px;color:var(--soft);background:var(--linen)}
+.mtoc button.on{background:var(--ink);color:var(--linen);border-color:var(--ink)}
+.rd h2{font-family:var(--serif);font-weight:400;font-size:24px;line-height:1.15;margin:4px 0 12px}
+.rd h3{font-size:15.5px;font-weight:600;line-height:1.35;margin:20px 0 8px}
+.rd p,.rd li{font-size:14.5px;line-height:1.6}
+.rd p{margin-bottom:10px}
+.rd ul,.rd ol{padding-left:20px;margin-bottom:12px;display:flex;flex-direction:column;gap:4px}
+.rd blockquote{border-left:2px solid var(--taupe);padding-left:12px;color:var(--soft);margin-bottom:12px}
+.rd code{font-size:.9em;background:var(--linen2);padding:1px 5px;border-radius:5px}
+.rd .table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--card);margin:6px 0 16px}
+.rd table{border-collapse:collapse;width:100%;font-size:13px;line-height:1.45}
+.rd th,.rd td{text-align:left;vertical-align:top;padding:8px 10px;border-bottom:1px solid var(--line)}
+.rd th{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--taupe);font-weight:500;background:var(--linen)}
+.rd pre.code{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;line-height:1.55;background:var(--linen);border:1px solid var(--line);border-radius:12px;padding:10px 12px;white-space:pre-wrap;overflow-x:auto;margin-bottom:14px}
+.rd .prompt{border:1px solid var(--ink);border-radius:14px;background:var(--card);margin:8px 0 12px;overflow:hidden}
+.rd .prompt-bar{display:flex;justify-content:space-between;align-items:center;padding:6px 8px 6px 12px;border-bottom:1px solid var(--line);background:var(--linen)}
+.rd .prompt-bar span{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--taupe)}
+.rd .copy{background:var(--ink);color:var(--linen);border-radius:999px;padding:5px 12px;font-size:12.5px;font-weight:500}
+.rd .copy.done{background:var(--ok,#4E6B4F)}
+.rd .prompt-text{margin:0;padding:12px;font-family:ui-monospace,Menlo,monospace;font-size:12.5px;line-height:1.55;white-space:pre-wrap;word-break:break-word;max-height:300px;overflow:auto}
+.rd ul.checklist{list-style:none;padding:0;gap:0;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.rd li.check{display:flex;gap:10px;align-items:flex-start;padding:9px 12px;border-bottom:1px solid var(--line)}
+.rd li.check:last-child{border-bottom:0}
+
 .item{display:flex;align-items:center;gap:12px;padding:11px 12px;border:1px solid var(--line);border-radius:12px;background:var(--linen);text-decoration:none;font-size:14.5px;margin-bottom:8px}
 .item svg{width:18px;height:18px;flex:none;color:var(--taupe)}
 .ln{padding:9px 0;border-top:1px solid var(--line);font-size:14px;line-height:1.5}
@@ -165,7 +206,8 @@ a{color:inherit}
     <button class="cb" id="cCam" aria-label="Câmera"></button>
     <button class="cb" id="cShare" aria-label="Compartilhar tela"></button>
     <button class="cb" id="cPres" aria-label="Apresentar PDF" hidden></button>
-    <button class="cb" id="cPanel" aria-label="Materiais e transcrição"></button>
+    <button class="cb" id="cChat" aria-label="Chat"></button>
+    <button class="cb" id="cPanel" aria-label="Material e transcrição"></button>
     <button class="cb" id="cTr" aria-label="Pausar transcrição" hidden></button>
     <span class="spacer"></span>
     <button class="cb leave" id="cLeave"></button>
@@ -187,6 +229,8 @@ const KEY = ls.get('os_crm_key') || '', TOKEN = ls.get('os_hub_token') || '';
 const HOME = MENTOR ? '/hub/admin/#aulas' : '/hub/#agenda';
 
 const I = {
+  chat:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M4 5h16v11H9l-5 4z"/></svg>',
+  send:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l16-8-6 16-3-7z"/></svg>',
   mic:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>',
   micOff:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M9 9v2a3 3 0 0 0 5 2.2M15 10V6a3 3 0 0 0-5.7-1.3M5 11a7 7 0 0 0 11 5.7M19 11a7 7 0 0 1-.6 2.8M12 18v3M3 3l18 18"/></svg>',
   cam:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10l5-3v10l-5-3z"/></svg>',
@@ -202,6 +246,7 @@ const I = {
 
 let INFO = null, call = null, micOn = true, camOn = true, sharing = false, trOn = false, trTry = 0, trWanted = true;
 let PRES = null, PDF = null, PDFURL = '', renderTask = null;
+let CHAT = [], UNREAD = 0, MW = null, MSEC = {}, MCACHE = {};
 let PEOPLE = {}, BUF = [], LOG = [], TAB = 'mat', joinedAt = 0, ended = false, flushT = null, clockT = null;
 
 function toast(t){ const el=$('#toast'); el.textContent=t; el.classList.add('on'); clearTimeout(toast.t); toast.t=setTimeout(()=>el.classList.remove('on'),2600); }
@@ -283,7 +328,8 @@ function bindCall(){
     if(ev==='participant-left' && e?.participant) toast(`${first(e.participant.user_name)} saiu da aula`);
     remember(); updateTiles(); if(!$('#vPre').hidden) renderPreview();
   }));
-  call.on('app-message', (e) => { const d = e?.data; if(!d || d.os!=='present' || MENTOR) return; PRES = d.url ? { url:d.url, page:d.page||1, pages:PRES?.pages } : null; showDeck(); });
+  call.on('app-message', (e) => { const d = e?.data; if(d?.os==='chat'){ addChat(d.m, false); return; } if(d?.os==='chat-hist'){ (d.list||[]).forEach(m=>addChat(m,true)); return; } if(!d || d.os!=='present' || MENTOR) return; PRES = d.url ? { url:d.url, page:d.page||1, pages:PRES?.pages } : null; showDeck(); });
+  call.on('participant-joined', (e) => { const to=e?.participant?.session_id; if(to && CHAT.length) setTimeout(()=>{ for(let i=Math.max(0,CHAT.length-40);i<CHAT.length;i+=5){ try{ call.sendAppMessage({ os:'chat-hist', list: CHAT.slice(i,i+5) }, to); }catch{} } }, 1500); });
   if(MENTOR) call.on('participant-joined', (e) => { if(PRES && e?.participant) setTimeout(()=>broadcast(e.participant.session_id), 1200); });
   call.on('transcription-started', () => { trOn = true; trTry = 0; paintRec(); });
   call.on('transcription-stopped', () => { trOn = false; paintRec(); });
@@ -376,7 +422,9 @@ function paintControls(){
   $('#cCam').innerHTML = camOn?I.cam:I.camOff; $('#cCam').classList.toggle('offst',!camOn);
   $('#cShare').innerHTML = I.share; $('#cShare').classList.toggle('on',sharing); $('#cShare').hidden = !navigator.mediaDevices?.getDisplayMedia;
   $('#cPres').hidden = !MENTOR; $('#cPres').innerHTML = I.pres; $('#cPres').classList.toggle('on',!!PRES);
-  $('#cPanel').innerHTML = I.panel; $('#cPanel').classList.toggle('on',$('#body').classList.contains('panel'));
+  const pOpen=$('#body').classList.contains('panel');
+  $('#cPanel').innerHTML = I.panel; $('#cPanel').classList.toggle('on',pOpen && TAB!=='chat');
+  $('#cChat').innerHTML = I.chat + (UNREAD?`<span class="bd">${UNREAD>9?'9+':UNREAD}</span>`:''); $('#cChat').classList.toggle('on',pOpen && TAB==='chat');
   $('#cTr').hidden = !MENTOR; $('#cTr').innerHTML = trWanted?I.tr:I.trOff; $('#cTr').classList.toggle('offst',!trWanted);
   $('#cLeave').innerHTML = I.leave + (MENTOR?'Encerrar aula':'Sair');
   paintRec();
@@ -386,7 +434,9 @@ $('#cMic').onclick=()=>{ micOn=!micOn; call.setLocalAudio(micOn); paintControls(
 $('#cCam').onclick=()=>{ camOn=!camOn; call.setLocalVideo(camOn); paintControls(); setTimeout(updateTiles,300); };
 $('#cShare').onclick=()=>{ if(sharing) call.stopScreenShare(); else call.startScreenShare(); };
 $('#cPres').onclick=()=>{ if(PRES){ stopPres(); } else openPicker(); };
-$('#cPanel').onclick=()=>{ $('#body').classList.toggle('panel'); paintControls(); renderSide(); };
+function openTab(t){ const b=$('#body'); if(b.classList.contains('panel') && TAB===t){ b.classList.remove('panel'); b.classList.remove('wide'); paintControls(); return; } TAB=t; b.classList.add('panel'); renderSide(); paintControls(); }
+$('#cPanel').onclick=()=>openTab(TAB==='chat'?'mat':TAB);
+$('#cChat').onclick=()=>openTab('chat');
 $('#cTr').onclick=async()=>{ if(trWanted){ await stopTr(); toast('Transcrição pausada'); } else { trTry=0; await startTr(); toast('Transcrição retomada'); } paintControls(); };
 $('#cLeave').onclick=async()=>{
   if(MENTOR && !confirm('Encerrar a aula e gerar o relatório?')) return;
@@ -466,17 +516,78 @@ $('#pick').onclick = (e) => { if(e.target.id==='pick') closePicker(); };
 
 /* ---------- side panel ---------- */
 function renderSide(){
-  const tabs = [['mat','Materiais']].concat(MENTOR?[['tr','Transcrição']]:[]);
-  $('#stabs').innerHTML = tabs.map(([k,t])=>`<button class="${k===TAB?'on':''}" data-st="${k}">${t}</button>`).join('') + `<button data-st="close" aria-label="Fechar" style="flex:none;width:40px">×</button>`;
-  document.querySelectorAll('[data-st]').forEach(b=>b.onclick=()=>{ if(b.dataset.st==='close'){ $('#body').classList.remove('panel'); paintControls(); return; } TAB=b.dataset.st; renderSide(); });
-  const p = $('#spane');
+  if(TAB==='chat') UNREAD = 0;
+  const tabs = [['chat','Chat'],['mat','Material']].concat(MENTOR?[['tr','Transcrição']]:[]);
+  $('#stabs').innerHTML = tabs.map(([k,t])=>`<button class="${k===TAB?'on':''}" data-st="${k}">${t}${k==='chat'&&UNREAD?` (${UNREAD})`:''}</button>`).join('') + `<button data-st="close" aria-label="Fechar" style="flex:none;width:40px">×</button>`;
+  document.querySelectorAll('[data-st]').forEach(b=>b.onclick=()=>{ if(b.dataset.st==='close'){ $('#body').classList.remove('panel','wide'); paintControls(); return; } TAB=b.dataset.st; renderSide(); paintControls(); });
+  const p = $('#spane'); p.classList.toggle('chatp', TAB==='chat'); p.classList.remove('rd');
+  $('#body').classList.toggle('wide', TAB==='mat');
+  if(TAB==='chat'){
+    paintControls();
+    p.innerHTML = `<div class="chatl" id="chatl"></div><form class="chatf" id="chatf"><textarea id="chatIn" rows="1" placeholder="Escreva para ${MENTOR?(INFO.group?'o grupo':esc(first(INFO.student.nome))):'a sala'}…" aria-label="Mensagem"></textarea><button type="submit" aria-label="Enviar">${I.send}</button></form>`;
+    renderChat();
+    const ta=$('#chatIn'), f=$('#chatf');
+    ta.oninput=()=>{ ta.style.height='auto'; ta.style.height=Math.min(120,ta.scrollHeight)+'px'; };
+    ta.onkeydown=e=>{ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); f.requestSubmit(); } };
+    f.onsubmit=e=>{ e.preventDefault(); const t=ta.value.trim(); if(!t) return; sendChat(t); ta.value=''; ta.style.height='auto'; ta.focus(); };
+    if(innerWidth>=1000) setTimeout(()=>ta.focus(),50);
+    return;
+  }
   if(TAB==='tr'){
     p.innerHTML = LOG.length ? '' : '<p class="muted" style="font-size:14px">As falas aparecem aqui conforme a transcrição acontece.</p>';
     LOG.forEach(appendLine);
-  } else {
-    const m = INFO.material;
-    p.innerHTML = m ? `<span class="ey">Semana ${INFO.week}</span><p style="font-family:var(--serif);font-size:20px;margin:6px 0 14px">${esc(m.title)}</p>${(m.items||[]).map(i=>`<a class="item" href="${esc(fileUrl(i.url))}" target="_blank" rel="noopener">${I.file}<span>${esc(i.label)}</span></a>`).join('') || '<p class="muted" style="font-size:14px">Os materiais desta semana ficam no Student Hub depois da aula.</p>'}` : '<p class="muted" style="font-size:14px">Os materiais desta semana ficam no Student Hub.</p>';
+    return;
   }
+  renderMat();
+}
+const linkify = t => esc(t).replace(/(https?:\/\/[^\s<]+[^\s<.,;:!?)\]])/g,'<a href="$1" target="_blank" rel="noopener">$1</a>').replace(/\n/g,'<br>');
+function myId(){ try{ return call.participants().local; }catch{ return {}; } }
+function sendChat(text){
+  const me = myId(); const m = { id: Date.now().toString(36)+Math.random().toString(36).slice(2,6), ts: Date.now(), uid: MENTOR?'mentor':(me?.user_id||''), name: MENTOR?'Luccas':(me?.user_name||INFO.student?.nome||'Aluno'), text: text.slice(0,2000) };
+  try{ call.sendAppMessage({ os:'chat', m }, '*'); }catch{ toast('Não foi possível enviar'); return; }
+  addChat(m, true);
+  BUF.push({ ts: m.ts, pid: me?.session_id||'', uid: m.uid, name: m.name, text: '[chat] '+m.text });
+}
+function addChat(m, quiet){
+  if(!m || !m.id || CHAT.some(x=>x.id===m.id)) return;
+  CHAT.push(m); CHAT.sort((a,b)=>a.ts-b.ts); if(CHAT.length>200) CHAT.shift();
+  const open = $('#body').classList.contains('panel') && TAB==='chat';
+  if(open) renderChat();
+  else if(!quiet){ UNREAD++; paintControls(); if($('#body').classList.contains('panel')) renderSide(); toast(`${first(m.name)}: ${m.text.length>60?m.text.slice(0,60)+'…':m.text}`); }
+}
+function renderChat(){
+  const l=$('#chatl'); if(!l) return; const me=myId();
+  const mine = m => MENTOR ? m.uid==='mentor' : (m.uid && m.uid===(me?.user_id||'')) ;
+  l.innerHTML = CHAT.length ? CHAT.map(m=>`<div class="cm ${mine(m)?'me':''}"><small>${esc(mine(m)?'Você':first(m.name))} · ${fTime(new Date(m.ts).toISOString())}</small>${linkify(m.text)}</div>`).join('') : `<p class="muted" style="font-size:14px;margin:auto 0;text-align:center">Mande links, prompts e lembretes por aqui.<br>As mensagens entram no relatório da aula.</p>`;
+  l.scrollTop = l.scrollHeight;
+}
+const WLABEL = w => w===0 ? 'Preparação' : `Semana ${w}`;
+async function loadContent(w){
+  if(MCACHE[w]) return MCACHE[w];
+  const url = MENTOR ? '/api/hub/admin/content?w='+w : '/api/hub/content?w='+w;
+  const r = await fetch(url,{ headers: MENTOR ? {'x-crm-key':KEY} : {'authorization':'Bearer '+TOKEN}, cache:'no-store' });
+  if(!r.ok) throw new Error(r.status===403?'locked':'err');
+  const j = await r.json(); MCACHE[w] = j.content; return j.content;
+}
+async function renderMat(){
+  const p = $('#spane'); p.classList.add('rd');
+  if(MW===null) MW = INFO.week || (MENTOR ? 1 : 0);
+  const items = (INFO.material && INFO.week===MW) ? (INFO.material.items||[]) : [];
+  const sel = MENTOR ? `<div class="mtop"><select id="mWeek" aria-label="Semana">${[0,1,2,3,4,5,6,7,8].map(w=>`<option value="${w}" ${w===MW?'selected':''}>${WLABEL(w)}${w===INFO.week?' · desta aula':''}</option>`).join('')}</select></div>` : '';
+  p.innerHTML = sel + '<p class="muted" style="font-size:14px">Carregando…</p>';
+  const ws=$('#mWeek'); if(ws) ws.onchange=()=>{ MW=+ws.value; renderMat(); };
+  let c=null; try{ c = await loadContent(MW); }catch(e){ if(TAB!=='mat') return; p.innerHTML = sel + `<p class="muted" style="font-size:14px">${e.message==='locked'?'Este conteúdo abre no Student Hub perto da aula.':'Não foi possível carregar o material.'}</p>`; const w2=$('#mWeek'); if(w2) w2.onchange=()=>{ MW=+w2.value; renderMat(); }; return; }
+  if(TAB!=='mat' || !c) return;
+  const secs = c.sections||[]; const cur = MSEC[MW] && secs.some(x=>x.slug===MSEC[MW]) ? MSEC[MW] : (secs.find(x=>x.slug==='passos')||secs[0])?.slug;
+  const s1 = secs.find(x=>x.slug===cur);
+  p.innerHTML = sel + `<span class="ey">${esc(WLABEL(MW))}</span><h2>${esc(c.title)}</h2>`
+    + (items.length?`<div style="margin-bottom:10px">${items.map(i=>`<a class="item" href="${esc(fileUrl(i.url))}" target="_blank" rel="noopener">${I.file}<span>${esc(i.label)}</span></a>`).join('')}</div>`:'')
+    + `<div class="mtoc">${secs.map(x=>`<button data-ms="${esc(x.slug)}" class="${x.slug===cur?'on':''}">${esc(x.short||x.name)}</button>`).join('')}</div>`
+    + (s1?`<div class="msec"><h3 style="margin-top:6px;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--taupe);font-weight:500">${esc(s1.name)}</h3>${s1.html}</div>`:'');
+  const w3=$('#mWeek'); if(w3) w3.onchange=()=>{ MW=+w3.value; renderMat(); };
+  p.querySelectorAll('[data-ms]').forEach(b=>b.onclick=()=>{ MSEC[MW]=b.dataset.ms; renderMat(); p.scrollTop=0; });
+  p.querySelectorAll('.copy').forEach(b=>b.onclick=async()=>{ const t=b.closest('.prompt')?.querySelector('.prompt-text')?.innerText||''; try{ await navigator.clipboard.writeText(t); b.textContent='Copiado'; b.classList.add('done'); setTimeout(()=>{ b.textContent='Copiar'; b.classList.remove('done'); },1600); }catch{ toast('Não foi possível copiar'); } });
+  p.querySelectorAll('.copy').forEach(b=>{ const bar=b.closest('.prompt-bar'); if(bar && !bar.querySelector('[data-sendp]')){ const s2=document.createElement('button'); s2.type='button'; s2.className='copy'; s2.dataset.sendp='1'; s2.style.cssText='background:transparent;color:var(--ink);border:1px solid var(--line);margin-right:6px'; s2.textContent='Enviar no chat'; s2.onclick=()=>{ const t=b.closest('.prompt')?.querySelector('.prompt-text')?.innerText||''; if(t){ sendChat(t.trim()); toast('Prompt enviado no chat'); } }; b.before(s2); } });
 }
 function fileUrl(u){ return u.startsWith('/api/hub/file/') && TOKEN && !MENTOR ? u+'?t='+encodeURIComponent(TOKEN) : u; }
 function appendLine(l){
