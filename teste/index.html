@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Operator Studio Teste</title>
+<meta name="description" content="Mentoria individual de IA em 8 semanas para donos de pequenos negócios. Versão de teste.">
+<link rel="icon" href="https://operator-studio.netlify.app/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400&family=Hanken+Grotesk:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#F3F1EC; --surface:#EAE6DF; --field-2:#DED7CC; --field-3:#E9D6CC; --field-4:#E2DED3;
+  --ink:#1C1A17; --soft:#5F584F; --taupe:#7E7669; --accent:#A8442E; --accent-ink:#FBF8F3;
+  --deep:#4F493F; --on-deep:#F3F1EC;
+  --serif:"Tinos", "Times New Roman", serif; --sans:"Hanken Grotesk", system-ui, sans-serif;
+  --m:clamp(20px, 3.4vw, 48px);
+  --ease-out:cubic-bezier(.23,1,.32,1); --ease-io:cubic-bezier(.77,0,.175,1);
+  --s-1:clamp(56px, 7.4vw, 124px);  /* display */
+  --s-2:clamp(34px, 4.4vw, 64px);   /* section heads */
+  --s-3:clamp(26px, 2.8vw, 40px);   /* sub-heads, bands */
+  --s-lead:clamp(20px, 1.7vw, 24px);/* statements, lead */
+  --s-4:18px;                       /* text */
+  --s-5:15px;                       /* small */
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font:400 var(--s-4)/1.55 var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img,video{display:block;max-width:100%}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+::selection{background:var(--ink);color:var(--bg)}
+.wrap{padding-inline:var(--m)}
+h1,h2,h3{font-family:var(--serif);font-weight:700;letter-spacing:-.035em;line-height:.98}
+h2{font-size:var(--s-2)}
+p{max-width:62ch}
+
+/* ---------- buttons ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:0 28px;border-radius:999px;
+  background:var(--accent);color:var(--accent-ink);font:600 16px/1 var(--sans);text-decoration:none;border:0;cursor:pointer;
+  transition:transform 160ms var(--ease-out), background-color 200ms ease}
+.btn:active{transform:scale(.97)}
+@media (hover:hover) and (pointer:fine){.btn:hover{background:#8F3826}}
+.link{font-weight:500;text-decoration:underline;text-decoration-thickness:1.5px;text-underline-offset:5px;transition:color 200ms ease}
+@media (hover:hover) and (pointer:fine){.link:hover{color:var(--accent)}}
+
+/* ---------- nav ---------- */
+.nav{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:22px var(--m)}
+.mark{font-family:var(--serif);font-size:22px;font-weight:700;letter-spacing:-.02em;text-decoration:none;white-space:nowrap}
+.mark i{font-weight:400;color:#6E665A}
+.nav ul{display:flex;gap:32px;list-style:none;align-items:center}
+.nav ul a{text-decoration:none;font-size:var(--s-5);font-weight:500;transition:color 200ms ease}
+@media (hover:hover) and (pointer:fine){.nav ul a:hover{color:var(--accent)}}
+.nav .btn{min-height:44px;padding:0 20px;font-size:15px}
+
+/* ---------- hero ---------- */
+.hero{min-height:calc(100svh - 88px);display:grid;grid-template-rows:1fr auto;padding:0 var(--m) 40px}
+.hero h1{align-self:center;font-size:clamp(56px,11.4vw,184px);line-height:.92;letter-spacing:-.05em;max-width:none}
+.hero h1 .row{display:flex;align-items:baseline;gap:.22em;flex-wrap:nowrap}
+.slot{display:inline-block;flex:none;width:2.3em;height:.74em;overflow:hidden;align-self:baseline;
+  clip-path:inset(0 0 0 0);transform:translateY(.02em)}
+.slot video{width:100%;height:100%;object-fit:cover;transform:scale(1);transition:transform 1.4s var(--ease-out)}
+.js .slot{clip-path:inset(0 100% 0 0);transition:clip-path 1.1s var(--ease-io) .25s}
+.js .slot video{transform:scale(1.12)}
+.js .ready .slot{clip-path:inset(0 0 0 0)}
+.js .ready .slot video{transform:scale(1)}
+.hero-foot{display:grid;grid-template-columns:repeat(12,1fr);gap:24px;align-items:end}
+.hero-foot p:not(.cap){grid-column:1 / span 6;font-size:var(--s-lead);line-height:1.3;letter-spacing:-.01em;font-family:var(--serif);max-width:34ch}
+.hero-foot .acts{grid-column:8 / span 5;display:flex;gap:28px;align-items:center;justify-content:flex-end;flex-wrap:wrap}
+.cap{font-size:var(--s-5);color:var(--soft)}
+.hero-cap{grid-column:1 / -1;margin-top:28px}
+
+/* ---------- origin ---------- */
+.origin{padding:200px 0 0}
+.origin .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:24px}
+.origin h2{grid-column:3 / span 10;margin-bottom:48px;max-width:16ch}
+.facts{grid-column:1 / span 2;list-style:none;font-size:var(--s-5);color:var(--soft);display:grid;gap:18px;align-content:start;padding-top:6px}
+.facts strong{display:block;color:var(--ink);font-weight:600}
+.bio{grid-column:3 / span 10;font-family:var(--serif);font-size:var(--s-lead);line-height:1.38;letter-spacing:-.012em;color:var(--soft);max-width:62ch}
+.bio::after{content:"";display:block;clear:both}
+.bio img{float:left;width:4.9em;height:4.9em;object-fit:cover;margin:.22em .6em 0 0}
+.bio b{color:var(--ink);font-weight:700}
+.band{margin-top:120px;position:relative;overflow:clip}
+.band video{width:100%;height:min(78svh,820px);object-fit:cover}
+.band figcaption{padding:16px var(--m) 0}
+
+/* ---------- weeks slider ---------- */
+.weeks{padding:200px 0 0}
+.weeks-head{display:grid;grid-template-columns:repeat(12,1fr);gap:24px;margin-bottom:56px}
+.weeks-head h2{grid-column:1 / span 8;max-width:none}
+.weeks-head p{grid-column:9 / span 4;align-self:end;color:var(--ink)}
+.split{display:grid;grid-template-columns:1fr 1fr;min-height:84svh}
+.split .say{background:var(--surface);padding:56px var(--m) 140px;display:flex;flex-direction:column;justify-content:space-between;gap:32px}
+.split .show{background:var(--field-2);display:grid;place-items:center;padding:56px 32px 140px}
+.clause{font-size:var(--s-2);line-height:1;max-width:none;min-height:2em;transition:opacity 200ms ease}
+.detail{max-width:36ch;transition:opacity 200ms ease}
+.track{position:relative;margin-top:-112px;padding:0 var(--m) 0;z-index:2}
+.track label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:40px;background:transparent;cursor:pointer;--p:0%}
+input[type=range]::-webkit-slider-runnable-track{height:8px;background:linear-gradient(to right,var(--ink) var(--p),rgba(28,26,23,.18) var(--p))} /* taste-skill-ignore: hard-stop progress fill of the slider track, not a gradient */
+input[type=range]::-moz-range-track{height:8px;background:rgba(28,26,23,.18)}
+input[type=range]::-moz-range-progress{height:8px;background:var(--ink)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:32px;height:32px;margin-top:-12px;background:var(--accent);border:0;border-radius:0;transition:transform 160ms var(--ease-out)}
+input[type=range]::-moz-range-thumb{width:32px;height:32px;background:var(--accent);border:0;border-radius:0}
+input[type=range]:active::-webkit-slider-thumb{transform:scale(.9)}
+.stops{display:grid;grid-template-columns:repeat(8,1fr);margin-top:10px;list-style:none;font-size:var(--s-5)}
+.stops button{all:unset;cursor:pointer;color:var(--soft);padding:8px 0;transition:color 200ms ease}
+.stops button[aria-current="true"]{color:var(--ink);font-weight:600}
+@media (hover:hover) and (pointer:fine){.stops button:hover{color:var(--ink)}}
+
+/* product fragments (real UI, own conventions) */
+[data-ui]{font-family:var(--sans);width:min(440px,100%);background:#FBFAF7;color:var(--ink);border-radius:14px;padding:22px;font-size:15px;line-height:1.4;
+  border:1px solid rgba(28,26,23,.08);transition:opacity 200ms ease, transform 200ms var(--ease-out)}
+[data-ui] .ui-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;font-size:13px;color:var(--soft)}
+[data-ui] .ui-top b{color:var(--ink);font-size:15px}
+.bub{max-width:82%;padding:10px 14px;border-radius:14px;margin-bottom:8px;font-size:14px}
+.bub.in{background:#ECE8E1}
+.bub.out{background:#DCE9D4;margin-left:auto}
+.bub small{display:block;font-size:12px;color:var(--soft);margin-top:4px}
+.sw{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:14px 0}
+.sw span{height:56px;border-radius:6px}
+.big-name{font-family:var(--serif);font-size:40px;letter-spacing:-.03em;line-height:1}
+.big-name i{color:#B08B74;font-weight:400}
+.ui-row{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:#F2EFEA;border-radius:8px;margin-bottom:6px;font-size:14px}
+.ui-row em{font-style:normal;color:var(--soft);font-size:13px}
+.pill{font-size:12px;font-weight:600;padding:4px 9px;border-radius:999px;background:#E9D6CC;color:#7B3322}
+.pill.ok{background:#DCE9D4;color:#2F5124}
+.posts{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.posts span{aspect-ratio:1;border-radius:4px;display:grid;place-items:center;font:700 13px var(--serif);color:#fff;text-align:center;padding:6px}
+.cols{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;font-size:12px}
+.cols div{background:#F2EFEA;border-radius:8px;padding:8px}
+.cols b{display:block;font-size:11px;color:var(--soft);font-weight:600;margin-bottom:6px}
+.cols p{background:#fff;border-radius:6px;padding:6px;margin-bottom:4px;font-size:12px;line-height:1.25}
+.check{list-style:none}
+.check li{display:flex;gap:10px;align-items:center;padding:8px 0;font-size:14px}
+.check li::before{content:"";width:18px;height:18px;border-radius:5px;background:#E3DED6;flex:none}
+.check li.done::before{background:#5E7D50}
+.check li.done{color:var(--soft);text-decoration:line-through}
+.bars{display:flex;align-items:flex-end;gap:10px;height:140px;margin:10px 0 8px}
+.bars span{flex:1;background:#D8D1C5;border-radius:4px 4px 0 0;position:relative}
+.bars span.hi{background:var(--accent)}
+.bars-l{display:flex;gap:10px;font-size:12px;color:var(--soft)}
+.bars-l span{flex:1;text-align:center}
+
+/* ---------- switches ---------- */
+.switches{padding:200px 0 0}
+.switches h2{padding:0 var(--m);margin-bottom:56px;max-width:16ch}
+.sband{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center;min-height:18vh;padding:28px var(--m);background:var(--bg);transition:background-color 300ms ease}
+.sband + .sband{margin-top:0}
+.sband .s{font-family:var(--serif);font-size:var(--s-3);line-height:1.04;letter-spacing:-.03em;font-weight:700;color:var(--taupe);transition:color 300ms ease}
+.sband .c{font-size:var(--s-4);max-width:56ch;display:grid;grid-template-rows:0fr;transition:grid-template-rows 300ms var(--ease-out)}
+.sband .c > span{overflow:hidden;padding-top:0;transition:padding-top 300ms var(--ease-out)}
+.sband.on .s{color:var(--ink)}
+.sband.on .c{grid-template-rows:1fr}
+.sband.on .c > span{padding-top:10px}
+.sband:nth-of-type(1).on{background:var(--surface)}
+.sband:nth-of-type(2).on{background:var(--field-3)}
+.sband:nth-of-type(3).on{background:var(--field-2)}
+.sband:nth-of-type(4).on{background:var(--field-4)}
+.sband:nth-of-type(5).on{background:var(--surface)}
+.tog{all:unset;cursor:pointer;width:2.2em;height:1.2em;font-size:var(--s-3);border-radius:999px;background:#CFC8BC;position:relative;flex:none;transition:background-color 200ms ease}
+.tog::after{content:"";position:absolute;top:.12em;left:.12em;width:.96em;height:.96em;border-radius:50%;background:#FBF8F3;transition:transform 260ms var(--ease-out)}
+.tog[aria-checked="true"]{background:var(--ink)}
+.tog[aria-checked="true"]::after{transform:translateX(1em)}
+.tog:active::after{width:1.08em}
+.tog:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
+
+/* ---------- services ---------- */
+.services{padding:200px 0 0}
+.services .head{display:grid;grid-template-columns:repeat(12,1fr);gap:24px;margin-bottom:56px}
+.services h2{grid-column:1 / span 7;max-width:13ch}
+.services .head p{grid-column:9 / span 4;align-self:end}
+.svc{display:grid;grid-template-columns:repeat(12,1fr);gap:24px;padding:40px var(--m);align-items:start}
+.svc:nth-child(odd){background:var(--surface)}
+.svc h3{grid-column:1 / span 5;font-size:var(--s-3)}
+.svc p{grid-column:6 / span 3}
+.svc ul{grid-column:9 / span 4;list-style:none;display:flex;flex-wrap:wrap;gap:8px}
+.svc li{font-size:var(--s-5);font-weight:500;padding:8px 14px;background:var(--bg);border-radius:999px}
+.svc:nth-child(even) li{background:var(--surface)}
+.svc-pics{display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px;padding:12px var(--m) 0}
+.svc-pics img{width:100%;height:clamp(220px,30vw,440px);object-fit:cover}
+
+/* ---------- contact ---------- */
+.contact{margin-top:160px;background:var(--field-2);min-height:76svh;display:grid;grid-template-rows:auto 1fr auto;padding:56px var(--m) 40px;gap:32px}
+.contact .lead{font-family:var(--serif);font-size:var(--s-lead);line-height:1.22;max-width:24ch;letter-spacing:-.01em}
+.contact h2{align-self:end;font-size:var(--s-1);line-height:.92;letter-spacing:-.05em;max-width:12ch}
+.contact h2 a{text-decoration:none;transition:color 240ms ease}
+@media (hover:hover) and (pointer:fine){.contact h2 a:hover{color:var(--accent)}}
+.contact .row{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;font-size:var(--s-5)}
+
+/* ---------- footer ---------- */
+footer{background:var(--deep);color:var(--on-deep);min-height:84svh;display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto 1fr auto auto;overflow:hidden;padding:72px var(--m) 0}
+footer .top{display:grid;grid-template-columns:repeat(12,1fr);gap:24px}
+footer h2{grid-column:1 / span 8;font-size:var(--s-2);max-width:none;margin-bottom:32px}
+footer .inv .btn{background:var(--on-deep);color:var(--ink)}
+@media (hover:hover) and (pointer:fine){footer .inv .btn:hover{background:#fff}}
+footer .inv{grid-column:1 / span 7}
+footer .links{grid-column:10 / span 3;list-style:none;display:grid;gap:12px;align-content:start}
+footer .links a{text-decoration:none;opacity:.9}
+@media (hover:hover) and (pointer:fine){footer .links a:hover{opacity:1;text-decoration:underline;text-underline-offset:4px}}
+footer .legal{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:13px;opacity:.85;padding-bottom:12px}
+footer .word{font-family:var(--serif);font-weight:700;font-size:21vw;letter-spacing:-.05em;line-height:.8;white-space:nowrap;transform:translateY(22%);margin-left:-.03em}
+footer .word i{font-weight:400;opacity:.7}
+
+/* ---------- entrance ---------- */
+.js .rise{opacity:0;transform:translateY(24px);transition:opacity 700ms var(--ease-out), transform 700ms var(--ease-out);transition-delay:calc(var(--i,0) * 80ms)}
+.js .rise.in{opacity:1;transform:none}
+.drift{animation:drift 24s ease-in-out infinite alternate}
+@keyframes drift{from{transform:scale(1)}to{transform:scale(1.06)}}
+@media (hover:hover) and (pointer:fine){.svc-pics img{transition:transform 600ms var(--ease-out)}.svc-pics a:hover img{transform:scale(1.03)}}
+.svc-pics a{display:block;overflow:hidden}
+
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  .js .rise{transform:none;transition:opacity 300ms ease}
+  .js .slot{clip-path:inset(0 0 0 0);transition:none}
+  .js .slot video,.slot video{transform:none}
+  .drift{animation:none}
+}
+
+/* ---------- tablet & phone ---------- */
+@media (max-width: 900px){
+  .nav ul li:not(:last-child){display:none}
+  .hero-foot p:not(.cap){grid-column:1 / -1}
+  .hero-foot .acts{grid-column:1 / -1;justify-content:flex-start}
+  .origin h2,.bio{grid-column:1 / -1}
+  .facts{grid-column:1 / -1;grid-row:3;grid-template-columns:repeat(3,1fr);margin-top:32px}
+  .weeks-head h2,.weeks-head p,.services h2,.services .head p{grid-column:1 / -1}
+  .svc h3,.svc p,.svc ul{grid-column:1 / -1}
+  footer h2,footer .inv,footer .links{grid-column:1 / -1}
+  footer .links{grid-auto-flow:column;justify-content:start;gap:20px;margin-top:40px}
+  .contact{min-height:auto;padding-block:72px 40px;gap:48px}
+  footer{min-height:auto;grid-template-rows:auto 72px auto auto}
+}
+@media (max-width: 640px){
+  :root{--m:20px}
+  .nav{padding:18px var(--m)}
+  .mark{font-size:20px}
+  .hero{min-height:calc(100svh - 80px);padding-bottom:28px}
+  .hero h1{font-size:11.6vw;line-height:.98;letter-spacing:-.055em}
+  .slot{width:2.4em;height:.78em}
+  .hero-foot,.origin .grid,.weeks-head,.services .head,.svc,footer .top{grid-template-columns:1fr}
+  .hero-foot p{font-size:21px}
+  .acts .btn{width:100%}
+  .origin,.weeks,.switches,.services{padding-top:120px}
+  .bio{font-size:22px;line-height:1.3}
+  .bio img{width:5.2em;height:5.2em}
+  .band{margin-top:72px}
+  .band video{height:56svh}
+  .weeks .stage{display:flex;flex-direction:column}
+  .split{display:contents}
+  .split .show{order:1;padding:28px 20px;min-height:46svh}
+  .weeks .stage .track{order:2;margin-top:0;background:var(--field-2);padding:0 var(--m) 20px}
+  .split .say{order:3;padding:40px var(--m) 48px;min-height:0}
+  .stops{grid-template-columns:repeat(4,1fr);row-gap:0}
+  input[type=range]::-webkit-slider-thumb{width:40px;height:40px;margin-top:-16px}
+  .clause{font-size:7.4vw}
+  .sband{min-height:132px;padding:24px var(--m)}
+  .sband .s{font-size:6.4vw}
+  .tog{font-size:30px}
+  .svc{padding:32px var(--m)}
+  .svc-pics{grid-template-columns:1fr 1fr}
+  .svc-pics a:first-child{grid-column:1 / -1}
+  .contact{margin-top:120px}
+  .contact h2{font-size:11.5vw}
+  .contact .row{flex-direction:column;gap:12px}
+  footer{padding-top:56px}
+  footer .inv .btn{width:100%}
+  footer .links{grid-auto-flow:row}
+  footer .word{font-size:30vw}
+}
+</style>
+</head>
+<body>
+<header class="nav">
+  <a class="mark" href="#top" aria-label="Operator Studio, início">Operator <i>Studio</i></a>
+  <nav aria-label="Principal">
+    <ul>
+      <li><a href="#semanas">A mentoria</a></li>
+      <li><a href="#origem">Quem somos</a></li>
+      <li><a href="#servicos">Serviços</a></li>
+      <li><a class="btn" href="https://operator-studio.netlify.app/#contato">Análise gratuita</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main id="top">
+  <section class="hero" aria-labelledby="h1">
+    <h1 id="h1">
+      <span class="row">Opere sua empresa</span>
+      <span class="row"><span class="slot" aria-hidden="true"><video src="media/loop-sala.mp4" poster="media/loop-sala.jpg" autoplay muted loop playsinline width="960" height="540"></video></span>com IA.</span>
+    </h1>
+    <div class="hero-foot">
+      <p class="rise">Mentoria individual de 8 semanas: você constrói os sistemas do seu negócio comigo e sai operando sozinho.</p>
+      <div class="acts rise" style="--i:1">
+        <a class="link" href="#semanas">Ver as 8 semanas</a>
+        <a class="btn" href="https://operator-studio.netlify.app/#contato">Reservar análise gratuita</a>
+      </div>
+      <p class="cap hero-cap rise" style="--i:2">Na palavra: um projeto da HSHome Interiors em Dubai, uma das empresas que operamos com IA.</p>
+    </div>
+  </section>
+
+  <section class="origin" id="origem" aria-labelledby="h-origem">
+    <div class="wrap grid">
+      <h2 id="h-origem" class="rise">Nascemos dentro da operação.</h2>
+      <ul class="facts rise" style="--i:1">
+        <li><strong>Base</strong>Dubai</li>
+        <li><strong>Sessões</strong>Online, em português</li>
+        <li><strong>Fale direto</strong><a href="https://instagram.com/luccastorres" class="link">@luccastorres</a></li>
+      </ul>
+      <p class="bio rise" style="--i:2"><img src="media/sala-1.jpg" alt="Sala de estar com sofá curvo e painel de madeira, projeto HSHome Interiors" width="1400" height="787" loading="lazy"><b>Luccas Torres opera três empresas em Dubai:</b> a HSHome Interiors, de design e reforma de alto padrão, a HSHome Holiday Homes, de aluguel por temporada, e a The Pom Shop, de skincare para Pomeranians. A Operator Studio nasceu para rodar essas operações com IA. Atendimento, CRM, orçamentos, conteúdo: o que você constrói na mentoria é o que funciona lá todos os dias.</p>
+    </div>
+    <figure class="band rise">
+      <video src="media/obra.mp4" poster="media/obra.jpg" autoplay muted loop playsinline preload="metadata" width="1280" height="720" aria-label="Percurso por um apartamento entregue pela HSHome Interiors"></video>
+      <figcaption class="cap">HSHome Interiors · apartamento entregue em Dubai.</figcaption>
+    </figure>
+  </section>
+
+  <section class="weeks" id="semanas" aria-labelledby="h-semanas">
+    <div class="wrap weeks-head">
+      <h2 id="h-semanas" class="rise">Uma peça real por semana.</h2>
+      <p class="rise" style="--i:1">Arraste pelas semanas e veja o que fica pronto no seu negócio. O exemplo é um salão, mas cada plano é montado para você.</p>
+    </div>
+    <div class="stage">
+      <div class="split">
+        <div class="say">
+          <h3 class="clause" id="clause" aria-live="polite">Um assistente que conhece o seu negócio.</h3>
+          <p class="detail" id="detail">Semana 1. Respostas prontas para o WhatsApp e um modelo de proposta, no tom da sua marca.</p>
+        </div>
+        <div class="show"><div id="frag"></div></div>
+      </div>
+      <div class="track">
+        <label for="wk">Semana da mentoria</label>
+        <input id="wk" type="range" min="1" max="8" step="1" value="1" aria-valuetext="Semana 1, Assistente">
+        <ul class="stops" id="stops"></ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="switches" id="resultado" aria-labelledby="h-res">
+    <h2 id="h-res" class="rise">Ligue e veja o que muda.</h2>
+    <div class="sband on"><div><p class="s">O cliente volta no dia certo.</p><p class="c"><span>O CRM sabe que a coloração da Giulia foi há 41 dias e escreve para ela por você.</span></p></div><button class="tog" role="switch" aria-checked="true" aria-label="O cliente volta no dia certo"></button></div>
+    <div class="sband"><div><p class="s">O WhatsApp responde de madrugada.</p><p class="c"><span>Um agente treinado no seu negócio atende, tira dúvidas e passa para você só o que importa.</span></p></div><button class="tog" role="switch" aria-checked="false" aria-label="O WhatsApp responde de madrugada"></button></div>
+    <div class="sband on"><div><p class="s">Todo contato cai no CRM sozinho.</p><p class="c"><span>Do formulário do site ao WhatsApp, nenhum cliente fica perdido no meio de uma conversa.</span></p></div><button class="tog" role="switch" aria-checked="true" aria-label="Todo contato cai no CRM sozinho"></button></div>
+    <div class="sband"><div><p class="s">O orçamento sai em minutos.</p><p class="c"><span>A IA preenche o seu modelo de proposta, com a sua marca, a partir de uma conversa.</span></p></div><button class="tog" role="switch" aria-checked="false" aria-label="O orçamento sai em minutos"></button></div>
+    <div class="sband"><div><p class="s">O conteúdo do mês já está pronto.</p><p class="c"><span>Calendário de 30 dias, roteiros e posts no tom da sua marca.</span></p></div><button class="tog" role="switch" aria-checked="false" aria-label="O conteúdo do mês já está pronto"></button></div>
+  </section>
+
+  <section class="services" id="servicos" aria-labelledby="h-svc">
+    <div class="wrap head">
+      <h2 id="h-svc" class="rise">Prefere que a gente construa?</h2>
+      <p class="rise" style="--i:1">Os mesmos sistemas da mentoria, entregues prontos pela Operator Studio.</p>
+    </div>
+    <div class="svc rise"><h3>Sistemas e automações</h3><p>A operação trabalhando sozinha, do primeiro contato ao pós-venda.</p><ul><li>CRM de vendas</li><li>Orçamentos automáticos</li><li>Agentes de IA</li><li>Apps internos</li></ul></div>
+    <div class="svc rise"><h3>Sites e landing pages</h3><p>Um site que recebe contatos e agendamentos por você.</p><ul><li>Site institucional</li><li>Página de vendas</li><li>Captura de clientes</li></ul></div>
+    <div class="svc rise"><h3>Marca</h3><p>Uma identidade com presença, do nome ao brand book.</p><ul><li>Posicionamento</li><li>Logo e identidade</li><li>Brand book</li></ul></div>
+    <div class="svc rise"><h3>Conteúdo</h3><p>Presença constante, com estratégia e no seu tom.</p><ul><li>Calendário</li><li>Roteiros</li><li>Vídeos com IA</li><li>Carrosséis</li></ul></div>
+    <div class="svc-pics">
+      <a href="#origem" aria-label="Projeto HSHome Interiors"><img src="media/sala-2.jpg" alt="Sala com luminárias pendentes de tecido e painel de madeira, projeto HSHome Interiors" width="1000" height="562" loading="lazy"></a>
+      <a href="#origem" aria-label="Projeto HSHome Interiors"><img src="media/still-16.jpg" alt="Quarto infantil com berço de madeira, projeto HSHome Interiors" width="1280" height="720" loading="lazy"></a>
+      <a href="#origem" aria-label="Projeto HSHome Interiors"><img src="media/still-20.jpg" alt="Quarto de casal com estante de madeira, projeto HSHome Interiors" width="1280" height="720" loading="lazy"></a>
+    </div>
+  </section>
+
+  <section class="contact" id="contato-teste" aria-labelledby="h-ct">
+    <p class="lead rise">Trinta minutos, por videochamada, para achar onde o seu negócio perde tempo e dinheiro.</p>
+    <h2 id="h-ct" class="rise" style="--i:1"><a href="https://operator-studio.netlify.app/#contato">Reservar análise gratuita</a></h2>
+    <div class="row rise" style="--i:2"><span>Online · horário de Milão · 30 minutos</span><a class="link" href="https://instagram.com/luccastorres">Instagram @luccastorres</a></div>
+  </section>
+</main>
+
+<footer>
+  <div class="top">
+    <div class="inv">
+      <h2>Seu negócio, operando sozinho.</h2>
+      <a class="btn" href="https://operator-studio.netlify.app/#contato">Reservar análise gratuita</a>
+    </div>
+    <ul class="links">
+      <li><a href="#semanas">A mentoria</a></li>
+      <li><a href="#servicos">Serviços</a></li>
+      <li><a href="https://instagram.com/luccastorres">Instagram</a></li>
+    </ul>
+  </div>
+  <div></div>
+  <div class="legal"><span>Operator Studio · Dubai · by Luccas Torres</span><span>Imagens: projetos HSHome Interiors</span></div>
+  <div class="word" aria-hidden="true">Operator <i>Studio</i></div>
+</footer>
+
+<script>
+document.documentElement.classList.add('js');
+const W = [
+  {n:'Assistente', c:'Um assistente que conhece o seu negócio.', d:'Respostas prontas para o WhatsApp e um modelo de proposta, no tom da sua marca.',
+   f:`<div class="ui-top"><b>Assistente · Salão Aurora</b><span>Claude</span></div>
+      <div class="bub in">Quanto custa uma progressiva? Dura quanto tempo?<small>Cliente · 21:14</small></div>
+      <div class="bub out">Oi! A progressiva aqui é €220 e dura em média 3 meses. Quinta às 15h tenho um horário livre, reservo para você?<small>Resposta sugerida</small></div>
+      <div class="ui-row"><span>Enviar no WhatsApp</span><span class="pill ok">Pronto</span></div>`},
+  {n:'Marca', c:'Uma marca clara, numa página.', d:'Brand Kit de uma página e templates no Canva para tudo o que você publica.',
+   f:`<div class="ui-top"><b>Brand Kit</b><span>1 página</span></div>
+      <p class="big-name">Salão <i>Aurora</i></p><p style="font-size:12px;letter-spacing:.02em;color:#5F584F;margin-top:6px">Cabelo · cor · cuidado</p>
+      <div class="sw"><span style="background:#6E6862"></span><span style="background:#F4EFE8"></span><span style="background:#C7AE96"></span><span style="background:#E4D6C8"></span></div>
+      <div class="ui-row"><span>Títulos · Tinos</span><em>Textos · Hanken</em></div>`},
+  {n:'Site', c:'Um site que agenda sozinho.', d:'Uma página profissional no ar, recebendo contatos e horários enquanto você atende.',
+   f:`<div class="ui-top"><b>salaoaurora.com</b><span>No ar</span></div>
+      <p class="big-name" style="font-size:24px">Agende o seu horário</p>
+      <div class="ui-row" style="margin-top:14px"><span>Quinta, 15:00</span><span class="pill ok">Livre</span></div>
+      <div class="ui-row"><span>Quinta, 16:30</span><span class="pill">Ocupado</span></div>
+      <div class="ui-row"><span>Sábado, 10:30</span><span class="pill ok">Livre</span></div>`},
+  {n:'Instagram', c:'Um Instagram com 30 dias prontos.', d:'Perfil reformulado, 9 posts prontos e um calendário de conteúdo para o mês.',
+   f:`<div class="ui-top"><b>@salaoaurora</b><span>9 posts prontos</span></div>
+      <div class="posts">${['Antes e depois','Cor de outono','Dica de cuidado','Agenda aberta','Nossa equipe','Hidratação','Mechas','Bastidores','Reserve já'].map((t,i)=>`<span style="background:${['#7E7669','#B08B74','#A8442E','#6E6862','#C7AE96','#5F584F','#B08B74','#7E7669','#A8442E'][i]}">${t}</span>`).join('')}</div>`},
+  {n:'CRM', c:'Cada cliente no CRM, sozinho.', d:'Todo novo contato entra no funil com histórico, ticket e follow-up automático.',
+   f:`<div class="ui-top"><b>CRM do salão</b><span>8 clientes</span></div>
+      <div class="cols"><div><b>Novo</b><p>Ana P.<br>mechas</p><p>Luca F.<br>barba</p></div><div><b>Agendado</b><p>Marco B.<br>sáb 10:30</p><p>Elena V.<br>qui 15:00</p></div><div><b>Atendido</b><p>Sofia L.<br>escova</p><p>Bianca T.<br>manicure</p></div><div><b>Retorno</b><p>Giulia R.<br>41 dias</p><p>Chiara M.<br>52 dias</p></div></div>`},
+  {n:'Processos', c:'Um processo crítico, rodando.', d:'Mapeado, documentado e funcionando num sistema interno que a equipe usa.',
+   f:`<div class="ui-top"><b>Abertura do salão</b><span>Hoje · 08:40</span></div>
+      <ul class="check"><li class="done">Conferir agenda do dia</li><li class="done">Confirmar clientes por WhatsApp</li><li class="done">Separar produtos de coloração</li><li>Revisar estoque de hidratação</li><li>Postar o story do dia</li></ul>`},
+  {n:'Agentes', c:'Um agente que atende por você.', d:'Responde clientes com base no seu negócio e registra cada conversa no CRM.',
+   f:`<div class="ui-top"><b>Agente · WhatsApp</b><span>02:13</span></div>
+      <div class="bub in">Vocês fazem luzes em cabelo curto?<small>Novo contato</small></div>
+      <div class="bub out">Fazemos sim! Para cabelo curto a técnica é mais rápida, por volta de 2h. Quer ver os horários de amanhã?<small>Agente</small></div>
+      <div class="ui-row"><span>Registrado no CRM · Novo</span><span class="pill ok">Feito</span></div>`},
+  {n:'ROI', c:'Quanto a IA liberou, em números.', d:'Tempo e dinheiro medidos semana a semana, e o seu plano para os próximos 90 dias.',
+   f:`<div class="ui-top"><b>Horas devolvidas por semana</b><span>Exemplo</span></div>
+      <div class="bars">${[2,3,5,6,8,9,11,12].map((h,i)=>`<span ${i==7?'class="hi"':''} style="height:${h*8}%"></span>`).join('')}</div>
+      <div class="bars-l">${[1,2,3,4,5,6,7,8].map(i=>`<span>S${i}</span>`).join('')}</div>
+      <div class="ui-row" style="margin-top:14px"><span>Plano dos próximos 90 dias</span><span class="pill ok">Pronto</span></div>`}
+];
+const wk=document.getElementById('wk'), stops=document.getElementById('stops');
+const els={clause:document.getElementById('clause'),detail:document.getElementById('detail'),frag:document.getElementById('frag')};
+stops.innerHTML=W.map((w,i)=>`<li><button type="button" data-i="${i+1}">${w.n}</button></li>`).join('');
+let cur=0, t;
+function show(n,instant){
+  n=+n; if(n===cur) return; cur=n; const w=W[n-1];
+  wk.value=n; wk.style.setProperty('--p',((n-1)/7*100)+'%'); wk.setAttribute('aria-valuetext',`Semana ${n}, ${w.n}`);
+  stops.querySelectorAll('button').forEach(b=>b.setAttribute('aria-current', b.dataset.i==n));
+  const fade=[els.clause,els.detail,els.frag.firstElementChild].filter(Boolean);
+  const swap=()=>{els.clause.textContent=w.c;els.detail.textContent=`Semana ${n}. ${w.d}`;
+    els.frag.innerHTML=`<div data-ui>${w.f}</div>`;[els.clause,els.detail].forEach(e=>e.style.opacity=1);};
+  if(instant||matchMedia('(prefers-reduced-motion: reduce)').matches){swap();return;}
+  fade.forEach(e=>e.style.opacity=0); clearTimeout(t); t=setTimeout(swap,200);
+}
+wk.addEventListener('input',e=>show(e.target.value));
+stops.addEventListener('click',e=>{const b=e.target.closest('button'); if(b) show(b.dataset.i)});
+show(1,true);
+
+document.querySelectorAll('.tog').forEach(b=>b.addEventListener('click',()=>{
+  const on=b.getAttribute('aria-checked')!=='true'; b.setAttribute('aria-checked',on); b.closest('.sband').classList.toggle('on',on);
+}));
+
+requestAnimationFrame(()=>requestAnimationFrame(()=>document.querySelector('.hero').classList.add('ready')));
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{rootMargin:'0px 0px -8% 0px'});
+document.querySelectorAll('.rise').forEach(el=>io.observe(el));
+setTimeout(()=>document.querySelectorAll('.rise').forEach(el=>{const r=el.getBoundingClientRect(); if(r.top<innerHeight) el.classList.add('in')}),50);
+document.querySelectorAll('.band video').forEach(v=>v.classList.add('drift'));
+</script>
+</body>
+</html>
