@@ -47,7 +47,8 @@ p{max-width:62ch}
 @media (hover:hover) and (pointer:fine){.link:hover{color:var(--accent)}}
 
 /* ---------- nav ---------- */
-.nav{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:22px var(--m)}
+.nav{position:fixed;top:0;left:0;right:0;z-index:30;display:flex;align-items:center;justify-content:space-between;gap:24px;padding:22px var(--m);background:var(--bg)}
+main{padding-top:0}
 .mark{font-family:var(--serif);font-size:22px;font-weight:700;letter-spacing:-.02em;text-decoration:none;white-space:nowrap}
 .mark i{font-weight:400;color:#6E665A}
 .nav ul{display:flex;gap:32px;list-style:none;align-items:center}
@@ -228,6 +229,146 @@ footer .word i{font-weight:400;opacity:.7}
   .drift{animation:none}
 }
 
+/* ---------- scene: o negócio se montando ---------- */
+.scene{position:relative;height:760svh}
+.pin{position:sticky;top:0;height:100svh;overflow:hidden;display:grid;grid-template-columns:minmax(300px,30%) 1fr;align-items:center;gap:24px;padding:88px var(--m) 32px;background:var(--bg)}
+.intro{position:absolute;inset:88px var(--m) 32px;display:flex;flex-direction:column;justify-content:center;gap:32px;z-index:5;will-change:transform,opacity}
+.intro h1{font-size:clamp(60px,12.4vw,210px);line-height:.9;letter-spacing:-.055em;max-width:11ch}
+.intro-sub{font-family:var(--serif);font-size:var(--s-lead);line-height:1.3;max-width:34ch}
+.intro-acts{display:flex;gap:28px;align-items:center;flex-wrap:wrap}
+.scroll-cue{font-size:var(--s-5);color:var(--soft);display:inline-flex;align-items:center;gap:10px}
+.scroll-cue::after{content:"";width:10px;height:10px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg);animation:cue 1.6s var(--ease-io) infinite}
+@keyframes cue{0%,100%{transform:translateY(-3px) rotate(45deg)}50%{transform:translateY(3px) rotate(45deg)}}
+
+.chapter{align-self:center;opacity:0;will-change:transform,opacity}
+.ch-word{font-family:var(--serif);font-weight:700;font-size:clamp(48px,5.2vw,92px);line-height:.92;letter-spacing:-.05em;transition:opacity 220ms ease, transform 320ms var(--ease-out)}
+.ch-line{font-family:var(--serif);font-size:var(--s-lead);line-height:1.3;margin-top:20px;max-width:24ch;transition:opacity 220ms ease}
+.ch-bar{margin-top:32px;height:6px;background:rgba(28,26,23,.12);width:min(260px,100%)}
+.ch-bar span{display:block;height:100%;width:100%;background:var(--accent);transform-origin:left;transform:scaleX(0)}
+.chapter.swap .ch-word{opacity:0;transform:translateY(14px)}
+.chapter.swap .ch-line{opacity:0}
+
+.world{position:relative;height:100%;min-height:0;min-width:0}
+.box{position:absolute;left:50%;top:50%;width:1000px;height:680px;transform-origin:center;font-size:16px;translate:-50% -50%}
+.piece{position:absolute;opacity:0;will-change:transform,opacity;font-family:var(--sans);color:var(--ink);box-shadow:0 30px 60px -30px rgba(40,32,24,.35), 0 2px 6px rgba(40,32,24,.06)} /* taste-skill-ignore: floating product windows in a staged scene */
+
+.p-brand{left:0;top:0;width:300px;height:220px;background:#FBFAF7;border-radius:16px;padding:22px 24px;z-index:3}
+.pb-k{font-size:.75em;color:var(--soft);font-weight:600}
+.pb-name{font:700 2.6em/1 var(--serif);letter-spacing:-.04em;margin-top:.5em}
+.pb-name i,.ps-title i{font-weight:400;color:#B08B74}
+.pb-tag{font-size:.75em;color:var(--soft);margin-top:.5em}
+.pb-sw{display:flex;gap:6px;margin-top:1.1em}
+.pb-sw span{flex:1;height:2.4em;border-radius:6px}
+.pb-mono{position:absolute;top:18px;right:20px;width:3em;height:3em;border-radius:50%;display:grid;place-items:center;font:700 1em var(--serif);background:#EDE6DC;color:#7E7669}
+
+.p-site{left:200px;top:205px;width:580px;height:380px;background:#FBFAF7;border-radius:14px;overflow:hidden;z-index:2}
+.ps-bar{display:flex;align-items:center;gap:6px;height:36px;padding:0 14px;background:#ECE8E1;font-size:.75em;color:var(--soft)}
+.ps-bar i{width:10px;height:10px;border-radius:50%;background:#D3CBBF}
+.ps-bar span{margin-left:14px;background:#F6F3EE;padding:3px 14px;border-radius:999px}
+.ps-body{display:grid;grid-template-columns:1.25fr 1fr;height:calc(100% - 36px)}
+.ps-hero{background:#E9DFD4;padding:34px 26px;display:flex;flex-direction:column;gap:14px}
+.ps-title{font:700 2.6em/.95 var(--serif);letter-spacing:-.04em}
+.ps-sub{font-size:.85em;line-height:1.4;color:#4F493F}
+.ps-btn{align-self:flex-start;background:#6E6862;color:#fff;font-size:.8em;font-weight:600;padding:.75em 1.2em;border-radius:999px;margin-top:auto}
+.ps-slots{padding:26px 20px;display:flex;flex-direction:column;gap:8px;font-size:.85em}
+.ps-slots p{font-weight:600;margin-bottom:4px}
+.slot-row{display:flex;justify-content:space-between;align-items:center;padding:.7em .9em;border-radius:8px;background:#F1EDE7;transition:background-color 300ms ease}
+.slot-row em{font-style:normal;font-size:.85em;font-weight:600;color:#2F5124}
+.slot-row em.busy{color:#9A9186}
+.slot-row.booked{background:#A8442E;color:#fff}
+.slot-row.booked em{color:#fff}
+
+.p-phone{left:740px;top:0;width:250px;height:520px;background:#1F1D1A;border-radius:38px;padding:10px;z-index:4}
+.ph-notch{position:absolute;top:16px;left:50%;width:76px;height:20px;margin-left:-38px;background:#1F1D1A;border-radius:12px;z-index:3}
+.ph-screen{position:relative;height:100%;background:#FBFAF7;border-radius:30px;overflow:hidden}
+.ph-ig,.ph-wa{position:absolute;inset:0;padding:46px 12px 12px;transition:opacity 400ms ease, transform 500ms var(--ease-out)}
+.ph-wa{opacity:0;transform:translateX(30px);background:#EFEAE2}
+.scene.wa .ph-ig{opacity:0;transform:translateX(-30px)}
+.scene.wa .ph-wa{opacity:1;transform:none}
+.ig-head,.wa-head{display:flex;gap:10px;align-items:center;margin-bottom:14px;font-size:.8em}
+.ig-head small,.wa-head small{display:block;color:var(--soft);font-size:.85em}
+.ig-av{width:2.6em;height:2.6em;border-radius:50%;background:#A8442E;color:#fff;display:grid;place-items:center;font:700 .85em var(--serif);flex:none}
+.ig-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px}
+.ig-grid span{aspect-ratio:1;display:grid;place-items:center;text-align:center;padding:4px;color:#fff;font:700 .62em/1.1 var(--serif);opacity:0;transform:scale(.85);transition:opacity 300ms ease, transform 400ms var(--ease-out)}
+.ig-grid span.on{opacity:1;transform:none}
+.wa-head{background:#FBFAF7;margin:-46px -12px 12px;padding:46px 12px 10px}
+.wa-body{display:flex;flex-direction:column;gap:8px;font-size:.78em;line-height:1.35}
+.w-msg{max-width:86%;padding:.6em .8em;border-radius:12px;opacity:0;transform:translateY(10px) scale(.96);transition:opacity 300ms ease, transform 380ms var(--ease-out)}
+.w-msg small{display:block;font-size:.8em;color:var(--soft);margin-top:3px}
+.w-msg.out{background:#DCE9D4;align-self:flex-end;transform-origin:right bottom}
+.w-msg.in{background:#fff;align-self:flex-start;transform-origin:left bottom}
+.w-msg.on{opacity:1;transform:none}
+.w-typing{align-self:flex-start;background:#fff;border-radius:12px;padding:.7em .9em;display:none;gap:4px}
+.w-typing.on{display:flex}
+.w-typing i{width:6px;height:6px;border-radius:50%;background:#9A9186;animation:dot 1s infinite}
+.w-typing i:nth-child(2){animation-delay:.15s}.w-typing i:nth-child(3){animation-delay:.3s}
+@keyframes dot{0%,100%{opacity:.3}50%{opacity:1}}
+
+.p-crm{left:0;top:450px;width:660px;height:230px;background:#FBFAF7;border-radius:14px;padding:16px;z-index:3}
+.pc-top{display:flex;justify-content:space-between;font-size:.8em;color:var(--soft);margin-bottom:12px}
+.pc-top b{color:var(--ink);font-size:1.1em}
+.pc-cols{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.pc-col{background:#F1EDE7;border-radius:10px;padding:8px;min-height:160px}
+.pc-col b{display:block;font-size:.72em;color:var(--soft);margin-bottom:6px}
+.cc{background:#fff;border-radius:8px;padding:.55em .65em;margin-bottom:6px;font-size:.78em;font-weight:600;line-height:1.25;transition:opacity 300ms ease, transform 500ms var(--ease-out), box-shadow 300ms ease}
+.cc em{display:block;font-style:normal;font-weight:400;color:var(--soft);font-size:.92em}
+.cc.hot{box-shadow:inset 0 0 0 2px var(--accent)}
+.cc.ghost{opacity:0;transform:translateX(-24px)}
+.scene.moved #ccGiulia{opacity:0;transform:translateX(-40px)}
+.scene.moved #ccGiuliaDest{opacity:1;transform:none;box-shadow:inset 0 0 0 2px var(--accent)}
+
+.p-roi{left:660px;top:470px;width:320px;height:200px;background:var(--ink);color:#F3F1EC;border-radius:16px;padding:20px 22px;z-index:5}
+.pr-k{font-size:.78em;opacity:.8}
+.pr-n{font:700 4em/1 var(--serif);letter-spacing:-.04em;margin-top:.15em;font-variant-numeric:tabular-nums}
+.pr-bars{display:flex;gap:6px;align-items:flex-end;height:46px;margin-top:10px}
+.pr-bars span{flex:1;height:calc(var(--h) * 100%);background:rgba(243,241,236,.28);border-radius:3px 3px 0 0;transform-origin:bottom;transform:scaleY(var(--g,0));transition:transform 600ms var(--ease-out)}
+.pr-bars span.hi{background:var(--accent)}
+.scene.roi .pr-bars span{--g:1}
+
+.finale{position:absolute;inset:0;background:var(--accent);color:#FBF8F3;display:flex;flex-direction:column;justify-content:center;gap:28px;padding:88px var(--m) 48px;z-index:8;clip-path:circle(0% at 86% 40%);pointer-events:none}
+.finale.live{pointer-events:auto}
+.fi-k{font-family:var(--serif);font-size:var(--s-lead)}
+.fi-h{font-family:var(--serif);font-weight:700;font-size:clamp(56px,10vw,170px);line-height:.92;letter-spacing:-.05em;max-width:12ch}
+.btn.inv{background:#FBF8F3;color:var(--ink);align-self:flex-start}
+@media (hover:hover) and (pointer:fine){.btn.inv:hover{background:#fff}}
+
+/* phone composition */
+@media (max-width:760px){
+  .scene{height:820svh}
+  .pin{grid-template-columns:1fr;grid-template-rows:auto 1fr;padding:80px var(--m) 20px;gap:12px;align-items:start}
+  .intro{inset:80px var(--m) 24px;gap:24px;justify-content:center}
+  .intro h1{font-size:17.5vw;line-height:.92}
+  .intro .btn{width:100%}
+  .ch-word{font-size:13.5vw}
+  .ch-line{font-size:17px;margin-top:8px;max-width:none}
+  .ch-bar{margin-top:14px}
+  .box{width:390px;height:600px;font-size:11px}
+  .p-brand{left:0;top:0;width:210px;height:160px;padding:14px 16px}
+  .p-site{left:40px;top:120px;width:300px;height:240px}
+  .ps-hero{padding:16px 14px;gap:8px}
+  .ps-slots{padding:14px 10px;gap:5px}
+  .p-phone{left:210px;top:20px;width:180px;height:380px;border-radius:30px;padding:7px}
+  .ph-screen{border-radius:24px}
+  .ph-notch{width:56px;margin-left:-28px;top:12px;height:16px}
+  .ph-ig,.ph-wa{padding:36px 9px 9px}
+  .wa-head{margin:-36px -9px 10px;padding:36px 9px 8px}
+  .p-crm{left:0;top:380px;width:330px;height:200px;padding:10px}
+  .pc-col{min-height:140px;padding:6px}
+  .p-roi{left:190px;top:440px;width:200px;height:150px;padding:14px}
+  .pr-bars{height:32px}
+  .finale{clip-path:circle(0% at 70% 30%);justify-content:flex-end;padding-bottom:64px}
+  .fi-h{font-size:16vw}
+  .finale .btn{width:100%}
+}
+@media (prefers-reduced-motion: reduce){
+  .scene{height:auto}
+  .pin{position:relative;height:auto;min-height:100svh}
+  .intro{position:relative;inset:auto}
+  .chapter{display:none}
+  .piece{opacity:1 !important;transform:none !important}
+  .finale{position:relative;clip-path:none;pointer-events:auto}
+}
+
 /* ---------- tablet & phone ---------- */
 @media (max-width: 900px){
   .nav ul li:not(:last-child){display:none}
@@ -297,18 +438,99 @@ footer .word i{font-weight:400;opacity:.7}
 </header>
 
 <main id="top">
-  <section class="hero" aria-labelledby="h1">
-    <h1 id="h1">
-      <span class="row">Opere sua empresa</span>
-      <span class="row"><span class="slot" aria-hidden="true" data-ui><span class="msg" id="heroMsg">Giulia, quinta às 15h? Já faz 41 dias da sua cor.<small>Enviado pelo CRM</small></span></span>com IA.</span>
-    </h1>
-    <div class="hero-foot">
-      <p class="rise">Mentoria individual de 8 semanas: você constrói os sistemas do seu negócio comigo e sai operando sozinho.</p>
-      <div class="acts rise" style="--i:1">
-        <a class="link" href="#semanas">Ver as 8 semanas</a>
-        <a class="btn" href="https://operator-studio.netlify.app/#contato">Reservar análise gratuita</a>
+  <section class="scene" id="cena" aria-labelledby="h1">
+    <div class="pin">
+      <div class="intro" id="intro">
+        <h1 id="h1">Opere sua empresa com&nbsp;IA.</h1>
+        <p class="intro-sub">Mentoria individual de 8 semanas. Role e veja um negócio se montar.</p>
+        <div class="intro-acts">
+          <a class="btn" href="https://operator-studio.netlify.app/#contato">Reservar análise gratuita</a>
+          <span class="scroll-cue" aria-hidden="true">Role para montar</span>
+        </div>
       </div>
-      <p class="cap hero-cap rise" style="--i:2">Na palavra: a mensagem que o CRM de um salão manda sozinho, no dia certo. Você constrói isso na mentoria.</p>
+
+      <div class="chapter" id="chapter" aria-live="polite">
+        <p class="ch-word" id="chWord">Marca</p>
+        <p class="ch-line" id="chLine">Semana 2. Nasce o Salão Aurora: nome, logo e paleta.</p>
+        <div class="ch-bar"><span id="chBar"></span></div>
+      </div>
+
+      <div class="world" id="world" aria-hidden="true">
+        <div class="box" id="box">
+
+          <div class="piece p-brand" data-in=".14,.22">
+            <p class="pb-k">Brand kit</p>
+            <p class="pb-name">Salão <i>Aurora</i></p>
+            <p class="pb-tag">Cabelo · cor · cuidado</p>
+            <div class="pb-sw"><span style="background:#6E6862"></span><span style="background:#F4EFE8"></span><span style="background:#C7AE96"></span><span style="background:#A8442E"></span></div>
+            <div class="pb-mono">SA</div>
+          </div>
+
+          <div class="piece p-site" data-in=".24,.33">
+            <div class="ps-bar"><i></i><i></i><i></i><span>salaoaurora.com</span></div>
+            <div class="ps-body">
+              <div class="ps-hero">
+                <p class="ps-title">Salão <i>Aurora</i></p>
+                <p class="ps-sub">Cor e cuidado em Milão. Agende online em 30 segundos.</p>
+                <span class="ps-btn">Agendar horário</span>
+              </div>
+              <div class="ps-slots">
+                <p>Quinta-feira</p>
+                <div class="slot-row"><span>10:00</span><em class="busy">Ocupado</em></div>
+                <div class="slot-row hot" id="slot15"><span>15:00</span><em>Livre</em></div>
+                <div class="slot-row"><span>16:30</span><em class="busy">Ocupado</em></div>
+                <div class="slot-row"><span>18:00</span><em>Livre</em></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="piece p-crm" data-in=".46,.55">
+            <div class="pc-top"><b>CRM do salão</b><span id="crmCount">8 clientes</span></div>
+            <div class="pc-cols">
+              <div class="pc-col"><b>Novo</b><p class="cc">Ana P.<em>mechas · €180</em></p><p class="cc" id="ccLuca">Luca F.<em>barba · €25</em></p></div>
+              <div class="pc-col"><b>Agendado</b><p class="cc">Marco B.<em>sáb 10:30</em></p><p class="cc ghost" id="ccGiuliaDest">Giulia R.<em>qui 15:00</em></p></div>
+              <div class="pc-col"><b>Atendido</b><p class="cc">Sofia L.<em>escova · €65</em></p><p class="cc">Bianca T.<em>manicure · €30</em></p></div>
+              <div class="pc-col"><b>Retorno</b><p class="cc hot" id="ccGiulia">Giulia R.<em>coloração · 41 dias</em></p><p class="cc">Chiara M.<em>52 dias</em></p></div>
+            </div>
+          </div>
+
+          <div class="piece p-phone" data-in=".34,.42">
+            <div class="ph-notch"></div>
+            <div class="ph-screen">
+              <div class="ph-ig" id="phIg">
+                <div class="ig-head"><span class="ig-av">SA</span><div><b>salaoaurora</b><small>Salão de beleza · Milão</small></div></div>
+                <div class="ig-grid">
+                  <span style="background:#7E7669">Antes e depois</span><span style="background:#C7AE96">Cor de outono</span><span style="background:#A8442E">Agenda aberta</span>
+                  <span style="background:#5F584F">Dica de cuidado</span><span style="background:#B08B74">Mechas</span><span style="background:#6E6862">Bastidores</span>
+                  <span style="background:#C7AE96">Hidratação</span><span style="background:#A8442E">Reserve já</span><span style="background:#7E7669">Nossa equipe</span>
+                </div>
+              </div>
+              <div class="ph-wa" id="phWa">
+                <div class="wa-head"><span class="ig-av">SA</span><div><b>Salão Aurora</b><small>WhatsApp Business</small></div></div>
+                <div class="wa-body">
+                  <div class="w-msg out" id="m1">Oi Giulia! Já são 41 dias desde a sua coloração. Quinta às 15h está livre, reservo para você?<small>09:00 · enviada pelo CRM</small></div>
+                  <div class="w-msg in" id="m2">Sim, por favor! Obrigada<small>09:04</small></div>
+                  <div class="w-msg out" id="m3">Reservado: quinta, 15h. Até lá!<small>09:04 · agente de IA</small></div>
+                  <div class="w-typing" id="mT"><i></i><i></i><i></i></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="piece p-roi" data-in=".80,.88">
+            <p class="pr-k">Horas devolvidas por semana</p>
+            <p class="pr-n"><span id="roiN">0</span>h</p>
+            <div class="pr-bars"><span style="--h:.16"></span><span style="--h:.25"></span><span style="--h:.41"></span><span style="--h:.5"></span><span style="--h:.66"></span><span style="--h:.75"></span><span style="--h:.91"></span><span style="--h:1" class="hi"></span></div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="finale" id="finale">
+        <p class="fi-k">Isso é o que você constrói em 8 semanas.</p>
+        <p class="fi-h">Seu negócio, operando sozinho.</p>
+        <a class="btn inv" href="https://operator-studio.netlify.app/#contato">Reservar análise gratuita</a>
+      </div>
     </div>
   </section>
 
@@ -322,27 +544,6 @@ footer .word i{font-weight:400;opacity:.7}
       </ul>
       <p class="bio rise" style="--i:2"><b>Luccas Torres opera três empresas em Dubai:</b> a HSHome Interiors, de design e reforma de alto padrão, a HSHome Holiday Homes, de aluguel por temporada, e a The Pom Shop, de skincare para Pomeranians. A Operator Studio nasceu para rodar essas operações com IA. Atendimento, CRM, orçamentos, conteúdo: o que você constrói na mentoria é o que funciona lá todos os dias.</p>
     </div>
-    <figure class="band rise">
-      <div class="board" data-ui>
-        <div class="ui-top"><b>CRM do Salão Aurora</b><span>8 clientes · exemplo</span></div>
-        <div class="board-grid">
-          <div class="cols big">
-            <div><b>Novo contato · 2</b><p>Ana P.<br><em>mechas · €180</em></p><p>Luca F.<br><em>barba · €25</em></p></div>
-            <div><b>Agendado · 2</b><p>Marco B.<br><em>sábado 10h30</em></p><p>Elena V.<br><em>quinta 15h</em></p></div>
-            <div><b>Atendido · 2</b><p>Sofia L.<br><em>escova · €65</em></p><p>Bianca T.<br><em>manicure · €30</em></p></div>
-            <div><b>Retorno · 2</b><p class="sel">Giulia R.<br><em>coloração · 41 dias</em></p><p>Chiara M.<br><em>tratamento · 52 dias</em></p></div>
-          </div>
-          <div class="detail-card">
-            <p class="dc-name">Giulia R.</p>
-            <div class="ui-row"><span>Serviço</span><em>coloração</em></div>
-            <div class="ui-row"><span>Ticket médio</span><em>€120</em></div>
-            <div class="ui-row"><span>Última visita</span><em>41 dias</em></div>
-            <div class="bub out" style="max-width:100%;margin-top:10px">Oi Giulia, já são 41 dias desde a sua coloração. Quinta às 15h está livre, reservo para você?<small>Mensagem da IA, no tom do salão</small></div>
-          </div>
-        </div>
-      </div>
-      <figcaption class="cap">Exemplo: o CRM de um salão, como você constrói na semana 5.</figcaption>
-    </figure>
   </section>
 
   <section class="weeks" id="semanas" aria-labelledby="h-semanas">
@@ -471,11 +672,108 @@ document.querySelectorAll('.tog').forEach(b=>b.addEventListener('click',()=>{
   const on=b.getAttribute('aria-checked')!=='true'; b.setAttribute('aria-checked',on); b.closest('.sband').classList.toggle('on',on);
 }));
 
-requestAnimationFrame(()=>requestAnimationFrame(()=>document.querySelector('.hero').classList.add('ready')));
+
 const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{rootMargin:'0px 0px -8% 0px'});
 document.querySelectorAll('.rise').forEach(el=>io.observe(el));
 setTimeout(()=>document.querySelectorAll('.rise').forEach(el=>{const r=el.getBoundingClientRect(); if(r.top<innerHeight) el.classList.add('in')}),50);
 
+/* ---------- scene: o negócio se montando ---------- */
+(function(){
+  const scene=document.getElementById('cena'); if(!scene) return;
+  const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const $=id=>document.getElementById(id);
+  const intro=$('intro'), chapter=$('chapter'), chWord=$('chWord'), chLine=$('chLine'), chBar=$('chBar');
+  const box=$('box'), world=$('world'), finale=$('finale');
+  const pieces=[...scene.querySelectorAll('.piece')].map(el=>{const [a,b]=el.dataset.in.split(',').map(Number);return {el,a,b}});
+  const igTiles=[...scene.querySelectorAll('.ig-grid span')];
+  const CH=[
+    {at:.12, w:'Marca', l:'Semana 2. Nasce o Salão Aurora: nome, logo e paleta.'},
+    {at:.24, w:'Site', l:'Semana 3. Uma página no ar que recebe agendamentos sozinha.'},
+    {at:.34, w:'Instagram', l:'Semana 4. Perfil novo e nove posts prontos, no tom da marca.'},
+    {at:.46, w:'CRM', l:'Semana 5. Cada cliente no funil, com ticket e dia de voltar.'},
+    {at:.58, w:'Atendimento', l:'Semanas 6 e 7. O CRM chama a Giulia e o agente fecha o horário.'},
+    {at:.80, w:'Resultado', l:'Semana 8. O tempo que a IA devolveu, medido.'}
+  ];
+  const clamp=v=>Math.max(0,Math.min(1,v));
+  const ease=t=>1-Math.pow(1-t,3);
+  let ch=-1, roiShown=-1;
+
+  function fit(){
+    const r=world.getBoundingClientRect();
+    const bw=box.offsetWidth, bh=box.offsetHeight;
+    const s=Math.min(r.width/bw, r.height/bh, 1.15);
+    box.style.transform=`scale(${s})`;
+  }
+  function setChapter(i){
+    if(i===ch) return; ch=i;
+    if(i<0) return;
+    chapter.classList.add('swap');
+    setTimeout(()=>{chWord.textContent=CH[i].w; chLine.textContent=CH[i].l; chapter.classList.remove('swap')},180);
+  }
+  function frame(){
+    const r=scene.getBoundingClientRect();
+    const total=scene.offsetHeight-innerHeight;
+    const p=clamp(-r.top/total);
+
+    // intro out
+    const io=ease(clamp((p-.05)/.08));
+    intro.style.opacity=1-io;
+    intro.style.transform=`translateY(${-60*io}px) scale(${1-.06*io})`;
+    intro.style.visibility=io>=1?'hidden':'visible';
+    const ci=ease(clamp((p-.10)/.04));
+    chapter.style.opacity=ci;
+    chapter.style.transform=`translateY(${(1-ci)*24}px)`;
+
+    // pieces
+    pieces.forEach(({el,a,b})=>{
+      const t=ease(clamp((p-a)/(b-a)));
+      el.style.opacity=t;
+      el.style.transform=`translateY(${(1-t)*90}px) scale(${.94+.06*t})`;
+    });
+
+    // instagram posts fill in
+    const igT=clamp((p-.38)/.07);
+    igTiles.forEach((s,i)=>s.classList.toggle('on', igT*9>i));
+
+    // whatsapp sequence
+    scene.classList.toggle('wa', p>.58);
+    $('m1').classList.toggle('on', p>.61);
+    $('mT').classList.toggle('on', p>.65 && p<.69);
+    $('m2').classList.toggle('on', p>.69);
+    $('m3').classList.toggle('on', p>.73);
+    scene.classList.toggle('moved', p>.75);
+    $('slot15').classList.toggle('booked', p>.76);
+    $('slot15').querySelector('em').textContent = p>.76 ? 'Giulia R.' : 'Livre';
+
+    // roi count
+    scene.classList.toggle('roi', p>.84);
+    const n=Math.round(12*ease(clamp((p-.84)/.05)));
+    if(n!==roiShown){roiShown=n; $('roiN').textContent=n;}
+
+    // chapter
+    let i=-1; CH.forEach((c,k)=>{ if(p>=c.at) i=k; }); setChapter(i);
+    const span=i<0?0:clamp((p-CH[i].at)/((CH[i+1]?CH[i+1].at:.9)-CH[i].at));
+    chBar.style.transform=`scaleX(${i<0?0:((i+span)/CH.length)})`;
+
+    // finale
+    const f=ease(clamp((p-.9)/.07));
+    const R=f*150;
+    finale.style.clipPath=`circle(${R}% at ${innerWidth<760?'70% 30%':'86% 40%'})`;
+    finale.classList.toggle('live', f>.6);
+  }
+  if(reduce){
+    igTiles.forEach(s=>s.classList.add('on'));
+    ['m1','m2','m3'].forEach(id=>$(id).classList.add('on'));
+    scene.classList.add('wa','moved','roi'); $('roiN').textContent='12';
+    $('slot15').classList.add('booked'); $('slot15').querySelector('em').textContent='Giulia R.';
+    fit(); addEventListener('resize',fit); return;
+  }
+  let raf=0;
+  const req=()=>{ if(!raf) raf=requestAnimationFrame(()=>{raf=0;frame()}) };
+  addEventListener('scroll',req,{passive:true});
+  addEventListener('resize',()=>{fit();req()});
+  fit(); frame();
+})();
 </script>
 </body>
 </html>
