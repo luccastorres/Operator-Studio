@@ -61,6 +61,7 @@
   --linen:#F3F1EC; --linen-2:#EAE6DF; --line:#D9D3C9;
   --taupe:#7E7669; --sand:#B5AEA2; --soft:#5F594F;
   --ok:#6E8B6A;
+  --offwhite:#FDFCF9; --terracotta:#A8442E; --charcoal:#2F2F2F;
   --serif:'Tinos','Times New Roman',Georgia,serif;
   --sans:'Hanken Grotesk','Helvetica Neue',Arial,sans-serif;
   color-scheme:light;
@@ -137,7 +138,7 @@ button{font:inherit;cursor:pointer}
 .word span{display:block;font-family:var(--sans);font-size:11px;letter-spacing:.24em;color:var(--taupe);margin-top:12px;text-transform:uppercase}
 .device{position:relative;width:min(640px,54vw);transform-style:preserve-3d;will-change:transform}
 .lid{background:#1b1a18;border-radius:14px 14px 4px 4px;padding:1.6%;box-shadow:0 50px 90px -40px rgba(21,20,18,.55),0 0 0 1px #2c2a27 inset}
-.screen{position:relative;aspect-ratio:16/10;background:#FBFAF7;border-radius:6px;overflow:hidden;container-type:inline-size}
+.screen{position:relative;aspect-ratio:16/10;background:var(--offwhite);border-radius:6px;overflow:hidden;container-type:inline-size}
 .base{height:14px;margin:0 -7%;background:linear-gradient(180deg,#CFCAC2,#A9A39A);border-radius:0 0 18px 18px;position:relative}
 .base:before{content:"";position:absolute;left:42%;right:42%;top:0;height:5px;background:#9a948b;border-radius:0 0 8px 8px}
 .shadow{position:absolute;left:4%;right:4%;bottom:-38px;height:30px;background:radial-gradient(50% 50% at 50% 50%,rgba(21,20,18,.28),transparent);filter:blur(6px)}
@@ -424,20 +425,20 @@ section{padding-block:clamp(64px,9vw,120px)}
 .fld{display:flex;flex-direction:column;gap:6px;min-width:0}
 .fld.full,.lead .full{grid-column:1/-1}
 .fld label{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--taupe)}
-.fld input,.fld select,.fld textarea{font:inherit;font-size:16px;color:var(--ink);background:#FBFAF7;border:1px solid var(--line);border-radius:10px;padding:12px 14px;width:100%;box-sizing:border-box}
+.fld input,.fld select,.fld textarea{font:inherit;font-size:16px;color:var(--ink);background:var(--offwhite);border:1px solid var(--line);border-radius:10px;padding:12px 14px;width:100%;box-sizing:border-box}
 .fld input:focus,.fld select:focus,.fld textarea:focus{outline:2px solid var(--taupe);outline-offset:1px}
 .fld textarea{resize:vertical}
 .lead .btn{justify-content:center}
 
 .lbl{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--taupe)}
 .days{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-.day{background:#FBFAF7;border:1px solid var(--line);border-radius:12px;padding:10px 8px;text-align:center;display:flex;flex-direction:column;gap:2px;color:var(--ink)}
+.day{background:var(--offwhite);border:1px solid var(--line);border-radius:12px;padding:10px 8px;text-align:center;display:flex;flex-direction:column;gap:2px;color:var(--ink)}
 .day b{font-family:var(--serif);font-size:20px;font-weight:700}
 .day small{font-size:12px;color:var(--taupe)}
 .day[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--linen)}
 .day[aria-pressed="true"] small{color:var(--sand)}
 .slots{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:4px}
-.slot-b{background:#FBFAF7;border:1px solid var(--line);border-radius:10px;padding:11px 4px;font-size:15px;font-variant-numeric:tabular-nums;color:var(--ink)}
+.slot-b{background:var(--offwhite);border:1px solid var(--line);border-radius:10px;padding:11px 4px;font-size:15px;font-variant-numeric:tabular-nums;color:var(--ink)}
 .slot-b[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--linen)}
 .slot-b:disabled{color:#B9B3A8;text-decoration:line-through;cursor:not-allowed;background:transparent}
 .tz{font-size:13px;color:var(--soft)}
@@ -451,6 +452,19 @@ footer{border-top:1px solid var(--line);padding-block:28px}
 footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--soft)}
 
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+
+/* Visual Playbook 2026: light grounds only. Former dark blocks invert their tokens
+   (ink becomes the off-white ground, linen becomes charcoal type). */
+.dark,.console,.diag,.who-card.feat{
+  --ink:#FDFCF9; --ink-2:#F3F1EC; --ink-line:#D9D3C9;
+  --linen:#2F2F2F; --linen-2:#2F2F2F; --sand:#7E7669;
+}
+.dark{border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.console,.diag,.who-card.feat{border:1px solid var(--line);box-shadow:none}
+.dark .cc,.dark .find[aria-pressed="true"]{background:#F3F1EC}
+/* Cards that were light inside the old dark band keep the original light tokens */
+.dark .client{--ink:#151412; --linen:#F3F1EC; --linen-2:#EAE6DF; border:1px solid var(--line)}
+.cta-accent{color:var(--terracotta)}
 </style>
 </head>
 <body>
@@ -515,6 +529,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
       <div><p class="eyebrow" data-i="mtEy">A Mentoria Operator</p><h2 style="margin-top:18px"><span data-i="mtH2a">Em 8 semanas, você aprende a usar o Claude</span> <em data-i="mtH2b">para ganhar tempo e dinheiro.</em></h2></div>
       <p data-i="mtP" style="max-width:52ch">Mentoria individual, ao vivo e por videochamada. A cada semana você constrói uma peça real do seu negócio comigo e sai sabendo operar tudo sozinho. Para donos de pequenos negócios, salões, mentores e consultores.</p>
     </div>
+    <p style="font-family:var(--serif);font-size:clamp(22px,2.4vw,30px);margin:8px 0 28px"><span data-i="mtPr1">Mais tempo. Mais clientes.</span> <em data-i="mtPr2" style="color:var(--taupe)">Menos caos.</em></p>
     <div class="services">
       <div class="svc"><p class="eyebrow" data-i="mw1e">Semana 1</p><h3 data-i="mw1h">Fundamentos e assistente do negócio</h3><p data-i="mw1p" style="margin-top:10px">Um assistente que conhece o seu negócio, respostas prontas no WhatsApp e um modelo de proposta.</p></div>
       <div class="svc"><p class="eyebrow" data-i="mw2e">Semana 2</p><h3 data-i="mw2h">Marca</h3><p data-i="mw2p" style="margin-top:10px">Uma marca clara, um Brand Kit de uma página e templates no Canva.</p></div>
@@ -525,7 +540,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
       <div class="svc"><p class="eyebrow" data-i="mw7e">Semana 7</p><h3 data-i="mw7h">Agentes de IA e integrações</h3><p data-i="mw7p" style="margin-top:10px">Um agente que responde clientes com base no seu negócio e registra tudo no CRM.</p></div>
       <div class="svc"><p class="eyebrow" data-i="mw8e">Semana 8</p><h3 data-i="mw8h">ROI e plano de 90 dias</h3><p data-i="mw8p" style="margin-top:10px">Quanto tempo e dinheiro a IA liberou, medido em números, e o plano dos próximos 90 dias.</p></div>
     </div>
-    <p style="margin-top:32px;display:flex;flex-wrap:wrap;gap:12px;align-items:center"><a class="btn" href="#contato" data-i="mtCta">Agendar meu diagnóstico gratuito</a> <a href="#servicos" data-i="mtAlt" style="text-decoration:underline">Prefere que a gente construa para você?</a></p>
+    <p style="margin-top:32px;display:flex;flex-wrap:wrap;gap:12px;align-items:center"><a class="btn" href="#contato" data-i="mtCta">Análise gratuita de 30 minutos</a> <a href="#servicos" data-i="mtAlt" style="text-decoration:underline">Prefere que a gente construa para você?</a></p>
   </div>
 </section>
 
@@ -672,7 +687,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
     <div class="box">
       <div class="side">
         <p class="eyebrow" data-i="ctEy">Diagnóstico gratuito · Online</p>
-        <h2 style="margin-top:18px"><span data-i="ctH2a">Análise gratuita</span> <em data-i="ctH2b">de 30 minutos.</em></h2>
+        <h2 style="margin-top:18px"><span data-i="ctH2a">Análise gratuita</span> <em class="cta-accent" data-i="ctH2b">de 30 minutos.</em></h2>
         <p data-i="ctP">Escolha um horário e reserve sua análise gratuita de 30 minutos. Vamos mostrar onde o seu negócio pode economizar tempo e dinheiro.</p>
         <div class="copyline"><span data-i="ctOr">Ou fale direto:</span><a href="https://www.instagram.com/luccastorres/" target="_blank" rel="noopener"><code id="handle">@luccastorres</code></a><button type="button" id="copy" data-i="ctCopy">Copiar</button></div>
       </div>
@@ -720,7 +735,7 @@ orcH:'Build a budget',exTag:'Sample figures',orcL1:'Rooms',orcL2:'Finish',sh1:'S
 orcNote:'In the real system, every line comes from the project measurements and your own price list.',
 visH:'Handover inspection',exTag2:'Illustrative example',ageH:'Pick an agent and give it a task',exTag3:'Demo',
 marH:'Type your brand name',exTag4:'Live',marL1:'Name',marL2:'Style',marL3:'Palette',marSub:'By Operator Studio',
-mtEy:'The Operator Mentorship',mtH2a:'In 8 weeks, you learn to use Claude',mtH2b:'to save time and money.',mtP:'One-to-one, live, by video call. Each week you build a real piece of your business with me and leave knowing how to run it yourself. For small-business owners, salons, mentors and consultants.',mtCta:'Book my free audit',mtAlt:'Rather have us build it for you?',mw1e:'Week 1',mw1h:'AI basics and your business assistant',mw1p:'An assistant that knows your business, ready-made WhatsApp replies and a proposal template.',mw2e:'Week 2',mw2h:'Brand',mw2p:'A clear brand, a one-page Brand Kit and Canva templates.',mw3e:'Week 3',mw3h:'Website',mw3p:'A professional page that takes enquiries or bookings on its own.',mw4e:'Week 4',mw4h:'Content and Instagram',mw4p:'A refreshed profile, 9 posts ready to go and a 30-day calendar.',mw5e:'Week 5',mw5h:'Sales, CRM and lead capture',mw5p:'A CRM with your clients and every new lead flowing in automatically, with follow-ups.',mw6e:'Week 6',mw6h:'Processes and internal system',mw6p:'One critical process mapped, documented and running in an internal system.',mw7e:'Week 7',mw7h:'AI agents and integrations',mw7p:'An agent that answers clients from your business knowledge and logs everything in the CRM.',mw8e:'Week 8',mw8h:'ROI and 90-day plan',mw8p:'How much time and money AI freed up, in real numbers, plus your next 90 days.',svEy:'We can also do it for you',svH2a:'Rather have us',svH2b:'build it?',svP:'Every project starts with your real problem and ends with something your team uses the next day.',
+mtEy:'The Operator Mentorship',mtH2a:'In 8 weeks, you learn to use Claude',mtH2b:'to save time and money.',mtP:'One-to-one, live, by video call. Each week you build a real piece of your business with me and leave knowing how to run it yourself. For small-business owners, salons, mentors and consultants.',mtCta:'Free 30-minute analysis',mtPr1:'More time. More clients.',mtPr2:'Less chaos.',mtAlt:'Rather have us build it for you?',mw1e:'Week 1',mw1h:'AI basics and your business assistant',mw1p:'An assistant that knows your business, ready-made WhatsApp replies and a proposal template.',mw2e:'Week 2',mw2h:'Brand',mw2p:'A clear brand, a one-page Brand Kit and Canva templates.',mw3e:'Week 3',mw3h:'Website',mw3p:'A professional page that takes enquiries or bookings on its own.',mw4e:'Week 4',mw4h:'Content and Instagram',mw4p:'A refreshed profile, 9 posts ready to go and a 30-day calendar.',mw5e:'Week 5',mw5h:'Sales, CRM and lead capture',mw5p:'A CRM with your clients and every new lead flowing in automatically, with follow-ups.',mw6e:'Week 6',mw6h:'Processes and internal system',mw6p:'One critical process mapped, documented and running in an internal system.',mw7e:'Week 7',mw7h:'AI agents and integrations',mw7p:'An agent that answers clients from your business knowledge and logs everything in the CRM.',mw8e:'Week 8',mw8h:'ROI and 90-day plan',mw8p:'How much time and money AI freed up, in real numbers, plus your next 90 days.',svEy:'We can also do it for you',svH2a:'Rather have us',svH2b:'build it?',svP:'Every project starts with your real problem and ends with something your team uses the next day.',
 s1e:'Systems & automation',s1h:'Operations that run themselves',s1p:'Sales CRM, budgets, reports, proposals and AI agents that take care of the repetitive work in your business.',s1z:'Sales CRM',s1a:'Automatic budgets',s1b:'AI agents',s1c:'Internal apps',s1d:'Automations',
 s2e:'Websites & landing pages',s2h:'A website that sells for you',s2p:'Company websites and sales pages with lead capture, ready for campaigns and for mobile.',s2a:'Company website',s2b:'Sales page',s2c:'Lead capture',
 s3e:'Brand',s3h:'An identity with presence',s3p:'Name, positioning, logo, palette, typography and brand book, so the brand is born strong and consistent.',s3a:'Positioning',s3b:'Logo & identity',s3c:'Brand book',
@@ -943,7 +958,7 @@ function renderBooking(){
     daysEl.closest('.fld').hidden=true;
     const sideP=document.querySelector('[data-i="ctP"]'),h2a=document.querySelector('[data-i="ctH2a"]'),h2b=document.querySelector('[data-i="ctH2b"]');
     let tag=document.getElementById('full-tag');
-    if(!tag){tag=document.createElement('span');tag.id='full-tag';tag.style.cssText='display:inline-flex;width:fit-content;align-self:flex-start;align-items:center;gap:10px;margin-top:18px;background:#151412;color:#F3F1EC;padding:9px 18px;border-radius:999px;font-size:13px;letter-spacing:.16em;text-transform:uppercase';h2a.parentElement.before(tag)}
+    if(!tag){tag=document.createElement('span');tag.id='full-tag';tag.style.cssText='display:inline-flex;width:fit-content;align-self:flex-start;align-items:center;gap:10px;margin-top:18px;background:#2F2F2F;color:#F3F1EC;padding:9px 18px;border-radius:999px;font-size:13px;letter-spacing:.16em;text-transform:uppercase';h2a.parentElement.before(tag)}
     tag.innerHTML='<i style="width:9px;height:9px;border-radius:50%;background:#C9A36A;box-shadow:0 0 0 5px rgba(201,163,106,.25)"></i>'+T('Agenda completa','Fully booked');
     h2a.textContent=T('Agenda completa.','Fully booked.');h2b.textContent=T('Entre na nossa lista de espera.','Join our waiting list.');
     sideP.textContent=T('Todos os horários desta rodada foram reservados. Deixe seu contato e eu te chamo assim que abrir uma nova agenda.','All times in this round are booked. Leave your details and I will reach out as soon as a new round opens.');
