@@ -373,7 +373,7 @@ main{padding-bottom:110px}
       <button class="iconbtn" id="refresh" aria-label="Atualizar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5"/></svg></button>
       <button class="btn ghost sm" id="agBtn">Horários</button>
       <button class="btn ghost sm" id="fuBtn">Follow-up</button>
-      <button class="btn ghost sm" id="lmBtn">Lembrete de decisão</button>
+      <button class="btn ghost sm" id="lmBtn">Lembrete</button>
       <button class="btn sm" id="newBtn">+ Lead</button>
     </div>
   </header>
@@ -510,7 +510,7 @@ function navRender(){
   const leadsN = LEADS.filter(l=>!['cliente','perdido'].includes(l.stage)).length, alunosN = LEADS.filter(l=>l.stage==='cliente').length, newMsg = LEADS.filter(l=>l.waNew).length;
   const cnt = { leads: leadsN, alunos: alunosN };
   $('#snav').innerHTML = NAV.map(([k,t,ic])=>`<a href="#" data-view="${k}" class="${VIEW===k?'on':''}">${ic}${t}${k==='alunos'&&newMsg?`<i class="new">${newMsg}</i>`:cnt[k]!==undefined?`<i>${cnt[k]}</i>`:''}</a>`).join('')
-    + `<div class="sep"></div><button data-act="wait">${NI.clock}Lista de espera${waitList().length?`<i class="new" style="font-style:normal;margin-left:auto;font-size:12px;background:var(--terra);color:#fff;border-radius:999px;padding:1px 7px">${waitList().length}</i>`:''}</button><button data-act="new">${NI.plus}Novo lead</button><button data-act="ag">${NI.clock}Horários de análise</button><button data-act="fu">${NI.mail}Follow-up por e-mail</button><a href="/hub/admin/" target="_blank" rel="noopener">${NI.hub}Admin do Student Hub</a><button data-act="ref">${NI.ref}Atualizar</button>`;
+    + `<div class="sep"></div><button data-act="wait">${NI.clock}Lista de espera${waitList().length?`<i class="new" style="font-style:normal;margin-left:auto;font-size:12px;background:var(--terra);color:#fff;border-radius:999px;padding:1px 7px">${waitList().length}</i>`:''}</button><button data-act="new">${NI.plus}Novo lead</button><button data-act="ag">${NI.clock}Horários de análise</button><button data-act="fu">${NI.mail}Follow-up por e-mail</button><button data-act="lm">${NI.mail}Lembrete de decisão</button><a href="/hub/admin/" target="_blank" rel="noopener">${NI.hub}Admin do Student Hub</a><button data-act="ref">${NI.ref}Atualizar</button>`;
   $('#bnav').innerHTML = NAV.map(([k,t,ic])=>`<a href="#" data-view="${k}" class="${VIEW===k?'on':''}">${ic}${t}</a>`).join('');
   $('#meAv').innerHTML = avP({nome:'Luccas', photo:MENTOR_PHOTO}, 44);
 }
@@ -1512,7 +1512,7 @@ document.addEventListener('click', e=>{
   const cd = e.target.closest('[data-calday]'); if(cd){ const [y,m,d] = cd.dataset.calday.split('-').map(Number); CAL.ref = new Date(y,m-1,d); CAL.mode = 'semana'; renderCal(); return; }
   const rm = e.target.closest('[data-room]'); if(rm){ window.open('/aula/?s='+encodeURIComponent(rm.dataset.room)+'&m=1','_blank','noopener'); return; }
   const t = e.target.closest('[data-tab]'); if(t){ TAB = t.dataset.tab; render(); const col = document.getElementById('col-'+TAB); if(col && innerWidth>=1000){ col.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'}); } return; }
-  const ac = e.target.closest('[data-act]'); if(ac){ e.preventDefault(); const k = ac.dataset.act; if(k==='new') newLead(); else if(k==='wait') openWaitlist(); else if(k==='ag') openAgenda(); else if(k==='fu') openFollowup(); else if(k==='out') logout(); else if(k==='ref') $('#refresh').click(); return; }
+  const ac = e.target.closest('[data-act]'); if(ac){ e.preventDefault(); const k = ac.dataset.act; if(k==='new') newLead(); else if(k==='wait') openWaitlist(); else if(k==='ag') openAgenda(); else if(k==='fu') openFollowup(); else if(k==='lm') openReminder(); else if(k==='out') logout(); else if(k==='ref') $('#refresh').click(); return; }
   const c = e.target.closest('.lead, .acard, .lead-x, .next li, .ev[data-id]'); if(c && c.dataset.id){ if(c.dataset.id==='__wait') openWaitlist(); else openLead(c.dataset.id); }
 });
 $('#scrim').onclick = closeSheet;
