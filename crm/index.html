@@ -373,6 +373,7 @@ main{padding-bottom:110px}
       <button class="iconbtn" id="refresh" aria-label="Atualizar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5"/></svg></button>
       <button class="btn ghost sm" id="agBtn">Horários</button>
       <button class="btn ghost sm" id="fuBtn">Follow-up</button>
+      <button class="btn ghost sm" id="lmBtn">Lembrete</button>
       <button class="btn sm" id="newBtn">+ Lead</button>
     </div>
   </header>
@@ -509,7 +510,7 @@ function navRender(){
   const leadsN = LEADS.filter(l=>!['cliente','perdido'].includes(l.stage)).length, alunosN = LEADS.filter(l=>l.stage==='cliente').length, newMsg = LEADS.filter(l=>l.waNew).length;
   const cnt = { leads: leadsN, alunos: alunosN };
   $('#snav').innerHTML = NAV.map(([k,t,ic])=>`<a href="#" data-view="${k}" class="${VIEW===k?'on':''}">${ic}${t}${k==='alunos'&&newMsg?`<i class="new">${newMsg}</i>`:cnt[k]!==undefined?`<i>${cnt[k]}</i>`:''}</a>`).join('')
-    + `<div class="sep"></div><button data-act="wait">${NI.clock}Lista de espera${waitList().length?`<i class="new" style="font-style:normal;margin-left:auto;font-size:12px;background:var(--terra);color:#fff;border-radius:999px;padding:1px 7px">${waitList().length}</i>`:''}</button><button data-act="new">${NI.plus}Novo lead</button><button data-act="ag">${NI.clock}Horários de análise</button><button data-act="fu">${NI.mail}Follow-up por e-mail</button><a href="/hub/admin/" target="_blank" rel="noopener">${NI.hub}Admin do Student Hub</a><button data-act="ref">${NI.ref}Atualizar</button>`;
+    + `<div class="sep"></div><button data-act="wait">${NI.clock}Lista de espera${waitList().length?`<i class="new" style="font-style:normal;margin-left:auto;font-size:12px;background:var(--terra);color:#fff;border-radius:999px;padding:1px 7px">${waitList().length}</i>`:''}</button><button data-act="new">${NI.plus}Novo lead</button><button data-act="ag">${NI.clock}Horários de análise</button><button data-act="fu">${NI.mail}Follow-up por e-mail</button><button data-act="lm">${NI.mail}Lembrete de decisão</button><a href="/hub/admin/" target="_blank" rel="noopener">${NI.hub}Admin do Student Hub</a><button data-act="ref">${NI.ref}Atualizar</button>`;
   $('#bnav').innerHTML = NAV.map(([k,t,ic])=>`<a href="#" data-view="${k}" class="${VIEW===k?'on':''}">${ic}${t}</a>`).join('');
   $('#meAv').innerHTML = avP({nome:'Luccas', photo:MENTOR_PHOTO}, 44);
 }
@@ -1252,6 +1253,7 @@ function openLead(id, keep){
     ${diagBlock(l)}
     ${wa&&WA_READY?waBlock(l):''}
     ${wa?`<div class="blk"><span class="eyebrow">Mensagem rápida</span><div class="tpl">${Object.keys(tpl).map(k=>`<a class="btn ghost sm" target="_blank" rel="noopener" href="https://wa.me/${wa}?text=${encodeURIComponent(tpl[k])}">${k}</a>`).join('')}</div></div>`:''}
+    <div class="blk"><span class="eyebrow">Histórico de envios</span><div id="histList"><p style="font-size:14px;color:#7E7669">Carregando…</p></div></div>
     <div class="blk">
       <div class="field"><label for="val">Valor do projeto (€)</label><input id="val" class="in" inputmode="decimal" value="${esc(l.value)}"></div>
       <div class="field"><label for="notes">Notas</label><textarea id="notes" class="in" placeholder="Dores, ideias, próximos passos…">${esc(l.notes)}</textarea></div>
@@ -1261,7 +1263,7 @@ function openLead(id, keep){
   if(!keep){ $('#sheet').scrollTop = 0; }
   $('#sheet').classList.add('on'); $('#scrim').classList.add('on');
   $('#close').onclick = closeSheet;
-  bindDiag(l); bindCall(l); bindFiles(l); bindDuo(l); bindWelcome(l); bindWa(l); bindPay(l);
+  bindDiag(l); bindCall(l); bindFiles(l); bindDuo(l); bindWelcome(l); bindWa(l); bindPay(l); loadHistory(l);
   $('#sheet').querySelectorAll('[data-stage]').forEach(b=>b.onclick = async()=>{
     const s = b.dataset.stage; l.stage = s;
     $('#sheet').querySelectorAll('[data-stage]').forEach(x=>x.classList.toggle('on', x===b));
@@ -1291,6 +1293,29 @@ function openLead(id, keep){
     if(!confirmDel(l)) return;
     try{ await api('POST',{action:'delete',id:l.id}); closeSheet(); await load(); toast('Lead excluído'); }catch{ toast('Erro'); }
   };
+}
+// Send history: every e-mail and WhatsApp the CRM sent to this lead, newest first; tap one to see what went out.
+async function loadHistory(l){
+  const box = $('#histList'); if(!box) return;
+  let items = [];
+  try{ items = (await api('POST',{action:'history', id:l.id})).items || []; }catch{ if(OPEN===l.id) box.innerHTML = '<p style="font-size:14px;color:#7E7669">Não consegui carregar o histórico.</p>'; return; }
+  if(OPEN!==l.id || !$('#histList')) return;
+  if(!items.length){ box.innerHTML = '<p style="font-size:14px;color:#7E7669">Nada enviado pelo CRM ainda.</p>'; return; }
+  const when = at => new Date(at).toLocaleString('pt-BR',{timeZone:'Europe/Rome',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+  box.innerHTML = items.map((x,i)=>`<div style="border-top:1px solid #D9D3C9;padding:10px 0">
+    <div style="display:flex;gap:10px;align-items:baseline;justify-content:space-between">
+      <div style="min-width:0"><b style="font-size:15px">${esc(x.label||x.kind)}</b>
+        <div style="font-size:13px;color:#7E7669;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${x.channel==='whatsapp'?'WhatsApp':'E-mail'} · ${esc(x.to||'')}${x.subject?` · ${esc(x.subject)}`:''}</div></div>
+      <span style="font-size:13px;color:#7E7669;white-space:nowrap;flex:none">${esc(when(x.at))}</span>
+    </div>
+    ${x.html||x.text?`<button style="font-size:13px;text-decoration:underline;color:#151412;margin-top:4px" data-hist="${i}">Ver o que foi enviado</button><div data-histbox="${i}" hidden style="margin-top:8px"></div>`:(x.legacy?'<p style="font-size:12px;color:#7E7669;margin-top:4px">Enviado antes do histórico existir: o conteúdo não foi guardado.</p>':'')}
+  </div>`).join('');
+  box.querySelectorAll('[data-hist]').forEach(b => b.onclick = () => {
+    const i = +b.dataset.hist, x = items[i], d = box.querySelector(`[data-histbox="${i}"]`);
+    d.hidden = !d.hidden; if(d.hidden || d.dataset.on) return; d.dataset.on = '1';
+    if(x.html){ d.innerHTML = '<iframe style="width:100%;height:560px;border:1px solid #D9D3C9;border-radius:14px;background:#F3F1EC"></iframe>'; d.querySelector('iframe').srcdoc = x.html; }
+    else d.innerHTML = `<p class="quote" style="white-space:pre-wrap">${esc(x.text)}</p>`;
+  });
 }
 let delArm = null;
 function confirmDel(l){ if(delArm===l.id) return true; delArm = l.id; $('#del').textContent='Toque de novo'; setTimeout(()=>{delArm=null; const d=$('#del'); if(d) d.textContent='Excluir';},2500); return false; }
@@ -1424,6 +1449,52 @@ function openFollowup(){
   };
 }
 
+// Decision reminder: e-mail everyone who had the analysis and hasn't decided yet (not "cliente", not "perdido").
+let LM = { sel: {}, prazo: '23 de outubro' };
+function openReminder(){
+  const list = LEADS.filter(l => !['cliente','perdido','novo'].includes(l.stage) && (l.stage === 'analise' || l.stage === 'proposta' || l.followup));
+  list.forEach(l => { if(!(l.id in LM.sel)) LM.sel[l.id] = !!l.email && !l.lembrete; });
+  const n = list.filter(l => LM.sel[l.id] && l.email).length;
+  $('#sheet').innerHTML = `<div class="sh">
+    <div style="display:flex;justify-content:space-between;align-items:center"><div><span class="eyebrow">Lembrete de decisão</span><h2 style="font-family:var(--serif,Tinos,serif);font-size:30px;margin-top:4px">Quem ainda <em style="color:#7E7669">não decidiu.</em></h2></div>
+      <button class="iconbtn" id="close" aria-label="Fechar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <p style="font-size:14px;line-height:1.5;color:#5F594F;margin:10px 0 16px">Cada pessoa recebe pelo seu e-mail um lembrete com o próprio nome, o prazo da decisão, a oferta e o link da apresentação. Aparecem aqui quem fez a análise e ainda não está como cliente nem perdido. Desmarque quem já decidiu.</p>
+    <div class="field" style="max-width:260px;margin-bottom:14px"><label>Decisão aberta até</label><input class="in" id="lmPrazo" value="${esc(LM.prazo)}"></div>
+    <div class="blk" style="padding:0">${list.length ? list.map(l => `<div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-top:1px solid #D9D3C9">
+        <input type="checkbox" data-lmsel="${esc(l.id)}" ${LM.sel[l.id]?'checked':''} ${l.email?'':'disabled'} style="width:20px;height:20px;accent-color:#151412">
+        <div style="flex:1;min-width:0"><b style="font-size:15px">${esc(l.nome)}</b><div style="font-size:13px;color:#7E7669;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(l.stage)} · ${l.email?esc(l.email):'sem e-mail'}${l.lembrete?` · <span style="color:#4E6B4F">lembrete enviado</span>`:''}</div></div>
+      </div>`).join('') : '<p style="padding:16px;color:#7E7669;font-size:14px">Ninguém aguardando decisão.</p>'}</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">
+      <button class="btn" id="lmSend" ${n?'':'disabled'}>Enviar ${n} lembrete${n===1?'':'s'}</button>
+      <button class="btn ghost sm" id="lmPrev">Ver o e-mail</button>
+    </div>
+    <div id="lmPrevBox" style="margin-top:16px"></div>
+  </div>`;
+  $('#sheet').classList.add('on'); $('#scrim').classList.add('on'); OPEN = null;
+  $('#close').onclick = closeSheet;
+  $('#lmPrazo').oninput = e => { LM.prazo = e.target.value; };
+  document.querySelectorAll('[data-lmsel]').forEach(c => c.onchange = () => { LM.sel[c.dataset.lmsel] = c.checked; openReminder(); });
+  $('#lmPrev').onclick = async () => {
+    const l = list.find(x => LM.sel[x.id]) || list[0];
+    try{ const r = await api('POST', { action:'followup', preview:true, ids:[l?l.id:''], kinds:{[l?l.id:'']:'lembrete'}, prazo:LM.prazo });
+      $('#lmPrevBox').innerHTML = `<p style="font-size:13px;color:#7E7669;margin-bottom:6px">Assunto: <b style="color:#151412">${esc(r.subject)}</b></p><iframe style="width:100%;height:640px;border:1px solid #D9D3C9;border-radius:14px;background:#F3F1EC"></iframe>`;
+      $('#lmPrevBox iframe').srcdoc = r.html; }catch{ toast('Erro na prévia'); }
+  };
+  const sb = $('#lmSend'); if(sb) sb.onclick = async () => {
+    const ids = list.filter(l => LM.sel[l.id] && l.email).map(l => l.id);
+    if(!ids.length) return;
+    if(!confirm(`Enviar o lembrete para ${ids.length} pessoa${ids.length===1?'':'s'}?`)) return;
+    sb.disabled = true; sb.textContent = 'Enviando…';
+    const kinds = {}; ids.forEach(id => kinds[id] = 'lembrete');
+    try{ const r = await api('POST', { action:'followup', ids, kinds, prazo:LM.prazo });
+      const v = Object.values(r.results); const ok = v.filter(x=>x==='sent').length;
+      ids.forEach(id => LM.sel[id] = false);
+      toast(`${ok} lembrete${ok===1?'':'s'} enviado${ok===1?'':'s'}${v.length-ok?` · ${v.length-ok} com problema`:''}`);
+      await load(); openReminder();
+    }catch{ toast('Erro ao enviar'); sb.disabled = false; }
+  };
+}
+
 function closeSheet(){ OPEN = null; INDIAG = false; $('#sheet').classList.remove('on'); $('#scrim').classList.remove('on'); }
 function toast(t){ const el = $('#toast'); el.textContent = t; el.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(()=>el.classList.remove('on'),1800); }
 
@@ -1441,13 +1512,14 @@ document.addEventListener('click', e=>{
   const cd = e.target.closest('[data-calday]'); if(cd){ const [y,m,d] = cd.dataset.calday.split('-').map(Number); CAL.ref = new Date(y,m-1,d); CAL.mode = 'semana'; renderCal(); return; }
   const rm = e.target.closest('[data-room]'); if(rm){ window.open('/aula/?s='+encodeURIComponent(rm.dataset.room)+'&m=1','_blank','noopener'); return; }
   const t = e.target.closest('[data-tab]'); if(t){ TAB = t.dataset.tab; render(); const col = document.getElementById('col-'+TAB); if(col && innerWidth>=1000){ col.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'}); } return; }
-  const ac = e.target.closest('[data-act]'); if(ac){ e.preventDefault(); const k = ac.dataset.act; if(k==='new') newLead(); else if(k==='wait') openWaitlist(); else if(k==='ag') openAgenda(); else if(k==='fu') openFollowup(); else if(k==='out') logout(); else if(k==='ref') $('#refresh').click(); return; }
+  const ac = e.target.closest('[data-act]'); if(ac){ e.preventDefault(); const k = ac.dataset.act; if(k==='new') newLead(); else if(k==='wait') openWaitlist(); else if(k==='ag') openAgenda(); else if(k==='fu') openFollowup(); else if(k==='lm') openReminder(); else if(k==='out') logout(); else if(k==='ref') $('#refresh').click(); return; }
   const c = e.target.closest('.lead, .acard, .lead-x, .next li, .ev[data-id]'); if(c && c.dataset.id){ if(c.dataset.id==='__wait') openWaitlist(); else openLead(c.dataset.id); }
 });
 $('#scrim').onclick = closeSheet;
 document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeSheet(); });
 $('#refresh').onclick = async()=>{ try{ await load(); if(VIEW==='cal') await calLoad(true); toast('Atualizado'); }catch{} };
 $('#fuBtn').onclick = openFollowup;
+$('#lmBtn').onclick = openReminder;
 $('#agBtn').onclick = () => openAgenda();
 $('#newBtn').onclick = newLead;
 document.addEventListener('visibilitychange', ()=>{ if(!document.hidden && KEY) load().catch(()=>{}); });

@@ -1,6 +1,7 @@
 // Booking notifications: confirmation (creates the Google Meet) and 24h reminder.
 // Emails are rendered here and sent by the Make scenario "Operator Studio — booking emails",
 // which creates the Google Calendar event with Meet and sends from luccas.torres@me.com.
+import { logSent } from "./sentlog.mjs";
 
 export const HOOK = "https://hook.eu1.make.com/jbhtec9y6oxfn884deoqt4354wcji3k0";
 export const OWNER = "luccas.torres@me.com";
@@ -167,6 +168,9 @@ export async function processBooking(store, key, now = new Date()) {
     if (type === "confirmation") { next.confirmedAt = new Date().toISOString(); if (meet) next.meet = meet; }
     else next.remindedAt = new Date().toISOString();
     await store.setJSON(key, next);
+    const p = buildPayload(type, rec);
+    const link = meet || rec.meet || "";
+    await logSent(key, { kind: type, channel: "email", to: rec.email, subject: p.subject, html: link ? p.html.split("__MEET__").join(link) : p.html });
     return type;
   } catch (e) {
     await store.setJSON(key, { ...rec, sendingAt: null, lastError: String(e.message || e) });
