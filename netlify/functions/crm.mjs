@@ -4,6 +4,7 @@ import { followupEmail, sendFollowup } from "../lib/followup.mjs";
 import { reportEmail, sendReport } from "../lib/reportmail.mjs";
 import { welcomeEmail, sendWelcome, formUrlOf, inviteUrlOf } from "../lib/welcome.mjs";
 import { callTool } from "../lib/report.mjs";
+import { logSent, sentHistory } from "../lib/sentlog.mjs";
 import { waReady, waTo, sendText, sendTemplate, needsTemplate, waProvider, waFrom, ycloudHook } from "../lib/whatsapp.mjs";
 
 // Private CRM API for Operator Studio.
@@ -273,6 +274,7 @@ export default async (req) => {
           const cur = (await crm.get(id, { type: "json" })) || {};
           const log = [{ at: new Date().toISOString(), dir: "out", to, text: b.template ? `[modelo ${b.template}]` : text.slice(0, 300), mid: r.id }, ...(cur.waLog || [])].slice(0, 60);
           await crm.setJSON(id, { ...cur, waLog: log });
+          await logSent(id, { kind: "whatsapp", channel: "whatsapp", to, text: b.template ? `[modelo ${b.template}]` : text });
         }
         return json({ ok: true, id: r.id });
       } catch (e) {
@@ -297,6 +299,7 @@ export default async (req) => {
       const results = {};
       for (const [i, p] of people.entries()) {
         try { results[p.nome] = p.email ? await sendWelcome(p.email, p.nome, mailFor(p, i), `welcome-${id}-${p.who}`) : "no-email"; } catch { results[p.nome] = "error"; }
+        if (results[p.nome] === "sent") { const m = mailFor(p, i); await logSent(id, { kind: "welcome", channel: "email", to: p.email, subject: m.subject, html: m.html }); }
       }
       await save({ sentAt: new Date().toISOString(), results });
       return json({ ok: true, results });
@@ -347,6 +350,8 @@ ${ctx}
       if (r === "sent") {
         const cur = (await crm.get(id, { type: "json" })) || {};
         await crm.setJSON(id, { ...cur, ...(b.email && !cur.email ? { email: lead.email } : {}), call: { ...cur.call, sentAt: new Date().toISOString(), sentTo: lead.email } });
+        const m = reportEmail(lead, lead.call, note);
+        await logSent(id, { kind: "report", channel: "email", to: lead.email, subject: m.subject, html: m.html });
       }
       return json({ ok: true, result: r });
     }
@@ -364,22 +369,33 @@ ${ctx}
       };
       if (b.preview) {
         const l = (await getLead(ids[0])) || { id: "x", nome: "Maria" };
-        return json({ ok: true, ...followupEmail(l, kinds[ids[0]] === "faltou" ? "faltou" : "veio", prazo) });
+        return json({ ok: true, ...followupEmail(l, ["faltou", "lembrete"].includes(kinds[ids[0]]) ? kinds[ids[0]] : "veio", prazo) });
       }
       const results = {};
       for (const id of ids) {
         const l = await getLead(id);
         if (!l || !l.email) { results[id] = "no-email"; continue; }
-        const kind = kinds[id] === "faltou" ? "faltou" : "veio";
+        const kind = ["faltou", "lembrete"].includes(kinds[id]) ? kinds[id] : "veio";
         try {
           results[id] = await sendFollowup(l, kind, prazo);
           if (results[id] === "sent") {
             const m = (await crm.get(id, { type: "json" })) || {};
-            await crm.setJSON(id, { ...m, followup: { kind, at: new Date().toISOString() } });
+            const at = new Date().toISOString();
+            // The decision reminder is tracked apart from the post-analysis follow-up.
+            await crm.setJSON(id, kind === "lembrete" ? { ...m, lembrete: { at } } : { ...m, followup: { kind, at } });
+            const mail = followupEmail(l, kind, prazo);
+            await logSent(id, { kind, channel: "email", to: l.email, subject: mail.subject, html: mail.html });
           }
         } catch (e) { results[id] = "error"; }
       }
       return json({ ok: true, results });
+    }
+
+    // Everything sent to this lead through the CRM, newest first.
+    if (b.action === "history") {
+      const id = clip(b.id, 60);
+      const lead = { ...((await bookings.get(id, { type: "json" })) || {}), ...((await crm.get(id, { type: "json" })) || {}) };
+      return json({ ok: true, items: await sentHistory(id, lead) });
     }
 
     if (b.action === "delete") {

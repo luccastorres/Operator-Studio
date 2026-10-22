@@ -26,6 +26,20 @@ const offer = (prazo) => `<table role="presentation" width="100%" cellpadding="0
 
 export function followupEmail(lead, kind, prazo) {
   const n = esc(first(lead.nome)) || "tudo bem";
+  if (kind === "lembrete") {
+    const ate = prazo ? esc(prazo) : "amanhã";
+    return {
+      subject: `${first(lead.nome) || "Oi"}, a decisão da mentoria fecha ${prazo ? `em ${prazo}` : "amanhã"}`,
+      html: shell(`<h1 style="margin:0 0 20px;font-family:Georgia,'Times New Roman',serif;font-size:28px;line-height:1.2;">Oi, ${n}! Tudo bem?</h1>
+${P("Foi muito bom conversar com você na nossa sessão.")}
+${P(`Passando pra lembrar que a decisão sobre a mentoria fica aberta até <b style="color:#151412;">${ate}</b>. O primeiro grupo começa na semana do dia 26 de outubro.`)}
+${offer(prazo)}
+${P("Se quiser rever a apresentação antes de decidir, ela está aqui:")}
+${button("Ver a apresentação")}
+${P("Se ficou alguma dúvida sobre o programa, o investimento ou os horários, é só responder este e-mail que eu te respondo.")}
+${P("E se não for o momento, tudo bem também!")}`),
+    };
+  }
   if (kind === "faltou") {
     return {
       subject: `${first(lead.nome) || "Oi"}, ficou faltando a nossa conversa`,
@@ -59,7 +73,7 @@ export async function sendFollowup(lead, kind, prazo) {
   const { subject, html } = followupEmail(lead, kind, prazo);
   const res = await fetch(HOOK, {
     method: "POST", headers: { "content-type": "application/json" }, signal: AbortSignal.timeout(25000),
-    body: JSON.stringify({ type: "reminder", id: `followup-${lead.id}`, to: lead.email, toName: lead.nome, bcc: OWNER, subject, html, meet: "", event: null }),
+    body: JSON.stringify({ type: "reminder", id: kind === "lembrete" ? `lembrete-${lead.id}` : `followup-${lead.id}`, to: lead.email, toName: lead.nome, bcc: OWNER, subject, html, meet: "", event: null }),
   });
   if (!res.ok) throw new Error(`make ${res.status}`);
   return "sent";
